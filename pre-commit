@@ -1,0 +1,6 @@
+#!/bin/bash
+
+FILES=$(git diff --staged --name-status | awk '{  if ($1 != "D" && $2 ~ ".*.py$") print $2 }')
+if [ -n "$FILES" ]; then
+    pep8 -r $FILES
+fi

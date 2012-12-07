@@ -1,0 +1,63 @@
+!!! 5
+%html(lang="en")
+  %head
+    %meta(http-equiv="content-type" content="text/html; charset=UTF-8")
+    %title
+      {{ app_title }}
+    %meta(name="description" content="{{ page_description }}")
+    %link(rel="icon" type="image/x-icon" href="{{ url_for('base.static', filename='focus2/img/favicon.ico') }}") 
+    {% block base_css %}{% endblock %}
+    {% block css %}{% endblock %}
+    {% block base_js %}{% endblock %}
+    {% block js %}{% endblock %}
+  %body(class="{% block body_class %}{% endblock %}")
+    {% block navbar %}{% endblock %}
+    
+    {% block flash_messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    %div(class="alert alert-{{ category }}")
+      %button.close(type="button" data-dismiss="alert") &times;
+      {{ message }}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% endblock %}
+
+    {% block breadcrumbs %}
+    {% if breadcrumbs or breadcrumb_button %}
+    %ul.breadcrumb
+      {% if breadcrumbs %}
+      {% for title, url in breadcrumbs %}
+      %li(class="{% if loop.last %}active{% endif %}")
+        {% if url is not none %}
+        %a(href="{{ url }}") {{ title }}      
+        {% else %}
+        {{ title }}
+        {% endif %}
+        {% if not loop.last %}
+        %span.divider /
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% if breadcrumb_button %}
+      %li.pull-right
+        %a.btn.btn-mini.btn-success.nobr(href="{{ breadcrumb_button[0] }}")
+          %i.icon-plus-sign.icon-white
+            &nbsp;
+            {{ breadcrumb_button[1] }}
+      {% endif %}
+    {% endif %}
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+
+    .container.b-footer
+      %a(href="https://altaicloud.atlassian.net/") Altai
+      Focus UI v.{{ application_version }}
+      &nbsp;|&nbsp;
+      %a(href="http://griddynamics.zendesk.com/") Support&nbsp;Desk
+      &nbsp;|&nbsp;
+      %a(href="http://altaicloud.myjetbrains.com/") Issues Tracker
+

@@ -1,0 +1,33 @@
+{% extends "authentication/base.html" %}
+{% block content %}
+<div class='row'>
+  <div class='offset3 span6'>
+    <form action='.' class='form-horizontal' method='POST'>
+      <div class='control-group'>
+        <div class='controls'>
+          <h4>Recover Name</h4>
+        </div>
+      </div>
+      <div class='control-group'>
+        <label class='control-label' for='id_email'>Email</label>
+        <div class='controls'>
+          <input id='id_name' placeholder='Email' type='text' />
+        </div>
+      </div>
+      <div class='control-group'>
+        <div class='controls'>
+          <label class='checkbox'>
+            <input class='checkbox' type='checkbox' />
+            Remember me
+          </label>
+          <button class='btn' type='submit'>Sign in</button>
+          &nbsp;::&nbsp;
+          <a href="{{ url_for('.login') }}">login</a>
+          &nbsp;::&nbsp;
+          <a href="{{ url_for('.recover_password') }}">recover password</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
