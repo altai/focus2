@@ -1,6 +1,8 @@
 syntax: glob
 
-Focus.egg-info
+focus2.egg-info
+*.egg
+*.lock
 *.py[co]
 focus/local_settings*
 test_settings.py
