@@ -1,0 +1,28 @@
+{% macro input_horizontal(field) -%}
+%div(class='control-group{% if field.errors %} error{% endif %}')
+  {% if field.widget.input_type != 'checkbox' %}
+  %label.control-label(for='{{ field.label.field_id }}')
+    {{ field.label.text }}
+  {% endif %}
+  .controls
+    {% if field.widget.input_type == 'checkbox' %} 
+    %label.checkbox
+      {% if field.data %}
+      %input.checkbox(type='checkbox' name='{{ field.name }}')
+      {% else %}
+      %input.checkbox(type='checkbox' name='{{ field.name }}')
+      {% endif %}
+      {{ field.label.text }}
+    {% else %}
+    %input(id='{{ field.label.field_id }}' type='{{ field.widget.input_type }}' placeholder='{{ field.label.text }}' name='{{ field.name }}' value='{% if field.data %}{{ field.data }}{% endif %}') 
+    {% endif %}
+    {% if field.errors %}
+    %span.help-inline
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      %br
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    {% endif %}
+{%- endmacro %}

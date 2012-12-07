@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+
+{% macro type_table(x) -%}
+%div.row
+  %div.span6(style="overflow: hidden")
+    %table.tiled-list__item
+      %tr
+        %td.name {{ x['name'] }}
+        %td.value {{ x['ram']|filesizeformat }}
+        %td.value $what?
+        %td.value {{ x['root-size']|filesizeformat }}
+        %td.value {{ x['ephemeral-size']|filesizeformat }}
+        %td.value {{ x['cpus'] }}
+      %tr
+        %td.actions.nobr
+          %a(class="btn btn-mini btn-success" href="{{ url_for('.spawn')}}?type={{ x['id'] }}")
+            %i(class="icon-plus-sign icon-white")
+              VM
+        %td.title RAM
+        %td.title Cost
+        %td.title Disk
+        %td.title Additional&nbsp;Disk
+        %td.title Virtual&nbsp;CPUs
+{%- endmacro %}
+
+{% block content %}
+%div.tiled-list
+  {% for row in types|batch(2, None) %}
+  row:
+  {{ row }}
+  {% for i in row %}
+  {% for j in i %}
+  {% if j is not none %}
+  {{ type_table(j) }} 
+  {% endif %}
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+{% endblock %}

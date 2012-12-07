@@ -1,6 +1,10 @@
 syntax: glob
 
-Focus.egg-info
+jstests/firefox
+jstests/google-chrome
+focus2.egg-info
+*.egg
+*.lock
 *.py[co]
 focus/local_settings*
 test_settings.py
@@ -18,3 +22,5 @@ local_fab_settings.py
 venv
 centosvenv
 .idea
+local_settings.py
+node_modules
