@@ -1,0 +1,8 @@
+{ 
+    "name": "jstests",
+    "description": "tests for JavaScript part of Focus2",
+    "version": "0.0.1",
+    "dependencies": {
+        "testacular": ">=0.4.0"
+    }
+}

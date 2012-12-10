@@ -1,74 +1,49 @@
-======
 Focus2 
 ======
 
-is web-based UI for Altai. It is concentrated on developers' tasks.
+* What is Focus2?
+
+Focus2 is web UI for Altai_. It replaces Focus_ in subsequent versions of Altai. Focus2 is concentrated on developers' tasks only leaving administrative and management tasks for some other piece of software.
+
 Uses Altai API, runs on CentOS 6, written in Python, based on Flask.
 
-Install
-=======
+* Is it ready?
 
-Development
-===========
+It is in early alpha but under active development.
 
-Prerequisites
--------------
+* What do I need to use it?
 
-Get yourself a *nix system (Ubuntu would do) with Python (2.5 or higher).
+- OpenStack with altai-api service up and running. Altai would do.
+- Centos 6 for guaranteed work of Focus2.
+- Sufficient disk space required to handle huge file upload of VM images.
 
-Environment Setup
------------------
+* What do I need to write it?
 
-At Ubuntu run boostrap_dev_ubuntu.sh or perform actions manually.
-Code examples below are valid for Ubuntu 12.04.
+Python, Ruby, Node.js. See the documentation for details.
+License is LGPL v2.1.
 
-.. code:: bash
- # 1. install some tools
- sudo apt-get install build-essential curl wget git-core
+* Where are the docs?
 
- # 2. install setuptools if required
- http://peak.telecommunity.com/dist/ez_setup.py
- sudo python ez_setup.py 
+Sphinx sources of the documentation is in ./docs/. Prebuild HTML can be found at Altai wiki_
 
- # 2. install virtualenv and virtualenvwrapper(recommended)
- sudo easy_install virtualenv virtualenvwrapper
- . /usr/local/bin/virtualenvwrapper.sh
- echo '. /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc
+* Where are the tests?
 
- # 3. initiate Python virtualenv
- mkvirtualenv Focus2
- workon Focus2
- 
- # 4. install Python  dependencies
- easy_install pip
- pip install -r install_requirements.txt
- pip install -r dev_requirements.txt
+Python testsuite is in ./tests/. Command to run it: python setup.py test
+.JavaScript testsuite is in ./jstests/. Commands:
+- testacular start config.unit.js
+- testacular start config.e2e.js
 
- # 5. install the package in development mode
- cd focus2
- python setup.py develop
- cd ../
-  
- # 6. install RVM
- bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)
- echo '[[ -s "~/.rvm/scripts/rvm" ]] && . "~/.rvm/scripts/rvm"' >> ~/.bashrc
- source ~/.rvm/scripts/rvm
+* Where can I get help?
 
- # 7. install Ruby
- rvm install ruby-1.9.3
- rvm use --default 1.9.3
-
- # 8. install Ruby dependencies
- gem install bundler
- bundle install
-
-Process
--------
-
-Whenever you want to add new features generate new blueprint with command `rake bp`. You'll be asked few questions. New blueprint will appear in directory focus2.blueprints. Edit it to implement required features.
+E-mail: openstack@griddynamics.com
+Support Portal: http://griddynamics.zendesk.com/
+Issue Tracker: http://altaicloud.myjetbrains.com/
+Developers Blog: http://openstackgd.wordpress.com/
 
 
-License
-=======
+_ http://www.griddynamics.com/solutions/altai-private-cloud-for-developers/
+_ https://github.com/altai/focus
+_ https://altaicloud.atlassian.net/
 
-LGPL v2.1, the copy is in file COPYING
+
+

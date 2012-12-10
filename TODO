@@ -1,0 +1,4 @@
+Autogenerate API doc
+Setup building docs into HTML
+Add rake task to check Python and JS with tools, run unit and end-2-end tests.
+Use checks in precommit hoook.

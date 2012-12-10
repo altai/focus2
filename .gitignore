@@ -1,5 +1,7 @@
 syntax: glob
 
+jstests/firefox
+jstests/google-chrome
 focus2.egg-info
 *.egg
 *.lock
