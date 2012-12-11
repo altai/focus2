@@ -6,15 +6,11 @@
     %form.form-horizontal(action='.' method='POST')
       .control-group
         .controls
-          %h4 Login
+          %h4 Recover Name
       .control-group
-        %label.control-label(for='id_name') Name
+        %label.control-label(for='id_email') Email
         .controls
-          %input#id_name(placehodler='Name' type='text')
-      .control-group
-        %label.control-label(for='id_password') Password
-        .controls 
-          %input#id_password(placeholder='Password' type='text')
+          %input#id_name(placeholder='Email' type='text')
       .control-group
         .controls
           %label.checkbox
@@ -22,7 +18,8 @@
             Remember me
           %button.btn(type='submit') Sign in
           &nbsp;::&nbsp;
-          %a(href="{{ url_for('.recover_password') }}") recover password
+          %a(href="{{ url_for('.login') }}") login
           &nbsp;::&nbsp;
-          %a(href="{{ url_for('.recover_name') }}") recover name
+          %a(href="{{ url_for('.recover_password') }}") recover password
 {% endblock %}
+

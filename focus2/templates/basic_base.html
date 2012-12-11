@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='content-type' />
+    <title>
+      {{ app_title }}
+    </title>
+    <meta content='{{ page_description }}' name='description' />
+    <link href="{{ url_for('static', filename='focus2/img/favicon.ico') }}" rel='shortcut icon' />
+    {% block base_css %}{% endblock %}
+    {% block css %}{% endblock %}
+    {% block base_js %}{% endblock %}
+    {% block js %}{% endblock %}
+  </head>
+  <body class='{% block body_class %}{% endblock %}'>
+    {% block navbar %}{% endblock %}
+    {% block content %}{% endblock %}
+    <div class='container b-footer'>
+      <a href='https://altaicloud.atlassian.net/'>Altai</a>
+      Focus UI v.42
+      Build #10500 [26-Dec-2012]
+      &nbsp;|&nbsp;
+      <a href='http://griddynamics.zendesk.com/'>Support&nbsp;Desk</a>
+      &nbsp;|&nbsp;
+      <a href='http://altaicloud.myjetbrains.com/'>Issues Tracker</a>
+    </div>
+  </body>
+</html>

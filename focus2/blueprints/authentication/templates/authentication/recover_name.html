@@ -5,19 +5,13 @@
     <form action='.' class='form-horizontal' method='POST'>
       <div class='control-group'>
         <div class='controls'>
-          <h4>Login</h4>
+          <h4>Recover Name</h4>
         </div>
       </div>
       <div class='control-group'>
-        <label class='control-label' for='id_name'>Name</label>
+        <label class='control-label' for='id_email'>Email</label>
         <div class='controls'>
-          <input id='id_name' placehodler='Name' type='text' />
-        </div>
-      </div>
-      <div class='control-group'>
-        <label class='control-label' for='id_password'>Password</label>
-        <div class='controls'>
-          <input id='id_password' placeholder='Password' type='text' />
+          <input id='id_name' placeholder='Email' type='text' />
         </div>
       </div>
       <div class='control-group'>
@@ -28,9 +22,9 @@
           </label>
           <button class='btn' type='submit'>Sign in</button>
           &nbsp;::&nbsp;
-          <a href="{{ url_for('.recover_password') }}">recover password</a>
+          <a href="{{ url_for('.login') }}">login</a>
           &nbsp;::&nbsp;
-          <a href="{{ url_for('.recover_name') }}">recover name</a>
+          <a href="{{ url_for('.recover_password') }}">recover password</a>
         </div>
       </div>
     </form>

@@ -40,14 +40,13 @@ class AppTemplate(flask.Flask):
 
     def make_response(self, rv):
         if type(rv) is dict:
-            template_name = os.path.join(flask.request.endpoint.split('.'))
-            result = flask.render_template(
-                template_name + '.html', **rv)
+            template_name = os.path.join(*flask.request.endpoint.split('.')) + '.html'
+            result = flask.render_template(template_name , **rv)
         elif isinstance(rv, (list, tuple)) and len(rv) == 2:
             result = flask.render_template(rv[0], **rv[1])
         else:
             result = rv
-        return super(FatFlask, self).make_response(result)
+        return super(AppTemplate, self).make_response(result)
     
     
 

@@ -41,19 +41,37 @@ BP = blueprints.Blueprint('authentication', __name__,
 
 
 class LoginForm(wtf.Form):
-    email = wtf.TextField('Email', validators=[wtf.Required()])
+    name = wtf.TextField('Name', validators=[wtf.Required()])
     password = wtf.PasswordField('Password', validators=[wtf.Required()])
     remember_me = wtf.BooleanField('Remember me')
     next_url = wtf.HiddenField()
 
 
-@BP.route('login', methods=['GET', 'POST'])
+class DestinationForm(wtf.Form):
+    email = wtf.TextField('Email', validators=[wtf.Required()])
+    
+
+@BP.route('login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        # do login
-        # redirect wherever he came
         pass
     return locals()
     
+@BP.route('recover/password/', methods=['GET', 'POST'])
+def recover_password():
+    form = DestinationForm()
+    if form.validate_on_submit():
+        pass
+    return locals()
 
+@BP.route('recover/name/', methods=['GET', 'POST'])
+def recover_name():
+    form = DestinationForm()
+    if form.validate_on_submit():
+        pass
+    return locals()
+
+@BP.route('logout/')
+def logout():
+    return flask.redirect('/')
