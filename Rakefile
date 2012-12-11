@@ -158,5 +158,25 @@ namespace :js do
       system "testacular start config.e2e.js"
     end
   end
+end
 
+namespace :repos do
+  desc "Updates boostrap JS and LESS from the submodule"
+  task :bootstrap do
+    dest = File.expand_path "focus2/static/bootstrap/js/"
+    mkdir_p dest
+    Dir.chdir "repos/bootstrap/js/" do
+      cp Dir["bootstrap-*.js"], dest
+    end
+    dest = File.expand_path "focus2/static/bootstrap/less/"
+    mkdir_p dest
+    Dir.chdir "repos/bootstrap/less/" do
+      cp Dir["*.less"], dest
+    end
+    dest = File.expand_path "focus2/static/bootstrap/img/"
+    mkdir_p dest
+    Dir.chdir "repos/bootstrap/img/" do
+      cp Dir["*.png"], dest
+    end
+  end
 end
