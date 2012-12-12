@@ -7,7 +7,7 @@ class Debug(object):
 
 class Pages(unittest.TestCase):
     def setUp(self):
-        self.client = application_factory(Debug()).test_client()
+        self.client = application_factory([Debug()]).test_client()
 
     def test_exist(self):
         rv = self.client.get('/authentication/login/')

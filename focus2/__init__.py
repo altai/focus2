@@ -48,14 +48,13 @@ class AppTemplate(flask.Flask):
             result = rv
         return super(AppTemplate, self).make_response(result)
     
-    
 
-def application_factory(*args):
+def application_factory(config=[]):
     app = AppTemplate(__name__)
 
     # configure
     app.config.from_object(__name__)
-    for x in args:
+    for x in config:
         if isinstance(x, basestring):
             app.config.from_pyfile(x)
         else:

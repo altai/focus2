@@ -13,17 +13,17 @@ class Configuration(unittest.TestCase):
         self.assertFalse(app.config['DEBUG'])
         class A(object):
             DEBUG = True
-        app = application_factory(A())
+        app = application_factory([A()])
         self.assertTrue(app.config['DEBUG'])
         with tempfile.NamedTemporaryFile() as f:
             f.write('DEBUG = False')
             f.flush()
-            app = application_factory(A(), f.name)
+            app = application_factory([A(), f.name])
             self.assertFalse(app.config['DEBUG'])
         with tempfile.NamedTemporaryFile() as f:
             f.write('DEBUG = True')
             f.flush()
-            app = application_factory(f.name)
+            app = application_factory([f.name])
             self.assertTrue(app.config['DEBUG'])
 
 
