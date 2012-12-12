@@ -26,32 +26,50 @@ import pkgutil
 
 import flask
 import werkzeug
+import werkzeug.utils
 
 
 DEBUG = False
 CSRF_ENABLED = False
 
+def application_factory(config=[], api_object=None, 
+                        api_object_path='focus2.api:client'):
 
-class AppTemplate(flask.Flask):
-    jinja_options = werkzeug.ImmutableDict(
-        extensions=['jinja2.ext.autoescape'],
-        autoescape=True
-    )
+    # load api client object
+    if api_object is None:
+        api_object = werkzeug.utils.import_string(api_object_path)
 
-    def make_response(self, rv):
-        if type(rv) is dict:
-            template_name = os.path.join(*flask.request.endpoint.split('.')) + '.html'
-            result = flask.render_template(template_name , **rv)
-        elif isinstance(rv, (list, tuple)) and len(rv) == 2:
-            result = flask.render_template(rv[0], **rv[1])
-        else:
-            result = rv
-        return super(AppTemplate, self).make_response(result)
+    # create class for custom flask.g
     
 
-def application_factory(config=[]):
-    app = AppTemplate(__name__)
+    # define custom applciaiton class
+    class AppTemplate(flask.Flask):
+        class request_globals_class(object):
+            api = api_object
 
+        jinja_options = werkzeug.ImmutableDict(
+            extensions=['jinja2.ext.autoescape'],
+            autoescape=True
+            )
+
+        def make_response(self, rv):
+            """Extend Flask behavior. We can return a dict from blueprint 
+            endpoint and will have corresponding template rendered with the dict
+            as context.
+            """
+            if type(rv) is dict:
+                template_name = os.path.join(
+                    *flask.request.endpoint.split('.')) + '.html'
+                result = flask.render_template(template_name , **rv)
+            elif isinstance(rv, (list, tuple)) and len(rv) == 2:
+                result = flask.render_template(rv[0], **rv[1])
+            else:
+                result = rv
+            response = super(AppTemplate, self).make_response(result)
+            return response
+
+
+    app = AppTemplate(__name__)
     # configure
     app.config.from_object(__name__)
     for x in config:
@@ -59,6 +77,8 @@ def application_factory(config=[]):
             app.config.from_pyfile(x)
         else:
             app.config.from_object(x)
+
+    # register blueprints
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), 
         'blueprints')
@@ -67,4 +87,5 @@ def application_factory(config=[]):
         module = importer.find_module(full_name).load_module(full_name)
         if 'BP' in dir(module):
             app.register_blueprint(module.BP)
+
     return app

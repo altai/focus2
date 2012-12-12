@@ -1,5 +1,9 @@
 import tempfile
 import unittest
+
+import flask
+import flask.ctx
+
 from focus2 import application_factory
 
 
@@ -32,3 +36,10 @@ class Autoescape(unittest.TestCase):
         app = application_factory()
         self.assertTrue(app.jinja_env.autoescape)
         self.assertIn('jinja2.ext.AutoEscapeExtension', app.jinja_env.extensions)
+
+
+class G(unittest.TestCase):
+    def test_correct_class(self):
+        app = application_factory()
+        with app.test_request_context('/'):
+            self.assertNotIsInstance(flask.g, flask.ctx._RequestGlobals)
