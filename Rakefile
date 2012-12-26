@@ -20,7 +20,12 @@ require "erb"
 require "highline/import"
 require "tmpdir"
 
-task :default => [:bp]
+task :default => [:test]
+
+desc "Run Python unittests"
+task :test do
+  system('python setup.py test')
+end
 
 namespace :bp do
   def test_filename(name)
