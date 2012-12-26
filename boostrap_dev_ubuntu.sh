@@ -9,6 +9,7 @@ nvm install v0.8
 nvm alias default 0.8
 cd jstests
 npm install -g
+npm install testacular -g
 ln -s /usr/bin/chromium-browser google-chrome
 ln -s /usr/bin/firefox firefox
 cd ../
