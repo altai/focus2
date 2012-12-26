@@ -20,7 +20,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 import os.path
 import pkgutil
 
@@ -30,19 +29,22 @@ import werkzeug.utils
 
 from _version import __version__
 
-
 DEBUG = False
 CSRF_ENABLED = False
+API_ENDPOINT = ''
+SECRET_KEY = '1ecdf1e7-306f-4b82-8d2e-bee89bffd6c9'
 
 def application_factory(config=[], api_object=None, 
                         api_object_path='focus2.api:client'):
+    """Application factory.
+    Accepts list of objects or string file paths to python modules to configure from,
+    optional custom Altai API object and path to Altai API client instance to import.
+    Has meaningful defaults.
+    """
 
     # load api client object
     if api_object is None:
         api_object = werkzeug.utils.import_string(api_object_path)
-
-    # create class for custom flask.g
-    
 
     # define custom applciaiton class
     class AppTemplate(flask.Flask):
@@ -79,7 +81,7 @@ def application_factory(config=[], api_object=None,
             app.config.from_pyfile(x)
         else:
             app.config.from_object(x)
-
+    app.session_interface = flask.sessions.SecureCookieSessionInterface()
     # register blueprints
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), 

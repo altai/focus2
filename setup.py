@@ -48,7 +48,8 @@ setup(name='focus2',
       long_description=read('README.rst'),
       install_requires=[
         'Flask==0.9',
-        'Flask-WTF==0.8'],
+        'Flask-WTF==0.8',
+        'itsdangerous==0.17'],
       tests_require=['mox'],
       classifiers=[
         'Development Status :: 1 - Planning',
