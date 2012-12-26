@@ -6,6 +6,7 @@ Focus2
 Focus2 is web UI for Altai_. It replaces Focus_ in subsequent versions of Altai. Focus2 is concentrated on developers' tasks only leaving administrative and management tasks for some other piece of software.
 
 Uses Altai API, runs on CentOS 6, written in Python, based on Flask.
+License is LGPL v2.1.
 
 * Is it ready?
 
@@ -19,8 +20,8 @@ It is in early alpha but under active development.
 
 * What do I need to write it?
 
-Python, Ruby, Node.js. See the documentation for details.
-License is LGPL v2.1.
+Python and Ruby. See the documentation for details.
+
 
 * Where are the docs?
 
