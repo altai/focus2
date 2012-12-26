@@ -19,7 +19,7 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
-__version__ = '0.0.1'
+
 
 import os.path
 import pkgutil
@@ -27,6 +27,8 @@ import pkgutil
 import flask
 import werkzeug
 import werkzeug.utils
+
+from _version import __version__
 
 
 DEBUG = False

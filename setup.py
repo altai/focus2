@@ -30,8 +30,9 @@ def read(fname):
     with open(os.path.join(os.path.dirname(__file__), fname)) as f:
         return f.read()
 
+
 setup(name='focus2',
-      version=__import__('focus2').__version__,
+      version=read('focus2/_version.py').split("'")[1],
       license='GNU LGPL 2.1',
       description='Web UI for Altai Private Cloud for Developers',
       author='GridDynamics Openstack Core Team, (c) GridDynamics',
