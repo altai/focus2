@@ -20,7 +20,7 @@ It is in early alpha but under active development.
 
 * What do I need to write it?
 
-Python and Ruby. See the documentation for details.
+Python, Ruby and Node.js. See the documentation for details. On Ubuntu just run boostrap_dev_ubuntu.sh.
 
 
 * Where are the docs?
