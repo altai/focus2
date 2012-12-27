@@ -52,7 +52,7 @@ def application_factory(config=[], api_object=None,
             api = api_object
 
         jinja_options = werkzeug.ImmutableDict(
-            extensions=['jinja2.ext.autoescape'],
+            extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
             autoescape=True
             )
 
