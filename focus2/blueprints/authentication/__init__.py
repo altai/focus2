@@ -65,6 +65,8 @@ class DestinationForm(wtf.Form):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
+        flask.session.clear()
+        flask.session.permanent = form.remember_me.data
         flask.session['name'] = form.name.data
         flask.session['password'] = form.password.data
         return flask.redirect('/')
