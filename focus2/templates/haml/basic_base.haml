@@ -12,6 +12,17 @@
     {% block js %}{% endblock %}
   %body(class="{% block body_class %}{% endblock %}")
     {% block navbar %}{% endblock %}
+    {% block flash_messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    %div(class="alert alert-{{ category }}")
+      %button.close(type="button" data-dismiss="alert") &times;
+      {{ message }}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% endblock %}
     {% block content %}{% endblock %}
     .container.b-footer
       %a(href="https://altaicloud.atlassian.net/") Altai
