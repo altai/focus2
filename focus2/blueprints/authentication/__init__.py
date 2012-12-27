@@ -19,12 +19,11 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
-
 import flask
 
 from flask import blueprints
 from flask.ext import wtf
-
+import werkzeug.utils
 
 """
 ========================
@@ -33,6 +32,12 @@ authentication blueprint
 
 
 """
+
+def exempt(func):
+    if not hasattr(func, 'protocols'):
+        func.protocols = {}
+    func.protocols['authentication'] = {'exempt': True}
+    return func
 
 BP = blueprints.Blueprint('authentication', __name__,
     static_folder='static', 
@@ -45,19 +50,27 @@ class LoginForm(wtf.Form):
     password = wtf.PasswordField('Password', validators=[wtf.Required()])
     remember_me = wtf.BooleanField('Remember me')
     next_url = wtf.HiddenField()
+    
+    def validate_password(self, field):
+        if not self.errors and self.name.data and field.data:
+            if not flask.g.api.are_credentials_correct(self.name.data, self.password.data):
+                raise wtf.ValidationError('Invalid credentials')
 
 
 class DestinationForm(wtf.Form):
     email = wtf.TextField('Email', validators=[wtf.Required()])
     
-
+@exempt
 @BP.route('login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        pass
+        flask.session['name'] = form.name.data
+        flask.session['password'] = form.password.data
+        return flask.redirect('/')
     return locals()
-    
+
+@exempt
 @BP.route('recover/password/', methods=['GET', 'POST'])
 def recover_password():
     form = DestinationForm()
@@ -65,6 +78,7 @@ def recover_password():
         pass
     return locals()
 
+@exempt
 @BP.route('recover/name/', methods=['GET', 'POST'])
 def recover_name():
     form = DestinationForm()
@@ -72,6 +86,27 @@ def recover_name():
         pass
     return locals()
 
+@exempt
 @BP.route('logout/')
 def logout():
-    return flask.redirect('/')
+    flask.session.clear()
+    flask.flash('You were logged out', 'success')
+    return flask.redirect(flask.url_for('.login'))
+
+@BP.route('protection_check/')
+def protection_check():
+    return "OK"
+
+@BP.before_app_request
+def run_authentication_check(*args, **kwargs):
+    if flask.request.endpoint is not None:
+        # None is possible for nonexisting URL
+        bp, ep = flask.request.endpoint.split('.')
+        view = werkzeug.utils.import_string(
+            'focus2.blueprints.%s:%s' % (bp, ep))
+        protocols = getattr(view, 'protocols', {})
+        authentication_protocol = protocols.get('authentication', {})
+        if not authentication_protocol.get('exempt', False):
+            if not flask.g.api.are_credentials_correct():
+                return flask.redirect(flask.url_for('.login'))
+        

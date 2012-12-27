@@ -1,31 +1,49 @@
 {% extends "authentication/base.html" %}
+{% macro input_horizontal(field) -%}
+<div class='control-group{% if field.errors %} error{% endif %}'>
+  {% if field.widget.input_type != 'checkbox' %}
+  <label class='control-label' for='{{ field.label.field_id }}'>
+    {{ field.label.text }}
+  </label>
+  {% endif %}
+  <div class='controls'>
+    {% if field.widget.input_type == 'checkbox' %}
+    <label class='checkbox'>
+      <input class='checkbox' type='checkbox'>
+        {{ field.label.text }}
+      </input>
+    </label>
+    {% else %}
+    <input id='{{ field.label.field_id }}' placehodler='{{ field.label.text }}' type='{{ field.widget.input_type }}' />
+    {% endif %}
+    {% if field.errors %}
+    <span class='help-inline'>
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      <br />
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{%- endmacro %}
 {% block content %}
 <div class='row'>
   <div class='offset3 span6'>
     <form action='.' class='form-horizontal' method='POST'>
+      {{ form.hidden_tag() }}
       <div class='control-group'>
         <div class='controls'>
           <h4>Login</h4>
         </div>
       </div>
-      <div class='control-group'>
-        <label class='control-label' for='id_name'>Name</label>
-        <div class='controls'>
-          <input id='id_name' placehodler='Name' type='text' />
-        </div>
-      </div>
-      <div class='control-group'>
-        <label class='control-label' for='id_password'>Password</label>
-        <div class='controls'>
-          <input id='id_password' placeholder='Password' type='text' />
-        </div>
-      </div>
+      {{ input_horizontal(form.name) }}
+      {{ input_horizontal(form.password) }}
+      {{ input_horizontal(form.remember_me) }}
       <div class='control-group'>
         <div class='controls'>
-          <label class='checkbox'>
-            <input class='checkbox' type='checkbox' />
-            Remember me
-          </label>
           <button class='btn' type='submit'>Sign in</button>
           &nbsp;::&nbsp;
           <a href="{{ url_for('.recover_password') }}">recover password</a>

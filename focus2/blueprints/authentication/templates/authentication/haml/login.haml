@@ -1,25 +1,44 @@
 {% extends "authentication/base.html" %}
 
+{% macro input_horizontal(field) -%}
+%div(class='control-group{% if field.errors %} error{% endif %}')
+  {% if field.widget.input_type != 'checkbox' %}
+  %label.control-label(for='{{ field.label.field_id }}')
+    {{ field.label.text }}
+  {% endif %}
+  .controls
+    {% if field.widget.input_type == 'checkbox' %}
+    %label.checkbox
+      %input.checkbox(type='checkbox')
+        {{ field.label.text }}
+    {% else %}
+    %input(id='{{ field.label.field_id }}' placehodler='{{ field.label.text }}' type='{{ field.widget.input_type }}') 
+    {% endif %}
+    {% if field.errors %}
+    %span.help-inline
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      %br
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    {% endif %}
+{%- endmacro %}
+
+
 {% block content %}
 .row
   .offset3.span6
     %form.form-horizontal(action='.' method='POST')
+      {{ form.hidden_tag() }}
       .control-group
         .controls
           %h4 Login
-      .control-group
-        %label.control-label(for='id_name') Name
-        .controls
-          %input#id_name(placehodler='Name' type='text')
-      .control-group
-        %label.control-label(for='id_password') Password
-        .controls 
-          %input#id_password(placeholder='Password' type='text')
+      {{ input_horizontal(form.name) }}
+      {{ input_horizontal(form.password) }}
+      {{ input_horizontal(form.remember_me) }}
       .control-group
         .controls
-          %label.checkbox
-            %input.checkbox(type='checkbox')
-            Remember me
           %button.btn(type='submit') Sign in
           &nbsp;::&nbsp;
           %a(href="{{ url_for('.recover_password') }}") recover password
