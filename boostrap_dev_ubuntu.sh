@@ -15,7 +15,7 @@ ln -s /usr/bin/firefox firefox
 cd ../
 
 bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)
-echo '[[ -s "~/.rvm/scripts/rvm" ]] && . "~/.rvm/scripts/rvm"' >> ~/.bashrc
+echo '[[ -s ~/.rvm/scripts/rvm ]] && . ~/.rvm/scripts/rvm' >> ~/.bashrc
 . ~/.rvm/scripts/rvm
 rvm install ruby-1.9.3
 rvm use 1.9.3
