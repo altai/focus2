@@ -1,0 +1,6 @@
+#!/bin/sh
+
+FILES=$(git diff --staged --name-status | grep -v ^D | awk '$1 $2 { print $2}' | grep -e .py$)
+if [ -n "$FILES" ]; then
+pep8 -r $FILES
+fi

@@ -33,16 +33,18 @@ authentication blueprint
 
 """
 
+
 def exempt(func):
     if not hasattr(func, 'protocols'):
         func.protocols = {}
     func.protocols['authentication'] = {'exempt': True}
     return func
 
+
 BP = blueprints.Blueprint('authentication', __name__,
-    static_folder='static', 
-    template_folder='templates',
-    url_prefix='/authentication/')
+                          static_folder='static',
+                          template_folder='templates',
+                          url_prefix='/authentication/')
 
 
 class LoginForm(wtf.Form):
@@ -50,16 +52,18 @@ class LoginForm(wtf.Form):
     password = wtf.PasswordField('Password', validators=[wtf.Required()])
     remember_me = wtf.BooleanField('Remember me')
     next_url = wtf.HiddenField()
-    
+
     def validate_password(self, field):
         if not self.errors and self.name.data and field.data:
-            if not flask.g.api.are_credentials_correct(self.name.data, self.password.data):
+            if not flask.g.api.are_credentials_correct(self.name.data,
+                                                       self.password.data):
                 raise wtf.ValidationError('Invalid credentials')
 
 
 class DestinationForm(wtf.Form):
     email = wtf.TextField('Email', validators=[wtf.Required()])
-    
+
+
 @exempt
 @BP.route('login/', methods=['GET', 'POST'])
 def login():
@@ -72,6 +76,7 @@ def login():
         return flask.redirect('/')
     return locals()
 
+
 @exempt
 @BP.route('recover/password/', methods=['GET', 'POST'])
 def recover_password():
@@ -79,6 +84,7 @@ def recover_password():
     if form.validate_on_submit():
         pass
     return locals()
+
 
 @exempt
 @BP.route('recover/name/', methods=['GET', 'POST'])
@@ -88,6 +94,7 @@ def recover_name():
         pass
     return locals()
 
+
 @exempt
 @BP.route('logout/')
 def logout():
@@ -95,9 +102,11 @@ def logout():
     flask.flash('You were logged out', 'success')
     return flask.redirect(flask.url_for('.login'))
 
+
 @BP.route('protection_check/')
 def protection_check():
     return "OK"
+
 
 @BP.before_app_request
 def run_authentication_check(*args, **kwargs):
@@ -111,4 +120,3 @@ def run_authentication_check(*args, **kwargs):
         if not authentication_protocol.get('exempt', False):
             if not flask.g.api.are_credentials_correct():
                 return flask.redirect(flask.url_for('.login'))
-        

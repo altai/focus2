@@ -4,7 +4,7 @@ Development
 Env Boostrap
 ------------
 
-You are lucky one if you are developing on Ubuntu because development environment can be boostrapped on Windows with script boostrap_dev_ubuntu.sh.
+You are lucky one if you are developing on Ubuntu because development environment can be boostrapped with script boostrap_dev_ubuntu.sh.
 
 Otherwise it is recommended to follow these steps modifiing them according to your OS specifics:
 

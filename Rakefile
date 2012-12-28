@@ -87,10 +87,10 @@ from flask import blueprints
 """
 
 BP = blueprints.Blueprint('<%= name %>', __name__,<% if has_static then %>
-    static_folder='static', <% end %><% if has_templates then %>
-    template_folder='templates',
-    <% end %>url_prefix='<%= url_prefix %>')
-    
+                          static_folder='static',<% end %><% if has_templates then %>
+                          template_folder='templates',
+                          <% end %>url_prefix='<%= url_prefix %>')
+
 # write your stuff here
 EOF
     File.new(File.join(project, "__init__.py"), "w").write(template.result(binding))

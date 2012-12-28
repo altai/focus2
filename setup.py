@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
- 
+
 
 import os
 import sys
@@ -46,17 +46,15 @@ setup(name='focus2',
       include_package_data=True,
       test_suite='tests',
       long_description=read('README.rst'),
-      install_requires=[
-        'Flask==0.9',
-        'Flask-WTF==0.8',
-        'itsdangerous==0.17'],
+      install_requires=['Flask==0.9',
+                        'Flask-WTF==0.8',
+                        'itsdangerous==0.17'],
       tests_require=['mox'],
-      classifiers=[
-        'Development Status :: 1 - Planning',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',
-        'Operating System :: OS Independent',
-       'Programming Language :: Python :: 2.6',
-        ]
+      classifiers=['Development Status :: 1 - Planning',
+                   'Intended Audience :: Developers',
+                   'Intended Audience :: Information Technology',
+                   'License :: OSI Approved :: '
+                   'GNU Lesser General Public License v2 or later (LGPLv2+)',
+                   'Operating System :: OS Independent',
+                   'Programming Language :: Python :: 2.6']
       )

@@ -34,12 +34,13 @@ CSRF_ENABLED = False
 API_ENDPOINT = ''
 SECRET_KEY = '1ecdf1e7-306f-4b82-8d2e-bee89bffd6c9'
 
-def application_factory(config=[], api_object=None, 
+
+def application_factory(config=(), api_object=None,
                         api_object_path='focus2.api:client'):
     """Application factory.
-    Accepts list of objects or string file paths to python modules to configure from,
-    optional custom Altai API object and path to Altai API client instance to import.
-    Has meaningful defaults.
+    Accepts:
+    - list of objects or string file paths to python modules to configure from,
+    - optional custom Altai API client and path to import default client.
     """
 
     # load api client object
@@ -53,26 +54,23 @@ def application_factory(config=[], api_object=None,
 
         jinja_options = werkzeug.ImmutableDict(
             extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
-            autoescape=True
-            )
+            autoescape=True)
 
         def make_response(self, rv):
-            """Extend Flask behavior. We can return a dict from blueprint 
-            endpoint and will have corresponding template rendered with the dict
-            as context.
+            """Extend Flask behavior. We can return a dict from blueprint
+            endpoint and will have corresponding template rendered with
+            the dict as context.
             """
             if type(rv) is dict:
                 template_name = os.path.join(
                     *flask.request.endpoint.split('.')) + '.html'
-                result = flask.render_template(template_name , **rv)
+                result = flask.render_template(template_name, **rv)
             elif isinstance(rv, (list, tuple)) and len(rv) == 2:
                 result = flask.render_template(rv[0], **rv[1])
             else:
                 result = rv
             response = super(AppTemplate, self).make_response(result)
             return response
-
-
     app = AppTemplate(__name__)
     # configure
     app.config.from_object(__name__)
@@ -84,7 +82,7 @@ def application_factory(config=[], api_object=None,
     app.session_interface = flask.sessions.SecureCookieSessionInterface()
     # register blueprints
     path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 
+        os.path.abspath(os.path.dirname(__file__)),
         'blueprints')
     for importer, name, _ in pkgutil.iter_modules([path]):
         full_name = 'focus2.blueprints.%s' % name

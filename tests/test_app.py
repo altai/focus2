@@ -15,6 +15,7 @@ class Configuration(unittest.TestCase):
         app = application_factory()
         self.assertNotEqual(app, None)
         self.assertFalse(app.config['DEBUG'])
+
         class A(object):
             DEBUG = True
         app = application_factory([A()])
@@ -35,7 +36,8 @@ class Autoescape(unittest.TestCase):
     def test_app_env(self):
         app = application_factory()
         self.assertTrue(app.jinja_env.autoescape)
-        self.assertIn('jinja2.ext.AutoEscapeExtension', app.jinja_env.extensions)
+        self.assertIn('jinja2.ext.AutoEscapeExtension',
+                      app.jinja_env.extensions)
 
 
 class G(unittest.TestCase):

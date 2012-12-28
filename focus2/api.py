@@ -5,20 +5,20 @@ import urllib2
 def get_credentials():
     return (flask.session.get('username'), flask.session.get('password'))
 
+
 def get_endpoint():
     return flask.current_app.config['API_ENDPOINT']
 
 
 class Api(object):
-    def __init__(self, 
-                 get_credentials=get_credentials, 
+    def __init__(self,
+                 get_credentials=get_credentials,
                  get_endpoint=get_endpoint):
         """Accept sources of credentials and endpoints to simplify testing
         """
 
         self._get_credentials = get_credentials
         self._get_endpoint = get_endpoint
-
 
     def are_credentials_correct(self, username=None, password=None):
         if username is None:
@@ -30,6 +30,7 @@ class Api(object):
         opener = urllib2.build_opener(authhandler)
         endpoint = self._get_endpoint()
         with opener.open(endpoint) as rv:
-            import pdb; pdb.set_trace()
+            # ipekelny is working on this
+            pass
 
 client = Api(get_credentials)
