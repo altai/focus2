@@ -19,11 +19,14 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
+
 import flask
 
 from flask import blueprints
 from flask.ext import wtf
 import werkzeug.utils
+
+from focus2 import helpers
 
 """
 ========================
@@ -34,11 +37,10 @@ authentication blueprint
 """
 
 
-def exempt(func):
-    if not hasattr(func, 'protocols'):
-        func.protocols = {}
-    func.protocols['authentication'] = {'exempt': True}
-    return func
+@helpers.protocol
+def exempt():
+    """Decorate view to omit authentication."""
+    return True
 
 
 BP = blueprints.Blueprint('authentication', __name__,
