@@ -25,3 +25,17 @@ class Protocols(unittest.TestCase):
         def view():
             return 'foo'
         self.assertTrue(view.protocols['test_helpers']['exempt'])
+
+    def test_args(self):
+        from focus2 import helpers
+
+        @helpers.protocol
+        def pushpin(*args):
+            return args
+
+        data = ('foo', 'bar', '/bazz/', 'foo.bar'), ('tequilla', 42)
+
+        @pushpin(*data)
+        def view():
+            pass
+        self.assertEqual(view.protocols['test_helpers']['pushpin'], data)

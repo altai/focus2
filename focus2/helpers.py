@@ -21,6 +21,7 @@
 
 
 import functools
+import inspect
 import os.path
 import traceback
 
@@ -49,13 +50,25 @@ def protocol(func):
         last_code = code
     else:
         raise RuntimeError('protocol was called in a unusual way')
-
-    @functools.wraps(func)
-    def _decorated(view):
-        if not hasattr(view, 'protocols'):
-            view.protocols = {}
-        if protocol_name not in view.protocols:
-            view.protocols[protocol_name] = {}
-        view.protocols[protocol_name][func.func_name] = func()
-        return view
+    a = inspect.getargspec(func)
+    if len(a.args) == 0 and a.varargs is None and a.keywords is None:
+        def _decorated(view):
+            if not hasattr(view, 'protocols'):
+                view.protocols = {}
+            if protocol_name not in view.protocols:
+                view.protocols[protocol_name] = {}
+            view.protocols[protocol_name][func.func_name] = func()
+            return view
+    else:
+        def _decorated(*args, **kwargs):
+            def _inner(view):
+                if not hasattr(view, 'protocols'):
+                    view.protocols = {}
+                if protocol_name not in view.protocols:
+                    view.protocols[protocol_name] = {}
+                    view.protocols[protocol_name][func.func_name] = func(
+                        *args, **kwargs)
+                return view
+            return _inner
+    functools.update_wrapper(_decorated, func)
     return _decorated
