@@ -35,6 +35,7 @@ def protocol(func):
     blueprint. For example, authentication blueprint can distinguish protected
     views from views accessible by anonymous.
     """
+    # define module/package name where protocol was called
     for filename, lineno, func_name, code in traceback.extract_stack():
         if 'traceback.extract_stack()' in code:
             # blueprint name is used as protocol name
@@ -50,6 +51,7 @@ def protocol(func):
         last_code = code
     else:
         raise RuntimeError('protocol was called in a unusual way')
+    # does decorated decorator accept arguments?
     a = inspect.getargspec(func)
     if len(a.args) == 0 and a.varargs is None and a.keywords is None:
         def _decorated(view):
