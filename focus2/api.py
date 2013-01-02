@@ -1,3 +1,27 @@
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Focus2
+# Copyright (C) 2012 Grid Dynamics Consulting Services, Inc
+# All Rights Reserved
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program. If not, see
+# <http://www.gnu.org/licenses/>.
+
+
+from contextlib import closing
+
 import flask
 import urllib2
 
@@ -29,8 +53,15 @@ class Api(object):
         authhandler = urllib2.HTTPBasicAuthHandler(passman)
         opener = urllib2.build_opener(authhandler)
         endpoint = self._get_endpoint()
-        with opener.open(endpoint) as rv:
-            # ipekelny is working on this
-            pass
+        try:
+            with closing(opener.open(endpoint)) as rv:
+                return True
+        except urllib2.HTTPError as e:
+            if e.code != 401:
+                flask.current_app.logger.error(
+                    'API error: "%s" was "%s" in response to "%s"/"%s"' % (
+                        str(e), username, password, endpont))
+            return False
+
 
 client = Api(get_credentials)
