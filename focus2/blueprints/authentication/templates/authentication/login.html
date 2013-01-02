@@ -1,34 +1,6 @@
 {% extends "authentication/base.html" %}
-{% macro input_horizontal(field) -%}
-<div class='control-group{% if field.errors %} error{% endif %}'>
-  {% if field.widget.input_type != 'checkbox' %}
-  <label class='control-label' for='{{ field.label.field_id }}'>
-    {{ field.label.text }}
-  </label>
-  {% endif %}
-  <div class='controls'>
-    {% if field.widget.input_type == 'checkbox' %}
-    <label class='checkbox'>
-      <input class='checkbox' type='checkbox'>
-      {{ field.label.text }}
-    </label>
-    {% else %}
-    <input id='{{ field.label.field_id }}' placeholder='{{ field.label.text }}' type='{{ field.widget.input_type }}'>
-    {% endif %}
-    {% if field.errors %}
-    <span class='help-inline'>
-      {% for x in field.errors %}
-      {% if not loop.first %}
-      <br>
-      {% endif %}
-      {{ x }}
-      {% endfor %}
-    </span>
-    {% endif %}
-  </div>
-</div>
-{%- endmacro %}
 {% block content %}
+{% from 'base/macros.html' import input_horizontal %}
 <div class='row'>
   <div class='offset3 span6'>
     <form action='.' class='form-horizontal' method='POST'>
