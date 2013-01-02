@@ -57,10 +57,10 @@ class Api(object):
             with closing(opener.open(endpoint)) as rv:
                 return True
         except urllib2.HTTPError as e:
-            if e.code != 401:
+            if e.code != 403:
                 flask.current_app.logger.error(
                     'API error: "%s" was "%s" in response to "%s"/"%s"' % (
-                        str(e), username, password, endpont))
+                        str(e), username, password, endpoint))
             return False
 
 
