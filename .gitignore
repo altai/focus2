@@ -22,3 +22,4 @@ local_fab_settings.py
 venv
 centosvenv
 .idea
+local_settings.py

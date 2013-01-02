@@ -76,7 +76,10 @@ def application_factory(config=(), api_object=None,
     app.config.from_object(__name__)
     for x in config:
         if isinstance(x, basestring):
-            app.config.from_pyfile(x)
+            try:
+                app.config.from_pyfile(x)
+            except IOError:
+                app.config.from_envvar(x)
         else:
             app.config.from_object(x)
     app.session_interface = flask.sessions.SecureCookieSessionInterface()

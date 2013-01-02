@@ -27,6 +27,11 @@ task :test do
   system('python setup.py test')
 end
 
+desc "Run runserver"
+task :run do
+  system('export FOCUS2=`pwd`/local_settings.py && python -m focus2.runserver')
+end
+
 namespace :bp do
   def test_filename(name)
     File.expand_path(File.join("tests", "test_" + name + ".py"))
