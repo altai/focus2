@@ -5,7 +5,7 @@
     %title
       {{ app_title }}
     %meta(name="description" content="{{ page_description }}")
-    %link(rel="shortcut icon" href="{{ url_for('static', filename='focus2/img/favicon.ico') }}")
+    %link(rel="icon" type="image/x-icon" href="{{ url_for('base.static', filename='focus2/img/favicon.ico') }}") 
     {% block base_css %}{% endblock %}
     {% block css %}{% endblock %}
     {% block base_js %}{% endblock %}
@@ -26,7 +26,7 @@
     {% block content %}{% endblock %}
     .container.b-footer
       %a(href="https://altaicloud.atlassian.net/") Altai
-      Focus UI v.42
+      Focus UI v.{{ application_version }}
       Build #10500 [26-Dec-2012]
       &nbsp;|&nbsp;
       %a(href="http://griddynamics.zendesk.com/") Support&nbsp;Desk
