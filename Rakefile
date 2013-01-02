@@ -45,8 +45,8 @@ namespace :bp do
     end
     url_prefix = ask("what is URL prefix? ") do
       |q|
-      q.default = "/" + name.sub(/_/, "-") + "/"
-      q.validate = /^\/.*$/
+      q.default = "/" + name.sub(/_/, "-")
+      q.validate = /^\/.*[^\/]$/
     end
     has_static = agree("Has static folder?", true)
     has_templates = agree("Has templates fodler?", true)

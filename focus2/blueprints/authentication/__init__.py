@@ -46,7 +46,7 @@ def exempt():
 BP = blueprints.Blueprint('authentication', __name__,
                           static_folder='static',
                           template_folder='templates',
-                          url_prefix='/authentication/')
+                          url_prefix='/authentication')
 
 
 class LoginForm(wtf.Form):
@@ -67,7 +67,7 @@ class DestinationForm(wtf.Form):
 
 
 @exempt
-@BP.route('login/', methods=['GET', 'POST'])
+@BP.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -80,7 +80,7 @@ def login():
 
 
 @exempt
-@BP.route('recover/password/', methods=['GET', 'POST'])
+@BP.route('/recover/password/', methods=['GET', 'POST'])
 def recover_password():
     form = DestinationForm()
     if form.validate_on_submit():
@@ -89,7 +89,7 @@ def recover_password():
 
 
 @exempt
-@BP.route('recover/name/', methods=['GET', 'POST'])
+@BP.route('/recover/name/', methods=['GET', 'POST'])
 def recover_name():
     form = DestinationForm()
     if form.validate_on_submit():
@@ -98,14 +98,14 @@ def recover_name():
 
 
 @exempt
-@BP.route('logout/')
+@BP.route('/logout/')
 def logout():
     flask.session.clear()
     flask.flash('You were logged out', 'success')
     return flask.redirect(flask.url_for('.login'))
 
 
-@BP.route('protection_check/')
+@BP.route('/protection_check/')
 def protection_check():
     return "OK"
 

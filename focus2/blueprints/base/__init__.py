@@ -36,6 +36,12 @@ base blueprint
 BP = blueprints.Blueprint('base', __name__,
                           static_folder='static',
                           template_folder='templates',
-                          url_prefix='/base/')
+                          url_prefix='/base')
 
-# write your stuff here
+
+@BP.app_context_processor
+def version():
+    from focus2 import _version
+    return {
+        'application_version': _version.__version__,
+        }

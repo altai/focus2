@@ -90,7 +90,7 @@ def pushpin(**kwargs):
 BP = blueprints.Blueprint('dashboard', __name__,
                           static_folder='static',
                           template_folder='templates',
-                          url_prefix='/')
+                          url_prefix='')
 
 
 DASHBOARD_OBJECTS = []
@@ -106,6 +106,6 @@ def enumerate_dashboard_objects(*args, **kwargs):
             DASHBOARD_OBJECTS.append(pushpin_info)
 
 
-@BP.route('')
+@BP.route('/')
 def index():
     return {}
