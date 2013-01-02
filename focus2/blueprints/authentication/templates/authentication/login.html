@@ -10,17 +10,16 @@
     {% if field.widget.input_type == 'checkbox' %}
     <label class='checkbox'>
       <input class='checkbox' type='checkbox'>
-        {{ field.label.text }}
-      </input>
+      {{ field.label.text }}
     </label>
     {% else %}
-    <input id='{{ field.label.field_id }}' placehodler='{{ field.label.text }}' type='{{ field.widget.input_type }}' />
+    <input id='{{ field.label.field_id }}' placeholder='{{ field.label.text }}' type='{{ field.widget.input_type }}'>
     {% endif %}
     {% if field.errors %}
     <span class='help-inline'>
       {% for x in field.errors %}
       {% if not loop.first %}
-      <br />
+      <br>
       {% endif %}
       {{ x }}
       {% endfor %}

@@ -7,12 +7,12 @@
     {{ field.label.text }}
   {% endif %}
   .controls
-    {% if field.widget.input_type == 'checkbox' %}
+    {% if field.widget.input_type == 'checkbox' %} 
     %label.checkbox
       %input.checkbox(type='checkbox')
-        {{ field.label.text }}
+      {{ field.label.text }}
     {% else %}
-    %input(id='{{ field.label.field_id }}' placehodler='{{ field.label.text }}' type='{{ field.widget.input_type }}') 
+    %input(id='{{ field.label.field_id }}' type='{{ field.widget.input_type }}' placeholder='{{ field.label.text }}')
     {% endif %}
     {% if field.errors %}
     %span.help-inline
