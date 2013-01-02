@@ -115,10 +115,12 @@ def run_authentication_check(*args, **kwargs):
     if flask.request.endpoint is not None:
         # None is possible for nonexisting URL
         bp, ep = flask.request.endpoint.split('.')
-        view = werkzeug.utils.import_string(
-            'focus2.blueprints.%s:%s' % (bp, ep))
-        protocols = getattr(view, 'protocols', {})
-        authentication_protocol = protocols.get('authentication', {})
-        if not authentication_protocol.get('exempt', False):
-            if not flask.g.api.are_credentials_correct():
-                return flask.redirect(flask.url_for('authentication.login'))
+        if ep != 'static':
+            view = werkzeug.utils.import_string(
+                'focus2.blueprints.%s:%s' % (bp, ep))
+            protocols = getattr(view, 'protocols', {})
+            authentication_protocol = protocols.get('authentication', {})
+            if not authentication_protocol.get('exempt', False):
+                if not flask.g.api.are_credentials_correct():
+                    return flask.redirect(
+                        flask.url_for('authentication.login'))
