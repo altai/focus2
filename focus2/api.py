@@ -27,7 +27,7 @@ import urllib2
 
 
 def get_credentials():
-    return (flask.session.get('username'), flask.session.get('password'))
+    return (flask.session.get('name'), flask.session.get('password'))
 
 
 def get_endpoint():
