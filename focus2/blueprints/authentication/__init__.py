@@ -121,4 +121,4 @@ def run_authentication_check(*args, **kwargs):
         authentication_protocol = protocols.get('authentication', {})
         if not authentication_protocol.get('exempt', False):
             if not flask.g.api.are_credentials_correct():
-                return flask.redirect(flask.url_for('.login'))
+                return flask.redirect(flask.url_for('authentication.login'))
