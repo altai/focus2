@@ -7,9 +7,9 @@ echo '. ~/.nvm/nvm.sh' >> ~/.bashrc
 . ~/.nvm/nvm.sh
 nvm install v0.8
 nvm alias default 0.8
-cd jstests
-npm install -g
+npm install
 npm install testacular -g
+cd jstests
 ln -s /usr/bin/chromium-browser google-chrome
 ln -s /usr/bin/firefox firefox
 cd ../

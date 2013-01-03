@@ -1,1 +1,1 @@
-watchr: watchr watchr_config.rb
+watchr: node watchr_config.js

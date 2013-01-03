@@ -1,0 +1,9 @@
+{ 
+    "name": "Focus2",
+    "description": "Focus2 development environment support",
+    "version": "0.0.1",
+    "dependencies": {
+        "testacular": ">=0.4.0",
+        "watchr": "2.3.1"
+    }
+}
