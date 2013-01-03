@@ -26,11 +26,40 @@
     {% endif %}
     {% endwith %}
     {% endblock %}
+    {% block breadcrumbs %}
+    {% if breadcrumbs or breadcrumb_button %}
+    <ul class='breadcrumb'>
+      {% if breadcrumbs %}
+      {% for title, url in breadcrumbs %}
+      <li class='{% if loop.last %}active{% endif %}'>
+        {% if url is not none %}
+        <a href='{{ url }}'>{{ title }}</a>
+        {% else %}
+        {{ title }}
+        {% endif %}
+        {% if not loop.last %}
+        <span class='divider'>/</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+      {% endif %}
+      {% if breadcrumb_button %}
+      <li class='pull-right'>
+        <a class='btn btn-mini btn-success nobr' href='{{ breadcrumb_button[0] }}'>
+          <i class='icon-plus-sign icon-white'>
+            &nbsp;
+            {{ breadcrumb_button[1] }}
+          </i>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+    {% endif %}
+    {% endblock %}
     {% block content %}{% endblock %}
     <div class='container b-footer'>
       <a href='https://altaicloud.atlassian.net/'>Altai</a>
       Focus UI v.{{ application_version }}
-      Build #10500 [26-Dec-2012]
       &nbsp;|&nbsp;
       <a href='http://griddynamics.zendesk.com/'>Support&nbsp;Desk</a>
       &nbsp;|&nbsp;

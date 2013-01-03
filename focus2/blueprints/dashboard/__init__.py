@@ -100,12 +100,23 @@ DASHBOARD_OBJECTS = []
 def enumerate_dashboard_objects(*args, **kwargs):
     """Lookup for stuff after all blueprints are registered."""
     for endpoint, view in flask.current_app.view_functions.items():
-        protocols = getattr(view, 'protocols', {})
-        pushpin_info = protocols.get('dashboard', {}).get('pushpin', ())
-        if len(pushpin_info):
-            DASHBOARD_OBJECTS.append(pushpin_info)
+        try:
+            blueprint_name = endpoint.split('.')[0]
+        except IndexError:
+            pass
+        else:
+            pushpin_info = pushpin.get(view)
+            if pushpin_info is not None:
+                pushpin_info['spu'] = flask.url_for(
+                    '%s.static' % blueprint_name,
+                    filename=pushpin_info['spu'])
+                pushpin_info['bpu'] = flask.url_for(
+                    '%s.static' % blueprint_name,
+                    filename=pushpin_info['bpu'])
+                pushpin_info['url'] = flask.url_for(endpoint)
+                DASHBOARD_OBJECTS.append(pushpin_info)
 
 
 @BP.route('/')
 def index():
-    return {}
+    return {'dashboard_objects': DASHBOARD_OBJECTS}

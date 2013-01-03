@@ -12,6 +12,7 @@
     {% block js %}{% endblock %}
   %body(class="{% block body_class %}{% endblock %}")
     {% block navbar %}{% endblock %}
+    
     {% block flash_messages %}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -23,11 +24,38 @@
     {% endif %}
     {% endwith %}
     {% endblock %}
+
+    {% block breadcrumbs %}
+    {% if breadcrumbs or breadcrumb_button %}
+    %ul.breadcrumb
+      {% if breadcrumbs %}
+      {% for title, url in breadcrumbs %}
+      %li(class="{% if loop.last %}active{% endif %}")
+        {% if url is not none %}
+        %a(href="{{ url }}") {{ title }}      
+        {% else %}
+        {{ title }}
+        {% endif %}
+        {% if not loop.last %}
+        %span.divider /
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% if breadcrumb_button %}
+      %li.pull-right
+        %a.btn.btn-mini.btn-success.nobr(href="{{ breadcrumb_button[0] }}")
+          %i.icon-plus-sign.icon-white
+            &nbsp;
+            {{ breadcrumb_button[1] }}
+      {% endif %}
+    {% endif %}
+    {% endblock %}
+
     {% block content %}{% endblock %}
+
     .container.b-footer
       %a(href="https://altaicloud.atlassian.net/") Altai
       Focus UI v.{{ application_version }}
-      Build #10500 [26-Dec-2012]
       &nbsp;|&nbsp;
       %a(href="http://griddynamics.zendesk.com/") Support&nbsp;Desk
       &nbsp;|&nbsp;

@@ -25,6 +25,8 @@ import inspect
 import os.path
 import traceback
 
+import flask
+
 
 def protocol(func):
     """Decorator to create protocol decorators for views from simple funcs.
@@ -34,6 +36,8 @@ def protocol(func):
     Protocols should be used to tell something meaningful about a view to some
     blueprint. For example, authentication blueprint can distinguish protected
     views from views accessible by anonymous.
+
+    Protocol decorator has static method get() returning protocol info.
     """
     # define module/package name where protocol was called
     for filename, lineno, func_name, code in traceback.extract_stack():
@@ -68,9 +72,30 @@ def protocol(func):
                     view.protocols = {}
                 if protocol_name not in view.protocols:
                     view.protocols[protocol_name] = {}
-                    view.protocols[protocol_name][func.func_name] = func(
-                        *args, **kwargs)
+                view.protocols[protocol_name][func.func_name] = func(
+                    *args, **kwargs)
                 return view
             return _inner
+
+    def getter(protocol_carrier):
+        """Get protocol info back.
+        Returns info if present or None otherwise.
+        """
+        if hasattr(protocol_carrier, 'protocols'):
+            protocols = getattr(protocol_carrier, 'protocols')
+            if protocol_name in protocols:
+                protocol = protocols[protocol_name]
+                if func.func_name in protocol:
+                    return protocol[func.func_name]
+    func.get = getter
     functools.update_wrapper(_decorated, func)
     return _decorated
+
+
+def get_requested_view_and_blueprint():
+    """Returns view function current request was dispatched to
+    if the view was registered in a blueprint and the blueprint it was
+    registered in. Otherwise returns None."""
+    if flask.request.blueprint:
+        return (flask.current_app.view_functions[flask.request.endpoint],
+                flask.current_app.blueprints[flask.request.blueprint])
