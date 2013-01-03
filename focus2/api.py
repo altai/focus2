@@ -21,6 +21,7 @@
 
 
 from contextlib import closing
+import json
 
 import flask
 import urllib2
@@ -44,6 +45,27 @@ class Api(object):
         self._get_credentials = get_credentials
         self._get_endpoint = get_endpoint
 
+    def _get(self, path):
+        username, password = self._get_credentials()
+        endpoint = self._get_endpoint()
+        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        passman.add_password(None, endpoint, username, password)
+        authhandler = urllib2.HTTPBasicAuthHandler(passman)
+        opener = urllib2.build_opener(authhandler)
+        endpoint = self._get_endpoint()
+        try:
+            with closing(opener.open(endpoint + path)) as rv:
+                content = rv.read()
+                flask.current_app.logger.debug(endpoint + path)
+                flask.current_app.logger.debug(content)
+                return json.loads(content)
+        except urllib2.HTTPError as e:
+            if e.code != 403:
+                flask.current_app.logger.error(
+                    'API error: "%s" was "%s" in response to "%s"/"%s"' % (
+                        str(e), username, password, endpoint))
+            raise LogoutException
+
     def are_credentials_correct(self, username=None, password=None):
         if username is None:
             username, password = self._get_credentials()
@@ -63,5 +85,7 @@ class Api(object):
                         str(e), username, password, endpoint))
             return False
 
+    def get_instance_types(self):
+        return self._get('/v1/instance-types/')['instance-types']
 
 client = Api(get_credentials)
