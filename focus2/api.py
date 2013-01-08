@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Focus2
@@ -20,59 +21,47 @@
 
 
 from contextlib import closing
-import json
 
 import flask
 import urllib2
 
 
-def get_credentials():
-    return (flask.session.get('name'), flask.session.get('password'))
-
-
-def get_endpoint():
-    return flask.current_app.config['API_ENDPOINT']
-
-
 class Api(object):
-    def __init__(self,
-                 get_credentials=get_credentials,
-                 get_endpoint=get_endpoint):
-        """Accept sources of credentials and endpoints to simplify testing
+    __credentials = None
+
+    def _set_credetials(self, username, password):
+        self.__credentials = (username, password)
+
+    def _get_credentials(self):
+        """ Needed to deliver credentials to the method _get_passman. Just once.
         """
+        cre = self.__credentials or (flask.session.get('name'),
+                flask.session.get('password'))
+        self.__credentials = None
+        return cre
 
-        self._get_credentials = get_credentials
-        self._get_endpoint = get_endpoint
+    def _get_endpoint(self):
+        return flask.current_app.config['API_ENDPOINT'] or\
+                'http://example.com'
 
-    def _get(self, path):
-        username, password = self._get_credentials()
-        endpoint = self._get_endpoint()
+    def _get_passman(self):
         passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        passman.add_password(None, endpoint, username, password)
-        authhandler = urllib2.HTTPBasicAuthHandler(passman)
-        opener = urllib2.build_opener(authhandler)
         endpoint = self._get_endpoint()
-        try:
-            with closing(opener.open(endpoint + path)) as rv:
-                content = rv.read()
-                flask.current_app.logger.debug(endpoint + path)
-                flask.current_app.logger.debug(content)
-                return json.loads(content)
-        except urllib2.HTTPError as e:
-            if e.code != 403:
-                flask.current_app.logger.error(
-                    'API error: "%s" was "%s" in response to "%s"/"%s"' % (
-                        str(e), username, password, endpoint))
-            raise LogoutException
+        username, password = self._get_credentials()
+        passman.add_password(None, endpoint, username, password)
+        return passman
+
+    def _get_authhandler(self):
+        return urllib2.HTTPBasicAuthHandler(self._get_passman())
+
+    def _get_opener(self):
+        return urllib2.build_opener(self._get_authhandler())
 
     def are_credentials_correct(self, username=None, password=None):
-        if username is None:
-            username, password = self._get_credentials()
-        endpoint = self._get_endpoint()
-        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        passman.add_password(None, endpoint, username, password)
-        authhandler = urllib2.HTTPBasicAuthHandler(passman)
-        opener = urllib2.build_opener(authhandler)
+        if username and password:
+            self._set_credetials(username=username, password=password)
+
+        opener = self._get_opener()
         endpoint = self._get_endpoint()
         try:
             with closing(opener.open(endpoint)) as rv:
@@ -84,7 +73,5 @@ class Api(object):
                         str(e), username, password, endpoint))
             return False
 
-    def get_instance_types(self):
-        return self._get('/v1/instance-types/')['instance-types']
 
-client = Api(get_credentials)
+client = Api()
