@@ -1,4 +1,4 @@
-{% macro input_horizontal(field) -%}
+{% macro input_horizontal(field, ng_model=None) -%}
 %div(class='control-group{% if field.errors %} error{% endif %}')
   {% if field.widget.input_type != 'checkbox' %}
   %label.control-label(for='{{ field.label.field_id }}')
@@ -14,7 +14,11 @@
       {% endif %}
       {{ field.label.text }}
     {% else %}
-    %input(id='{{ field.label.field_id }}' type='{{ field.widget.input_type }}' placeholder='{{ field.label.text }}' name='{{ field.name }}' value='{% if field.data %}{{ field.data }}{% endif %}') 
+    {% if ng_model is not none %}
+    %input(id='{{ field.label.field_id }}' type='{{ field.widget.input_type }}' name='{{ field.name }}' value='{% if field.data %}{{ field.data }}{% endif %}' ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model="{{ ng_model }}")
+    {% else %}
+    %input(id='{{ field.label.field_id }}' type='{{ field.widget.input_type }}' placeholder='{{ field.placeholder }}' name='{{ field.name }}' value='{% if field.data %}{{ field.data }}{% endif %}')
+    {% endif %}
     {% endif %}
     {% if field.errors %}
     %span.help-inline
