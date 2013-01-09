@@ -32,6 +32,7 @@ DEBUG = False
 CSRF_ENABLED = False
 API_ENDPOINT = ''
 SECRET_KEY = '1ecdf1e7-306f-4b82-8d2e-bee89bffd6c9'
+APP_TEMP_DIR = '/var/lib/focus2/'
 
 
 def application_factory(config=(), api_object=None,

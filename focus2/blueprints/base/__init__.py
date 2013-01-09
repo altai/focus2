@@ -100,3 +100,8 @@ def inject_breadcrumb_button():
         else:
             return {'breadcrumb_button': (flask.url_for(endpoint), title)}
     return {}
+
+
+@BP.app_errorhandler(RuntimeError)
+def runtime_error(error):
+    return flask.render_template('base/runtime_error.html', message=str(error))

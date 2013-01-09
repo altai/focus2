@@ -25,7 +25,7 @@ from flask import blueprints
 from flask.ext import wtf
 import werkzeug.utils
 
-from focus2 import helpers
+from focus2 import helpers, api
 
 """
 ========================
@@ -61,8 +61,10 @@ class LoginForm(wtf.Form):
                 raise wtf.ValidationError('Invalid credentials')
 
 
-class DestinationForm(wtf.Form):
-    email = wtf.TextField('Email', validators=[wtf.Required()])
+class PasswordRecoveryForm(wtf.Form):
+    identifier = wtf.TextField('Name or email', validators=[wtf.Required()])
+    kind = wtf.RadioField('Name or email',
+            choices=[('name', 'Name'), ('email', 'Email')])
 
 
 @exempt
@@ -81,19 +83,42 @@ def login():
 @exempt
 @BP.route('/recover/password/', methods=['GET', 'POST'])
 def recover_password():
-    form = DestinationForm()
+    form = PasswordRecoveryForm()
     if form.validate_on_submit():
-        pass
-    return locals()
+        link_template = flask.url_for('.confirm_password', token='{{code}}')
+        flask.g.api.send_password_recovery_email(
+                form.identifier.data, form.kind.data, link_template)
+        flask.flash('Please check your email.', category='info')
+        return flask.redirect(flask.request.path)
+    form.identifier.placeholder = 'Registration email or login name'
+    return {'form': form}
+
+
+class RecoverPasswordForm(wtf.Form):
+    password = wtf.PasswordField('New password', validators=[wtf.Required(),
+            wtf.EqualTo('confirm_password',
+                     'Field must be equal to "Confirm password"')])
+    confirm_password = wtf.PasswordField('Confirm password',
+            validators=[wtf.Required()])
+    token = wtf.HiddenField(validators=[wtf.Required()])
 
 
 @exempt
-@BP.route('/recover/name/', methods=['GET', 'POST'])
-def recover_name():
-    form = DestinationForm()
+@BP.route('/recover/password/confirm/<token>/', methods=['GET', 'POST'])
+def confirm_password(token):
+    form = RecoverPasswordForm()
+
     if form.validate_on_submit():
-        pass
-    return locals()
+        success, reason = flask.g.api.confirm_password_recovery(
+                form.token.data, form.password.data)
+        if success:
+            flask.flash('Your password was updated', 'success')
+            return flask.redirect(flask.url_for('authentication.login'))
+        else:
+            flask.flash(reason, 'error')
+
+    form.token.data = token
+    return {'form': form}
 
 
 @exempt
@@ -123,3 +148,9 @@ def run_authentication_check(*args, **kwargs):
                 if not flask.g.api.are_credentials_correct():
                     return flask.redirect(
                         flask.url_for('authentication.login'))
+
+
+@BP.app_errorhandler(api.LoginException)
+def login_error(error):
+    flask.flash('You are not logged in!', category='warning')
+    return flask.redirect(flask.url_for('authentication.login'))

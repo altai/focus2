@@ -20,18 +20,98 @@
 
 
 from contextlib import closing
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
+import httplib2
+import logging
+import urllib
+import urlparse
+import os.path
 
 import flask
-import urllib2
+
+
+class LoginException(Exception):
+    pass
 
 
 def get_credentials():
-    return (flask.session.get('name'), flask.session.get('password'))
+    try:
+        return (flask.session['name'], flask.session['password'])
+    except KeyError:
+        raise LoginException
 
 
 def get_endpoint():
     return flask.current_app.config['API_ENDPOINT']
+
+
+class Requester(object):
+    api_prefix = 'v1/'
+
+    def __init__(self, get_endpoint, get_credentials):
+        self.get_endpoint = get_endpoint
+        self.get_credentials = get_credentials
+
+    def request(self, method, path, data=None,
+                is_anonymous=False, username=None, password=None):
+        if is_anonymous:
+            h = httplib2.Http()
+        else:
+            if username is None:
+                username, password = self.get_credentials()
+            h = httplib2.Http(os.path.join(
+                    flask.current_app.config['APP_TEMP_DIR'], ".cache"))
+            h.add_credentials(username, password)
+        url = urlparse.urljoin(urlparse.urljoin(
+                self.get_endpoint(), self.api_prefix), path)
+        kwargs = dict(headers={'Content-Type': 'application/json'})
+
+        if method in ['GET', 'DELETE'] and data is not None:
+            url = "%s?%s" % (url, urllib.urlencode(data))
+            body = None
+        else:
+            body = json.dumps(data)
+            kwargs['body'] = body
+        resp, content = h.request(url, method, **kwargs)
+        if resp.status == 403:
+            raise LoginException
+        elif resp.status in range(200, 300):
+            if flask.current_app.debug:
+                flask.current_app.logger.debug('%s \n %s', url, content)
+            if resp.status == 204:
+                return None
+            try:
+                return json.loads(content)
+            except ValueError:
+                flask.current_app.log_exception(sys.exc_info())
+                raise RuntimeError('Invalid API response')
+        else:
+            logging.error('''
+API Error
+URL: %s
+Anonymous request: %s
+Credentials: %s
+Method: %s
+Body: %s
+content: %s
+Headers: %s
+''', url, str(is_anonymous), (username, password), method, body, content, resp)
+            raise RuntimeError('API Error')
+
+    def get(self, *args, **kwargs):
+        return self.request("GET", *args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        return self.request("POST", *args, **kwargs)
+
+    def put(self, *args, **kwargs):
+        return self.request("PUT", *args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return self.request("DELETE", *args, **kwargs)
 
 
 class Api(object):
@@ -40,51 +120,27 @@ class Api(object):
                  get_endpoint=get_endpoint):
         """Accept sources of credentials and endpoints to simplify testing
         """
-
-        self._get_credentials = get_credentials
-        self._get_endpoint = get_endpoint
-
-    def _get(self, path):
-        username, password = self._get_credentials()
-        endpoint = self._get_endpoint()
-        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        passman.add_password(None, endpoint, username, password)
-        authhandler = urllib2.HTTPBasicAuthHandler(passman)
-        opener = urllib2.build_opener(authhandler)
-        endpoint = self._get_endpoint()
-        try:
-            with closing(opener.open(endpoint + path)) as rv:
-                content = rv.read()
-                flask.current_app.logger.debug(endpoint + path)
-                flask.current_app.logger.debug(content)
-                return json.loads(content)
-        except urllib2.HTTPError as e:
-            if e.code != 403:
-                flask.current_app.logger.error(
-                    'API error: "%s" was "%s" in response to "%s"/"%s"' % (
-                        str(e), username, password, endpoint))
-            raise LogoutException
+        self.r = Requester(get_endpoint, get_credentials)
 
     def are_credentials_correct(self, username=None, password=None):
-        if username is None:
-            username, password = self._get_credentials()
-        endpoint = self._get_endpoint()
-        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        passman.add_password(None, endpoint, username, password)
-        authhandler = urllib2.HTTPBasicAuthHandler(passman)
-        opener = urllib2.build_opener(authhandler)
-        endpoint = self._get_endpoint()
         try:
-            with closing(opener.open(endpoint)) as rv:
-                return True
-        except urllib2.HTTPError as e:
-            if e.code != 403:
-                flask.current_app.logger.error(
-                    'API error: "%s" was "%s" in response to "%s"/"%s"' % (
-                        str(e), username, password, endpoint))
+            self.r.get('/', username=username, password=password)
+        except LoginException:
             return False
+        else:
+            return True
 
     def get_instance_types(self):
-        return self._get('/v1/instance-types/')['instance-types']
+        return self.r.get('instance-types/')['instance-types']
+
+    def send_password_recovery_email(self, identifier, kind, link_template):
+        return self.r.post('/me/reset-password',
+                           data={kind: identifier,
+                           'link-template': link_template}, is_anonymous=True)
+
+    def confirm_password_recovery(self, token, password):
+        return self.r.post('/me/reset-password/{}'.format(token),
+                data={'password': password}, is_anonymous=True)
+
 
 client = Api(get_credentials)
