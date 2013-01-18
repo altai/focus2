@@ -17,10 +17,26 @@
 # <http://www.gnu.org/licenses/>.
 
 require "erb"
+require "find"
 require "highline/import"
 require "tmpdir"
 
-task :default => [:test]
+task :default => [:hop]
+
+desc "Start development environment"
+task :hop do
+  Find.find("focus2/templates") {
+    |f|
+    output = f.sub(/.haml$/, '.html')
+    if File.file?(f) and f.end_with?('.haml')
+      if !File.exist?(output)
+        cmd = "haml --format html5 #{f} #{output}"
+        system(cmd)
+      end
+    end
+    exec('foreman start')
+  }
+end
 
 desc "Run Python unittests"
 task :test do
