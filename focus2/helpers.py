@@ -27,65 +27,63 @@ import traceback
 import flask
 
 
-def protocol(func):
-    """Decorator to create protocol decorators for views from simple funcs.
-
-    A protocol is just a dictionary existing the 'protocols' property (which is
-    a dictionary by itself) of a registered view function.
-    Protocols should be used to tell something meaningful about a view to some
-    blueprint. For example, authentication blueprint can distinguish protected
-    views from views accessible by anonymous.
-
-    Protocol decorator has static method get() returning protocol info.
+def view_metadata(func):
     """
-    # define module/package name where protocol was called
-    for filename, lineno, func_name, code in traceback.extract_stack():
-        if 'traceback.extract_stack()' in code:
-            # blueprint name is used as protocol name
-            # all blueprints are packages
-            assert 'protocol' in last_code
-            dname, fname = os.path.split(last_filename)
-            if fname == '__init__.py':
-                dname, protocol_name = os.path.split(dname)
-            else:
-                protocol_name = fname.replace('.py', '')
-            break
-        last_filename = filename
-        last_code = code
-    else:
-        raise RuntimeError('protocol was called in a unusual way')
-    # does decorated decorator accept arguments?
+    Return decorator creating vew decorator.
+
+    Usage:
+
+    >>> @view_metadata
+    ... def noauth():
+    ...     return True
+    >>> @noauth
+    ... def a_view():
+    ...     whatever()
+
+    >>> assert(noauth.get(a_view) == True)
+
+
+    >>> @view_metadata
+    ... def page_title(title_text):
+    ...     return 'This is title: %s' % title_text
+    >>> @page_title('foo')
+    ... @noauth
+    ... def a_view():
+            whatever
+
+    >>> assert(page_title.get(a_view), 'foo')
+    >>> assert(noauth.get(a_view))
+
+
+    It should be used to set data at view declarations and get data
+    in service code like error handlers, context processors, etc.
+    """
     a = inspect.getargspec(func)
     if len(a.args) == 0 and a.varargs is None and a.keywords is None:
         def _decorated(view):
-            if not hasattr(view, 'protocols'):
-                view.protocols = {}
-            if protocol_name not in view.protocols:
-                view.protocols[protocol_name] = {}
-            view.protocols[protocol_name][func.func_name] = func()
+            if not hasattr(view, 'view_metadata'):
+                view.view_metadata = {}
+            if func not in view.view_metadata:
+                view.view_metadata[func] = {}
+            view.view_metadata[func] = func()
             return view
     else:
         def _decorated(*args, **kwargs):
             def _inner(view):
-                if not hasattr(view, 'protocols'):
-                    view.protocols = {}
-                if protocol_name not in view.protocols:
-                    view.protocols[protocol_name] = {}
-                view.protocols[protocol_name][func.func_name] = func(
-                    *args, **kwargs)
+                if not hasattr(view, 'view_metadata'):
+                    view.view_metadata = {}
+                if func not in view.view_metadata:
+                    view.view_metadata[func] = {}
+                view.view_metadata[func] = func(*args, **kwargs)
                 return view
             return _inner
 
-    def getter(protocol_carrier):
-        """Get protocol info back.
-        Returns info if present or None otherwise.
-        """
-        if hasattr(protocol_carrier, 'protocols'):
-            protocols = getattr(protocol_carrier, 'protocols')
-            if protocol_name in protocols:
-                protocol = protocols[protocol_name]
-                if func.func_name in protocol:
-                    return protocol[func.func_name]
+    def getter(carrier, default_no=None):
+        """Get data back."""
+        if hasattr(carrier, 'view_metadata'):
+            metadata = getattr(carrier, 'view_metadata')
+            return metadata.get(func, default_no)
+        return default_no
     func.get = getter
     functools.update_wrapper(_decorated, func)
     return _decorated

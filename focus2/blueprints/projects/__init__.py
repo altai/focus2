@@ -18,12 +18,12 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
-
+from functools import partial
 import flask
 
 from flask import blueprints
 
-from focus2.blueprints.dashboard import pushpin
+from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 
 """
@@ -40,73 +40,64 @@ BP = blueprints.Blueprint('projects', __name__,
                           url_prefix='/projects')
 
 
-@pushpin(st='Summary',
-         spu='img/small_.png',
-         bt='Projects Summary',
-         bpu='img/manage.png',
-         agt='Projects',
-         wga=2,
-         wgl=0)
+dash = partial(basedash, agt='Projects', wga=2)
+
+
+@dash(st='Summary',
+      spu='img/small_.png',
+      bt='Projects Summary',
+      bpu='img/manage.png',
+      wgl=0)
 @BP.route('/')
 def summary():
     return {}
 
 
-@pushpin(st='Security Groups',
-         spu='img/small_.png',
-         bt='Security Groups',
-         bpu='img/manage.png',
-         agt='Projects',
-         wga=2,
-         wgl=1)
+@dash(st='Security Groups',
+      spu='img/small_.png',
+      bt='Security Groups',
+      bpu='img/manage.png',
+      wgl=1)
 @BP.route('/security-groups/')
 def security_groups():
     return {}
 
 
-@pushpin(st='Billing',
-         spu='img/small_.png',
-         bt='Billing',
-         bpu='img/manage.png',
-         agt='Projects',
-         wga=2,
-         wgl=2)
+@dash(st='Billing',
+      spu='img/small_.png',
+      bt='Billing',
+      bpu='img/manage.png',
+      wgl=2)
 @BP.route('/billing/')
 def billing():
     return {}
 
 
-@pushpin(st='Members',
-         spu='img/small_.png',
-         bt='Security Groups',
-         bpu='img/manage.png',
-         agt='Members',
-         wga=2,
-         wgl=3)
+@dash(st='Members',
+      spu='img/small_.png',
+      bt='Security Groups',
+      bpu='img/manage.png',
+      wgl=3)
 @BP.route('/members/')
 def members():
     return {}
 
 
-@pushpin(st='Audit',
-         spu='img/small_.png',
-         bt='Audit',
-         bpu='img/manage.png',
-         agt='Projects',
-         wga=2,
-         wgl=4)
+@dash(st='Audit',
+      spu='img/small_.png',
+      bt='Audit',
+      bpu='img/manage.png',
+      wgl=4)
 @BP.route('/audit/')
 def audit():
     return {}
 
 
-@pushpin(st='Invite',
-         spu='img/small_.png',
-         bt='invite a Member',
-         bpu='img/manage.png',
-         agt='Projects',
-         wga=2,
-         wgl=5)
+@dash(st='Invite',
+      spu='img/small_.png',
+      bt='invite a Member',
+      bpu='img/manage.png',
+      wgl=5)
 @BP.route('/invite/')
 def invite():
     return {}

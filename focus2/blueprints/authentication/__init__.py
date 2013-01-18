@@ -36,8 +36,8 @@ authentication blueprint
 """
 
 
-@helpers.protocol
-def exempt():
+@helpers.view_metadata
+def noauth():
     """Decorate view to omit authentication."""
     return True
 
@@ -67,7 +67,7 @@ class PasswordRecoveryForm(wtf.Form):
             choices=[('name', 'Name'), ('email', 'Email')])
 
 
-@exempt
+@noauth
 @BP.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -80,7 +80,7 @@ def login():
     return locals()
 
 
-@exempt
+@noauth
 @BP.route('/recover/password/', methods=['GET', 'POST'])
 def recover_password():
     form = PasswordRecoveryForm()
@@ -103,11 +103,10 @@ class RecoverPasswordForm(wtf.Form):
     token = wtf.HiddenField(validators=[wtf.Required()])
 
 
-@exempt
+@noauth
 @BP.route('/recover/password/confirm/<token>/', methods=['GET', 'POST'])
 def confirm_password(token):
     form = RecoverPasswordForm()
-
     if form.validate_on_submit():
         success, reason = flask.g.api.confirm_password_recovery(
                 form.token.data, form.password.data)
@@ -121,7 +120,7 @@ def confirm_password(token):
     return {'form': form}
 
 
-@exempt
+@noauth
 @BP.route('/logout/')
 def logout():
     flask.session.clear()
@@ -142,9 +141,7 @@ def run_authentication_check(*args, **kwargs):
         if ep != 'static':
             view = werkzeug.utils.import_string(
                 'focus2.blueprints.%s:%s' % (bp, ep))
-            protocols = getattr(view, 'protocols', {})
-            authentication_protocol = protocols.get('authentication', {})
-            if not authentication_protocol.get('exempt', False):
+            if not noauth.get(view):
                 if not flask.g.api.are_credentials_correct():
                     return flask.redirect(
                         flask.url_for('authentication.login'))
