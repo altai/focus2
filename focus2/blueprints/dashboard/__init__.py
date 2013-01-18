@@ -31,18 +31,16 @@ from focus2 import helpers
 dashboard blueprint
 ===================
 
-On load looks up in all registered blueprints for endpoints with 'dashboard'
-in their  'protocols' property. Shows this at index page.
-Rest is clear from mockups.
+Collects views with data about dashboard appearance.
 """
 
 
-@helpers.protocol
-def pushpin(**kwargs):
+@helpers.view_metadata
+def dash(**kwargs):
     """Decorator to mark view function for dashboard.
 
     See schema for meaning of arguments.
-    See tests/test_dashboard.py for examples of pushpin() usage.
+    See tests/test_dashboard.py for examples of dash() usage.
     """
     options = {
         'p': False,
@@ -104,16 +102,16 @@ def enumerate_dashboard_objects(*args, **kwargs):
         except IndexError:
             pass
         else:
-            pushpin_info = pushpin.get(view)
-            if pushpin_info is not None:
-                pushpin_info['spu'] = flask.url_for(
+            dashboard_info = dash.get(view)
+            if dashboard_info is not None:
+                dashboard_info['spu'] = flask.url_for(
                     '%s.static' % blueprint_name,
-                    filename=pushpin_info['spu'])
-                pushpin_info['bpu'] = flask.url_for(
+                    filename=dashboard_info['spu'])
+                dashboard_info['bpu'] = flask.url_for(
                     '%s.static' % blueprint_name,
-                    filename=pushpin_info['bpu'])
-                pushpin_info['url'] = flask.url_for(endpoint)
-                DASHBOARD_OBJECTS.append(pushpin_info)
+                    filename=dashboard_info['bpu'])
+                dashboard_info['url'] = flask.url_for(endpoint)
+                DASHBOARD_OBJECTS.append(dashboard_info)
 
 
 @BP.route('/')

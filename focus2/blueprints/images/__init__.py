@@ -19,11 +19,13 @@
 # <http://www.gnu.org/licenses/>.
 
 
+from functools import partial
+
 import flask
 
 from flask import blueprints
 
-from focus2.blueprints.dashboard import pushpin
+from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 
 """
@@ -43,14 +45,15 @@ BP = blueprints.Blueprint('images', __name__,
 BP = breadcrumbs('Images')(BP)
 
 
+dash = partial(basedash, agt='Images', wga=1)
+
+
 @breadcrumb_button('images.register', 'Register Image')
 @breadcrumbs('Manage')
-@pushpin(st='Manage',
+@dash(st='Manage',
          spu='img/small_manage.png',
          bt='Manage Images',
          bpu='img/manage.png',
-         agt='Images',
-         wga=1,
          wgl=1)
 @BP.route('/')
 def index():
@@ -58,12 +61,10 @@ def index():
 
 
 @breadcrumbs('Register')
-@pushpin(st='Register',
+@dash(st='Register',
          spu='img/small_upload.png',
          bt='Register an Image',
          bpu='img/upload.png',
-         agt='Images',
-         wga=1,
          wgl=0)
 @BP.route('/register/')
 def register():
