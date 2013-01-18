@@ -18,12 +18,13 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
+from functools import partial
 
 import flask
 
 from flask import blueprints
 
-from focus2.blueprints.dashboard import pushpin
+from focus2.blueprints.dashboard import dash as basedash
 
 """
 ==================
@@ -39,61 +40,54 @@ BP = blueprints.Blueprint('settings', __name__,
                           url_prefix='/settings')
 
 
-@pushpin(st='SSH Keys',
-         spu='img/small_ssh_keys.png',
-         bt='SSH Keys',
-         bpu='img/ssh_keys.png',
-         agt='Personal Settings',
-         wga=3,
-         wgl=0)
+dash = partial(basedash, agt='Personal Settings', wga=3)
+
+
+@dash(st='SSH Keys',
+      spu='img/small_ssh_keys.png',
+      bt='SSH Keys',
+      bpu='img/ssh_keys.png',
+      wgl=0)
 @BP.route('/ssh-keys/')
 def ssh_keys():
     return {}
 
 
-@pushpin(st='Credentials',
-         spu='img/small_credentials.jpg',
-         bt='Credentials',
-         bpu='img/credentials.jpg',
-         agt='Personal Settings',
-         wga=3,
-         wgl=1)
+@dash(st='Credentials',
+      spu='img/small_credentials.jpg',
+      bt='Credentials',
+      bpu='img/credentials.jpg',
+      wgl=1)
 @BP.route('/credentials/')
 def credentials():
     return {}
 
 
-@pushpin(st='Notifications',
-         spu='img/small_notifications.png',
-         bt='Notifications',
-         bpu='img/notifications.png',
-         agt='Personal Settings',
-         wga=3,
-         wgl=2)
+@dash(st='Notifications',
+      spu='img/small_notifications.png',
+      bt='Notifications',
+      bpu='img/notifications.png',
+      wgl=2)
 @BP.route('/notifications/')
 def notifications():
     return {}
 
 
-@pushpin(st='Avatar',
-         spu='img/small_avatar.png',
-         bt='Avatar',
-         bpu='img/avatar.png',
-         agt='Personal Settings',
-         wga=3,
-         wgl=3)
+@dash(st='Avatar',
+      spu='img/small_avatar.png',
+      bt='Avatar',
+      bpu='img/avatar.png',
+      wgl=3)
 @BP.route('/avatar/')
 def avatar():
     return {}
 
 
-@pushpin(st='Change Password',
-         spu='img/small_change_password.png',
-         bt='Change Password',
-         bpu='img/change_password.png',
-         agt='Personal Settings',
-         wga=3,
-         wgl=4)
+@dash(st='Change Password',
+      spu='img/small_change_password.png',
+      bt='Change Password',
+      bpu='img/change_password.png',
+      wgl=4)
 @BP.route('/change-password/')
 def change_password():
     return {}

@@ -23,7 +23,7 @@ import itertools
 import flask
 from flask import blueprints
 
-from focus2.blueprints.dashboard import pushpin
+from focus2.blueprints.dashboard import dash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 
 """
@@ -48,7 +48,7 @@ BP = breadcrumbs('Virtual Machines')(BP)
 
 @breadcrumbs('Manage')
 @breadcrumb_button('vms.spawn', 'Spawn New VM')
-@pushpin(st='Manage',
+@dash(st='Manage',
          spu='img/small_manage.png',
          bt='Manage VMs',
          bpu='img/manage.png',
@@ -64,7 +64,7 @@ def index():
 
 
 @breadcrumbs('Start VM')
-@pushpin(st='Spawn',
+@dash(st='Spawn',
          spu='img/small_spawn_vm.png',
          bt='Spawn VM',
          bpu='img/spawn_vm.png',
@@ -80,7 +80,7 @@ def spawn():
 
 
 @breadcrumbs('Types')
-@pushpin(st='Types of',
+@dash(st='Types of',
          spu='img/small_flavors.png',
          bt='Types of VM',
          bpu='img/flavors.png',

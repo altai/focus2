@@ -23,7 +23,7 @@ import flask
 from flask import blueprints
 
 from focus2 import _version
-from focus2.helpers import protocol
+from focus2.helpers import view_metadata
 from focus2.helpers import get_requested_view_and_blueprint
 
 
@@ -44,16 +44,16 @@ BP = blueprints.Blueprint('base', __name__,
 @BP.app_context_processor
 def inject_version():
     return {
-        'application_version': _version.__version__,
-        }
+        'application_version': _version.__version__
+    }
 
 
-@protocol
+@view_metadata
 def breadcrumbs(title):
     return title
 
 
-@protocol
+@view_metadata
 def breadcrumb_button(url, title):
     return url, title
 
