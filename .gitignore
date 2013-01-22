@@ -25,3 +25,4 @@ centosvenv
 local_settings.py
 node_modules
 *.html
+*.min.js

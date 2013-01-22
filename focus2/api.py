@@ -29,6 +29,7 @@ import logging
 import urllib
 import urlparse
 import os.path
+import sys
 
 import flask
 
@@ -63,10 +64,10 @@ class Requester(object):
             if username is None:
                 username, password = self.get_credentials()
             h = httplib2.Http(os.path.join(
-                    flask.current_app.config['APP_TEMP_DIR'], ".cache"))
+                flask.current_app.config['APP_TEMP_DIR'], ".cache"))
             h.add_credentials(username, password)
         url = urlparse.urljoin(urlparse.urljoin(
-                self.get_endpoint(), self.api_prefix), path)
+            self.get_endpoint(), self.api_prefix), path)
         kwargs = dict(headers={'Content-Type': 'application/json'})
 
         if method in ['GET', 'DELETE'] and data is not None:
@@ -133,6 +134,9 @@ class Api(object):
     def get_instance_types(self):
         return self.r.get('instance-types/')['instance-types']
 
+    def get_projects(self):
+        return self.r.get('projects/')
+
     def send_password_recovery_email(self, identifier, kind, link_template):
         return self.r.post('/me/reset-password',
                            data={kind: identifier,
@@ -140,7 +144,9 @@ class Api(object):
 
     def confirm_password_recovery(self, token, password):
         return self.r.post('/me/reset-password/{}'.format(token),
-                data={'password': password}, is_anonymous=True)
+                           data={'password': password}, is_anonymous=True)
 
+    def find_vms(self, **kwargs):
+        return self.r.get('vms', data=kwargs)
 
 client = Api(get_credentials)

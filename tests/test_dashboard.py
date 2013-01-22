@@ -31,7 +31,7 @@ from focus2.blueprints import dashboard
 class Dashboard(unittest.TestCase):
     def test_pushpin(self):
         def test():
-            @dashboard.pushpin(st='Short title',
+            @dashboard.dash(st='Short title',
                                spu='small pic',
                                bt='full title',
                                bpu=' big pic',
@@ -44,7 +44,7 @@ class Dashboard(unittest.TestCase):
         self.assertRaises(jsonschema.ValidationError,
                           test)
 
-        @dashboard.pushpin(st='Short title',
+        @dashboard.dash(st='Short title',
                            spu='small pic',
                            bt='full title',
                            bpu=' big pic',
@@ -56,7 +56,7 @@ class Dashboard(unittest.TestCase):
         def foo():
             pass
 
-        @dashboard.pushpin(st='Short title',
+        @dashboard.dash(st='Short title',
                            spu='small pic',
                            bt='full title',
                            bpu=' big pic',
@@ -67,7 +67,7 @@ class Dashboard(unittest.TestCase):
         def foo():
             pass
 
-        @dashboard.pushpin(st='Short title',
+        @dashboard.dash(st='Short title',
                            spu='small pic',
                            bt='full title',
                            bpu=' big pic',
@@ -77,7 +77,7 @@ class Dashboard(unittest.TestCase):
         def foo():
             pass
 
-        @dashboard.pushpin(st='Short title',
+        @dashboard.dash(st='Short title',
                            spu='small pic',
                            bt='full title',
                            bpu=' big pic',

@@ -79,7 +79,10 @@ def application_factory(config=(), api_object=None,
             try:
                 app.config.from_pyfile(x)
             except IOError:
-                app.config.from_envvar(x)
+                try:
+                    app.config.from_envvar(x)
+                except RuntimeError:
+                    pass
         else:
             app.config.from_object(x)
     app.session_interface = flask.sessions.SecureCookieSessionInterface()
@@ -87,10 +90,18 @@ def application_factory(config=(), api_object=None,
     path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
         'blueprints')
-    for importer, name, _ in pkgutil.iter_modules([path]):
-        full_name = 'focus2.blueprints.%s' % name
-        module = importer.find_module(full_name).load_module(full_name)
-        if 'BP' in dir(module):
-            app.register_blueprint(module.BP)
+    for _, name, _ in pkgutil.iter_modules([path]):
+        app.register_blueprint(werkzeug.utils.import_string(
+            'focus2.blueprints.%s.BP' % name))
+
+    def url_for_other_page(page):
+        args = flask.request.view_args.copy()
+        args['page'] = page
+        return flask.url_for(flask.request.endpoint, **args)
+    app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+    @app.errorhandler(RuntimeError)
+    def runtime_error(error):
+        return flask.render_template('runtime_error.html', message=str(error))
 
     return app
