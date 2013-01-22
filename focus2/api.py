@@ -185,5 +185,7 @@ class Api(object):
         return self.r.post('/me/reset-password/{}'.format(token),
                            data={'password': password}, is_anonymous=True)
 
+    def find_vms(self, **kwargs):
+        return self.r.get('vms', data=kwargs)
 
 client = Api(get_credentials)

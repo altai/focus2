@@ -1,0 +1,14 @@
+.pin {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    bottom: 14px;
+    cursor: pointer;
+}
+.unpin {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    bottom: 14px;
+    cursor: pointer;
+}

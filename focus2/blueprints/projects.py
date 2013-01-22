@@ -44,9 +44,9 @@ dash = partial(basedash, agt='Projects', wga=2)
 
 
 @dash(st='Summary',
-      spu='focus2/img/small_.png',
+      spu='focus2/img/small_summary.png',
       bt='Projects Summary',
-      bpu='focus2/img/manage.png',
+      bpu='focus2/img/summary.png',
       wgl=0)
 @BP.route('/')
 def summary():
@@ -81,9 +81,9 @@ def summary():
 
 
 @dash(st='Security Groups',
-      spu='focus2/img/small_.png',
+      spu='focus2/img/small_security_groups.png',
       bt='Security Groups',
-      bpu='focus2/img/manage.png',
+      bpu='focus2/img/security_groups.png',
       wgl=1)
 @BP.route('/security-groups/')
 def security_groups():
@@ -91,9 +91,9 @@ def security_groups():
 
 
 @dash(st='Billing',
-      spu='focus2/img/small_.png',
+      spu='focus2/img/small_billing.png',
       bt='Billing',
-      bpu='focus2/img/manage.png',
+      bpu='focus2/img/billing.png',
       wgl=2)
 @BP.route('/billing/')
 def billing():
@@ -101,9 +101,9 @@ def billing():
 
 
 @dash(st='Members',
-      spu='focus2/img/small_.png',
+      spu='focus2/img/small_members.png',
       bt='Security Groups',
-      bpu='focus2/img/manage.png',
+      bpu='focus2/img/members.png',
       wgl=3)
 @BP.route('/members/')
 def members():
@@ -111,9 +111,9 @@ def members():
 
 
 @dash(st='Audit',
-      spu='focus2/img/small_.png',
+      spu='focus2/img/small_audit.png',
       bt='Audit',
-      bpu='focus2/img/manage.png',
+      bpu='focus2/img/audit.png',
       wgl=4)
 @BP.route('/audit/')
 def audit():
@@ -121,9 +121,9 @@ def audit():
 
 
 @dash(st='Invite',
-      spu='focus2/img/small_.png',
-      bt='invite a Member',
-      bpu='focus2/img/manage.png',
+      spu='focus2/img/small_invite.png',
+      bt='Invite a Member',
+      bpu='focus2/img/invite.png',
       wgl=5)
 @BP.route('/invite/')
 def invite():

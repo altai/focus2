@@ -54,7 +54,8 @@ dash = partial(basedash, agt='Images', wga=1)
          spu='focus2/img/small_manage.png',
          bt='Manage Images',
          bpu='focus2/img/manage.png',
-         wgl=1)
+         wgl=1,
+         p=True)
 @BP.route('/')
 def index():
     return {}
@@ -65,7 +66,8 @@ def index():
          spu='focus2/img/small_upload.png',
          bt='Register an Image',
          bpu='focus2/img/upload.png',
-         wgl=0)
+         wgl=0,
+         p=True)
 @BP.route('/register/')
 def register():
     return {}
