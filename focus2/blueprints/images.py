@@ -51,10 +51,11 @@ dash = partial(basedash, agt='Images', wga=1)
 @breadcrumb_button('images.register', 'Register Image')
 @breadcrumbs('Manage')
 @dash(st='Manage',
-         spu='img/small_manage.png',
+         spu='focus2/img/small_manage.png',
          bt='Manage Images',
-         bpu='img/manage.png',
-         wgl=1)
+         bpu='focus2/img/manage.png',
+         wgl=1,
+         p=True)
 @BP.route('/')
 def index():
     return {}
@@ -62,10 +63,11 @@ def index():
 
 @breadcrumbs('Register')
 @dash(st='Register',
-         spu='img/small_upload.png',
+         spu='focus2/img/small_upload.png',
          bt='Register an Image',
-         bpu='img/upload.png',
-         wgl=0)
+         bpu='focus2/img/upload.png',
+         wgl=0,
+         p=True)
 @BP.route('/register/')
 def register():
     return {}

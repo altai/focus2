@@ -18,13 +18,14 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
+import json
+
 import jsonschema
 
 import flask
 from flask import blueprints
 
 from focus2.utils import views
-
 
 """
 ===================
@@ -37,6 +38,7 @@ Collects views with data about dashboard appearance.
 
 @views.view_metadata
 def dash(**kwargs):
+
     """Decorator to mark view function for dashboard.
 
     See schema for meaning of arguments.
@@ -105,15 +107,46 @@ def enumerate_dashboard_objects(*args, **kwargs):
             dashboard_info = dash.get(view)
             if dashboard_info is not None:
                 dashboard_info['spu'] = flask.url_for(
-                    '%s.static' % blueprint_name,
+                    'static',
                     filename=dashboard_info['spu'])
                 dashboard_info['bpu'] = flask.url_for(
-                    '%s.static' % blueprint_name,
+                    'static',
                     filename=dashboard_info['bpu'])
                 dashboard_info['url'] = flask.url_for(endpoint)
                 DASHBOARD_OBJECTS.append(dashboard_info)
 
 
-@BP.route('/')
+@BP.route('/', methods=['GET', 'POST'])
 def index():
-    return {'dashboard_objects': DASHBOARD_OBJECTS}
+    c = flask.g.db.cursor()
+    if not c.execute('SELECT body FROM dashboard_objects WHERE id = %s',
+                     (flask.session['name'],)):
+        _groups = {}
+        cells = []
+        for x in DASHBOARD_OBJECTS:
+            value = _groups.setdefault(x['agt'], {})
+            value['key'] = x['agt']
+            value['weight'] = x['wga']
+            links = value.setdefault('links', [])
+            links.append(dict(
+                href=x['url'],
+                small=x['spu'],
+                title=x['st'],
+                big_url=x['bpu'],
+                big_title=x['bt'],
+                weight=x['wgl'],
+                employed=x['p']
+            ))
+            if x['p']:
+                cells.append({
+                    'href': x['url'],
+                    'img': x['bpu'],
+                    'full_title': x['bt']
+                })
+        do = {
+            'groups': sorted(_groups.itervalues(), key=lambda x: x['weight']),
+            'cells': cells + [None for x in xrange(15 - len(cells))]
+        }
+    else:
+        do = json.loads(c.fetchone()[0])
+    return {'dashboard_objects': do}

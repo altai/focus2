@@ -44,9 +44,9 @@ dash = partial(basedash, agt='Personal Settings', wga=3)
 
 
 @dash(st='SSH Keys',
-      spu='img/small_ssh_keys.png',
+      spu='focus2/img/small_ssh_keys.png',
       bt='SSH Keys',
-      bpu='img/ssh_keys.png',
+      bpu='focus2/img/ssh_keys.png',
       wgl=0)
 @BP.route('/ssh-keys/')
 def ssh_keys():
@@ -54,9 +54,9 @@ def ssh_keys():
 
 
 @dash(st='Credentials',
-      spu='img/small_credentials.jpg',
+      spu='focus2/img/small_credentials.jpg',
       bt='Credentials',
-      bpu='img/credentials.jpg',
+      bpu='focus2/img/credentials.jpg',
       wgl=1)
 @BP.route('/credentials/')
 def credentials():
@@ -64,9 +64,9 @@ def credentials():
 
 
 @dash(st='Notifications',
-      spu='img/small_notifications.png',
+      spu='focus2/img/small_notifications.png',
       bt='Notifications',
-      bpu='img/notifications.png',
+      bpu='focus2/img/notifications.png',
       wgl=2)
 @BP.route('/notifications/')
 def notifications():
@@ -74,9 +74,9 @@ def notifications():
 
 
 @dash(st='Avatar',
-      spu='img/small_avatar.png',
+      spu='focus2/img/small_avatar.png',
       bt='Avatar',
-      bpu='img/avatar.png',
+      bpu='focus2/img/avatar.png',
       wgl=3)
 @BP.route('/avatar/')
 def avatar():
@@ -84,9 +84,9 @@ def avatar():
 
 
 @dash(st='Change Password',
-      spu='img/small_change_password.png',
+      spu='focus2/img/small_change_password.png',
       bt='Change Password',
-      bpu='img/change_password.png',
+      bpu='focus2/img/change_password.png',
       wgl=4)
 @BP.route('/change-password/')
 def change_password():

@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+{% block css %}
+<link href="{{ url_for('static', filename='deps/chosen/css/chosen.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+{% block js %}
+<script src="{{ url_for('static', filename='deps/chosen/js/chosen.jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='focus2/js/VMSSpawn.js') }}"></script>
+{% endblock %}
+{% block content %}
+<div class='container'>
+  <div class='row'>
+    <div class='span10'>
+      <form action='.' class='form-horizontal well ng-pristine ng-valid' id='spawn_form' method='GET'>
+        <fieldset>
+          <div class='control-group'>
+            <label class='control-label'>
+              <b>Project</b>
+            </label>
+            <div class='controls'>
+              <select chosen class='chzn-select' data-placeholder='Select Project' id='project' name='project' ng-model='selected_project' ng-options='x for x in projects' tabindex='1'></select>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

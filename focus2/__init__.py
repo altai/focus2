@@ -25,6 +25,8 @@ import pkgutil
 import flask
 import werkzeug
 import werkzeug.utils
+import MySQLdb
+import json
 
 from _version import __version__
 
@@ -47,7 +49,7 @@ def application_factory(config=(), api_object=None,
     if api_object is None:
         api_object = werkzeug.utils.import_string(api_object_path)
 
-    # define custom applciaiton class
+    # define custom application class
     class AppTemplate(flask.Flask):
         class request_globals_class(object):
             api = api_object
@@ -85,6 +87,83 @@ def application_factory(config=(), api_object=None,
                     pass
         else:
             app.config.from_object(x)
+
+    def connect(app):
+        return MySQLdb.connect(host=app.config['DB_HOST'],
+                               db=app.config['DB_NAME'],
+                               user=app.config['DB_USER'],
+                               passwd=app.config['DB_PASSWD'])
+
+    @app.before_request
+    def connect_db():
+        flask.g.db = connect(flask.current_app)
+
+    @app.after_request
+    def close_connection(response):
+        flask.g.db.commit()
+        flask.g.db.close()
+        return response
+
+    db = connect(app)
+    c = db.cursor()
+    c.execute('show tables')
+    need_commit = False
+    tables = c.fetchall()
+    if ('sessions',) not in tables:
+        c.execute('CREATE TABLE sessions ('
+            'id int not null primary key auto_increment, '
+            'body text, mdate timestamp)')
+        need_commit = True
+    if ('dashboard_objects',) not in tables:
+        c.execute('CREATE TABLE dashboard_objects ('
+            'id varchar(40) not null primary key, body text)')
+        need_commit = True
+    if need_commit:
+        db.commit()
+    db.close()
+
+    class MySessionInterface(flask.sessions.SessionInterface):
+        class session_class(dict, flask.sessions.SessionMixin):
+            pass
+
+        def get_session_id(self, app, request):
+            self._session_cookie_name = app.session_cookie_name
+            return request.cookies.get(app.session_cookie_name)
+
+        def set_session_id(self, session_id):
+            flask.request.cookies.set(self._session_cookie_name, session_id)
+
+        def open_session(self, app, request):
+            self.session_id = self.get_session_id(app, request)
+            if self.session_id is not None:
+                c = flask.g.db.cursor()
+                c.execute('SELECT body from sessions WHERE id = %s',
+                          (self.session_id,))
+                result = c.fetchone()
+                if result is not None:
+                    return self.session_class(json.loads(result[0]))
+            s = self.session_class()
+            s.new = True
+            return s
+
+        def save_session(self, app, session, response):
+            if not session.modified:
+                return
+            c = flask.g.db.cursor()
+            if self.session_id is not None:
+                c.execute('SELECT 1 FROM sessions WHERE id = %s',
+                          (self.session_id))
+                result = c.fetchone()
+                if result is None:
+                    c.execute(
+                        'INSERT (id, body) INTO sessions VALUES (%s, %s)',
+                        (self.session_id, json.dumps(session)))
+                    c.execute('SELECT last_insert_id()')
+                    self.set_session_id(c.fetchone()[0])
+            else:
+                c.execute('UPDATE sessions SET body = %s WHERE id = %s',
+                          (json.dumps(session)), self.session_id)
+
     app.session_interface = flask.sessions.SecureCookieSessionInterface()
     # register blueprints
     path = os.path.join(

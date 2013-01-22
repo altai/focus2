@@ -51,9 +51,9 @@ BP = breadcrumbs('Virtual Machines')(BP)
 @breadcrumbs('Manage')
 @breadcrumb_button('vms.spawn', 'Spawn New VM')
 @dash(st='Manage',
-         spu='img/small_manage.png',
+         spu='focus2/img/small_manage.png',
          bt='Manage VMs',
-         bpu='img/manage.png',
+         bpu='focus2/img/manage.png',
          agt='Virtual Machines',
          wga=0,
          wgl=1,
@@ -64,7 +64,6 @@ def index():
     '''Manage'''
     query = flask.request.args.get('q', '')
     deconstruct = search.transform_search_query(query, 'name:eq')
-    print deconstruct
     r = flask.g.api.find_vms(**dict(deconstruct, limit=0))
     try:
         p = pagination.Pagination(1, r['collection']['size'])
@@ -95,9 +94,9 @@ def index():
 
 @breadcrumbs('Start VM')
 @dash(st='Spawn',
-         spu='img/small_spawn_vm.png',
+         spu='focus2/img/small_spawn_vm.png',
          bt='Spawn VM',
-         bpu='img/spawn_vm.png',
+         bpu='focus2/img/spawn_vm.png',
          agt='Virtual Machines',
          wga=0,
          wgl=0,
@@ -111,9 +110,9 @@ def spawn():
 
 @breadcrumbs('Types')
 @dash(st='Types of',
-         spu='img/small_flavors.png',
+         spu='focus2/img/small_flavors.png',
          bt='Types of VM',
-         bpu='img/flavors.png',
+         bpu='focus2/img/flavors.png',
          agt='Virtual Machines',
          wga=0,
          wgl=2,
