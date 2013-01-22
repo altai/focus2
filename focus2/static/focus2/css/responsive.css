@@ -1,0 +1,83 @@
+@media (max-width: 1350px) {
+    .backbuttonned .container{
+        margin-left: 90px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .table input{
+        width: 80%;
+    }
+}
+.hide-under-980px{
+    display: block;
+}
+.show-under-980px{
+    display: none;
+}
+@media (max-width: 980px) {
+    .back_panel{
+        top: 56px;
+    }
+    .control-bar .chzn-select-container{
+        width: 300px;
+    }
+    [class*="span"],
+    .row-fluid [class*="span"] {
+        display: block;
+        float: none;
+        width: 100%;
+        margin-left: 0;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    .hide-under-980px{
+        display: none;
+    }
+    .show-under-980px{
+        display: block;
+    }
+}
+@media (max-width: 768px){
+    .add-btn a{
+        float: none;
+        margin-left: 5px;
+    }
+    .row .span2{
+        width: 140px;
+        float: left;
+        margin-left: 20px;
+    }
+    .hide-under-768px {
+        display: none;
+    }
+    .td-hide-under-768px {
+        display:none;
+    }
+    .show-under-768px {
+        display: block;
+    }
+}
+@media (min-width: 768px){
+    .td-hide-under-768px {
+        display:table-cell;
+    }
+    .hide-under-768px {
+        display: block;
+    }
+    .show-under-768px {
+        display: none;
+    }
+}
+@media (max-width: 510px){
+    .form-horizontal .control-label {
+        float: none;
+        width: auto;
+        padding-top: 0;
+        text-align: left;
+    }
+    .form-horizontal .controls {
+        margin-left: 0;
+    }
+}
