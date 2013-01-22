@@ -23,21 +23,6 @@ require "tmpdir"
 
 task :default => [:hop]
 
-desc "Start development environment"
-task :hop do
-  Find.find("focus2/templates") {
-    |f|
-    output = f.sub(/.haml$/, '.html')
-    if File.file?(f) and f.end_with?('.haml')
-      if !File.exist?(output)
-        cmd = "haml --format html5 #{f} #{output}"
-        system(cmd)
-      end
-    end
-    exec('foreman start')
-  }
-end
-
 desc "Run Python unittests"
 task :test do
   system('python setup.py test')
@@ -45,6 +30,7 @@ end
 
 desc "Run runserver"
 task :run do
+  system('python setup.py develop')
   system('export FOCUS2=`pwd`/local_settings.py && python -m focus2.runserver')
 end
 

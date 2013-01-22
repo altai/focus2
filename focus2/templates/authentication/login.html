@@ -1,0 +1,26 @@
+{% extends "authentication/base.html" %}
+{% block content %}
+{% from 'base/macros.html' import input_horizontal %}
+<div class='row'>
+  <div class='offset3 span6'>
+    <form action='.' class='form-horizontal' method='POST'>
+      {{ form.hidden_tag() }}
+      <div class='control-group'>
+        <div class='controls'>
+          <h4>Login</h4>
+        </div>
+      </div>
+      {{ input_horizontal(form.name) }}
+      {{ input_horizontal(form.password) }}
+      {{ input_horizontal(form.remember_me) }}
+      <div class='control-group'>
+        <div class='controls'>
+          <button class='btn' type='submit'>Sign in</button>
+          &nbsp;::&nbsp;
+          <a href="{{ url_for('.recover_password') }}">recover password</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

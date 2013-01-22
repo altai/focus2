@@ -1,0 +1,68 @@
+{% macro input_horizontal(field, ng_model=None) -%}
+<div class='control-group{% if field.errors %} error{% endif %}'>
+  {% if field.widget.input_type != 'checkbox' %}
+  <label class='control-label' for='{{ field.label.field_id }}'>
+    {{ field.label.text }}
+  </label>
+  {% endif %}
+  <div class='controls'>
+    {% if field.widget.input_type == 'checkbox' %}
+    <label class='checkbox'>
+      {% if field.data %}
+      <input class='checkbox' name='{{ field.name }}' type='checkbox'>
+      {% else %}
+      <input class='checkbox' name='{{ field.name }}' type='checkbox'>
+      {% endif %}
+      {{ field.label.text }}
+    </label>
+    {% else %}
+    {% if ng_model is not none %}
+    <input id='{{ field.label.field_id }}' name='{{ field.name }}' ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model='{{ ng_model }}' type='{{ field.widget.input_type }}' value='{% if field.data %}{{ field.data }}{% endif %}'>
+    {% else %}
+    <input id='{{ field.label.field_id }}' name='{{ field.name }}' placeholder='{{ field.placeholder }}' type='{{ field.widget.input_type }}' value='{% if field.data %}{{ field.data }}{% endif %}'>
+    {% endif %}
+    {% endif %}
+    {% if field.errors %}
+    <span class='help-inline'>
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      <br>
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro select_horizontal(field, is_required=True) -%}
+<div class='control-group{% if field.errors %} error{% endif %}'>
+  <label class='control-label' for='{{ field.label.field_id }}'>
+    {% if is_required %}
+    <b>{{ field.label.text }}</b>
+    {% else %}
+    {{ field.label.text }}
+    {% endif %}
+  </label>
+  <div class='controls'>
+    <select id='{{ field.label.field_id }}'
+            name='{{ field.label.field_id }}'
+            class='select2'
+            {% for k, v in kwargs.iteritems() %}
+            {{ k.replace("_", "-") }}="{{ v }}"
+            {% endfor %}>
+    </select>
+    {% if field.errors %}
+    <span class='help-inline'>
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      <br>
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{%- endmacro %}

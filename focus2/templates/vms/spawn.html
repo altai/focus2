@@ -1,0 +1,38 @@
+{% extends "base/base.html" %}
+
+
+{% block css %}
+<link href="{{ url_for('static', filename='deps/select2/select2.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='focus2/css/select2.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='deps/angular/angular.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/select2/select2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='focus2/js/VMSSpawn.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+{% from 'base/macros.html' import input_horizontal %}
+{% from 'base/macros.html' import select_horizontal %}
+
+<script>
+  window.data = {{ data|tojson|safe }}
+</script>
+
+<div class='container' ng-app='VMSSpawn'>
+  <div class='row'>
+    <div class='span10'>
+      <form action='.' class='form-horizontal well ng-pristine ng-valid' id='spawn_form' method='GET'
+            ng-controller='VMSSpawnController'>
+        <fieldset>
+          {{ select_horizontal(form.project, data_placeholder='Select Project', ng_model='selected_project', ng_options='x for x in projects', tabindex='1') }}
+          {{ select_horizontal(form.image, data_placeholder='Select Image', ng_model='selected_image', ng_options='x.name for x in images', tabindex='2') }}
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
