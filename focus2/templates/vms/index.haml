@@ -1,1 +1,107 @@
 {% extends "base/base.html" %}
+
+{% block js %}
+%script(type="text/javascript" src="{{ url_for('static', filename='js/vms_index.min.js') }}")
+:javascript
+  window.search_builder = {{ builder_window }};
+{% endblock %}
+
+{% macro searches_panel(title, objects, parent_id, panel_id) -%}
+.accordion-group
+  .accordion-heading
+    %a.accordion-toggle( data-toggle="" data-parent="{{ '#' + parent_id }}"href="{{ '#' + panel_id }}")  {{ title }}  
+  .accordion-body.collapse.in(id="{{ panel_id }}")
+    .accordion-inner
+      {% if objects|length %}
+      %ul.nav.nav-pills.stacked
+        {% for x in objects %}
+        %li
+          %a(href="{{ x.url }}" class="{{ x.class }}") {{ x.title }}
+        {% endfor %}
+      {% endif %}
+{%- endmacro %}
+
+{% macro search_pagination(paginator) -%}
+.pagination
+  %ul
+    {% if paginator.has_prev %}
+    %li
+      %a(href="{{ url_for_other_page(paginator.page - 1) }}") &laquo;
+    {% else %}
+    %li.disabled
+      %span &laquo;
+    {% endif %}
+    {% for page in paginator.iter_pages() -%}
+    {% if page %}
+    {% if page == paginator.page %}
+    %li.active
+      %span {{ page }}
+    {% else %}
+    %li
+      %a(href="{{ url_for_other_page(paginator.page) }}") {{ page }}
+    {% endif %}
+    {% else %}
+    %li
+      %span.ellipsis ...
+    {% endif %}
+    {%- endfor %}
+    {% if paginator.has_next %}
+    %li
+      %a(href="{{ url_for_other_page(paginator.page + 1) }}") &raquo;
+    {% else %}
+    %li.disabled
+      %span &raquo;
+    {% endif %}
+{%- endmacro %}
+
+
+
+{% block content %}
+.container(ng-app="VMSSearch")
+  .row
+    .span10
+      -# search form
+      %form.form-inline#search_form(method="GET" action=".")
+        .input-append.search_input_container
+          %input(type="text" name="q" value="{{ query }}")
+          %a.btn.dropdown-toggle
+            %span.caret
+        .input-append
+          .btn-group
+            %button.btn.btn-straight.saved_searches_lever(type="submit") Search
+            %a.btn.dropdown-toggle.btn-straight
+              %span.caret
+        .btn-group.per-page
+          %select.chzn-select
+            %option(selected) 10
+            %option 20
+            %option 50
+            %option 100
+      -# search result
+      {% if data %}
+      %table.table.table-striped.table-bordered.table-condensed
+        %thead
+          %tr
+            %th
+              %input(type="checkbox")
+            %th
+              Name
+        %tbody
+          {% for x in data %}
+          %tr
+            %td
+              %input(type="checkbox")
+            %td
+              {{ x.name }}
+          {% endfor %}
+      {% else %}
+      .alert.alert-info
+        Use search to find virtual machines you are interested in.
+      {% endif %}
+      -# pagination
+      {{ search_pagination(paginator) }}
+    .span2
+      .accordion#panel_accordion
+        {{ searches_panel('Predefined Searches', predefined_searches, 'panels-accordion', 'predefined-searches') }}
+        {{ searches_panel('User Searches', user_searches, 'panels-accordion', 'user-searches') }}
+{% endblock %}

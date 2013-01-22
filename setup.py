@@ -21,11 +21,7 @@
 
 
 import os
-import pdb
-import re
-import shlex
 import subprocess
-import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py as original_build_py
@@ -45,15 +41,11 @@ class build_py(original_build_py):
         filenames = []
         for arg, dirname, names in os.walk(os.path.join(src_dir, 'templates')):
             for name in names:
-                if name.endswith('haml'):
+                if name.endswith('.haml'):
                     input_file = os.path.join(arg, name)
-                    output_file = os.path.join(
-                        arg, re.sub('.haml$', '.html', name))
-                    command = 'haml --format html5 {0} {1}'.format(input_file,
-                                                                   output_file)
-                    print command
-                    popen_args = shlex.split(command)
-                    subprocess.call(popen_args)
+                    output_file = os.path.splitext(input_file)[0] + '.html'
+                    subprocess.call(['haml', '--format', 'html5', input_file,
+                                     output_file])
                     filenames.append(output_file)
         plen = len(src_dir) + 1
         filenames = [
