@@ -1,35 +1,31 @@
 import unittest
+from focus2.utils import views
 
 
 class Protocols(unittest.TestCase):
     def test_simple(self):
-        from focus2.helpers import protocol
 
-        @protocol
+        @views.view_metadata
         def exempt():
             return True
 
         @exempt
         def view():
             return 'foo'
-        self.assertTrue(view.protocols['test_helpers']['exempt'])
+        self.assertTrue(exempt.get(view))
 
     def test_packaged(self):
-        from focus2 import helpers
-
-        @helpers.protocol
+        @views.view_metadata
         def exempt():
             return True
 
         @exempt
         def view():
             return 'foo'
-        self.assertTrue(view.protocols['test_helpers']['exempt'])
+        self.assertTrue(exempt.get(view))
 
     def test_args(self):
-        from focus2 import helpers
-
-        @helpers.protocol
+        @views.view_metadata
         def pushpin(*args):
             return args
 
@@ -38,4 +34,4 @@ class Protocols(unittest.TestCase):
         @pushpin(*data)
         def view():
             pass
-        self.assertEqual(view.protocols['test_helpers']['pushpin'], data)
+        self.assertEqual(pushpin.get(view), data)

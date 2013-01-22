@@ -24,4 +24,3 @@ centosvenv
 .idea
 local_settings.py
 node_modules
-*.html

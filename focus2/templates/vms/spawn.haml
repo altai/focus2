@@ -1,1 +1,31 @@
 {% extends "base/base.html" %}
+
+{% block css %}
+%link(href="/static/dependencies/css/chosen.css" rel="stylesheet" type="text/css")
+{% endblock %}
+{% block js %}
+%script(src="/static/dependencies/js/chosen.jquery.min.js")
+{% endblock %}
+
+{% block content %}
+.container(ng-app="VMSSpawn")
+  .row
+    .span10
+      -# spawn form
+      %form.form-horizontal.well.ng-pristine.ng-valid#spawn_form(method="GET" action=".")
+        %fieldset
+          .control-group
+            %label.control-label
+              %b Project
+            .controls
+              %select(                                        name="project"
+                                        class="chzn-select"
+                                        id="project"
+                                        data-placeholder="Select Project"
+                                        tabindex="1"
+                                        ng-model="selected_project"
+                                        ng-options="x for x in projects"
+                                        chosen)
+
+
+{% endblock %}

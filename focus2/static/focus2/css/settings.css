@@ -1,0 +1,30 @@
+.change_avatar_trigger{
+    text-align: center;
+    width: 170px;
+    position: absolute;
+    top: 138px;
+    height: 32px;
+    left: 0;
+    z-index: -100;
+    background-color: #F0F0F0;
+    opacity: 0.8;
+    font-weight: bold;
+    color: black;
+    line-height: 32px;
+}
+.user_avatar .current{
+    position: relative;
+}
+form.user_avatar.active .change_avatar_trigger{
+    z-index: 100;
+
+}
+form.user_avatar.active .controls *{
+    cursor: pointer;
+}
+.avatar_chooser{
+    display: none;
+}
+.user_avatar img {
+    border: 1px black solid;
+}

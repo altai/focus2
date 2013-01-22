@@ -25,17 +25,16 @@ task :default => [:hop]
 
 desc "Start development environment"
 task :hop do
-  Find.find("focus2/templates") {
-    |f|
-    output = f.sub(/.haml$/, '.html')
+  Find.find("focus2/templates") do |f|
     if File.file?(f) and f.end_with?('.haml')
+      output = f.sub(/.haml$/, '.html')
       if !File.exist?(output)
         cmd = "haml --format html5 #{f} #{output}"
         system(cmd)
       end
     end
-    exec('foreman start')
-  }
+  end
+  exec('foreman start')
 end
 
 desc "Run Python unittests"
@@ -45,6 +44,7 @@ end
 
 desc "Run runserver"
 task :run do
+  system('python setup.py develop')
   system('export FOCUS2=`pwd`/local_settings.py && python -m focus2.runserver')
 end
 
