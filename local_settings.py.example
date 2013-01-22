@@ -1,2 +1,6 @@
 API_ENDPOINT = 'http://a007:5039'
 APP_TEMP_DIR = '/tmp'
+DB_HOST = 'localhost'
+DB_NAME = 'focus2'
+DB_USER = 'focus2'
+DB_PASSWD = 'focus2'

@@ -65,3 +65,105 @@ table.curly_brace {
     list-style-type: none;
     margin: 0;
 }
+
+#accordion2 {
+    background-color: #f0f0f0;
+    border: 1px #ddd solid;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+    transition: all 0.2s ease-in-out 0s;
+}
+.accordion-group {
+    margin: 0;
+    border: 0;
+}
+#accordion2 .accordion-inner {
+    padding: 0;
+}
+#accordion2 .accordion-inner p{
+    padding: 0;
+    margin: 0;
+}
+.links-repo {
+    margin-top: 10px;
+    margin-left: 0px;
+    width: 160px;
+}
+.links-repo ul {
+    margin: 0;
+    padding: 0;
+}
+.ui-accordion-content {
+    padding: 0 !important;
+}
+
+#accordion2 .accordion-inner  a {
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+}
+#accordion2 .accordion-inner  a:hover {
+    background-color: #ddd;
+}
+.quick-links .droppable {
+    height: 170px !important;
+    width: 170px !important;
+    display: inline-block;
+    vertical-align: top;
+    margin: 10px;
+}
+.quick-links  .droppable-empty {}
+.quick-links  .droppable span.thumbnail {
+    height: 160px;
+    background-color: white;
+    line-height: 160px;
+    text-align: center;
+    font-weight: bold;
+    color: #F0F0F0;
+}
+.quick-links .droppable-container {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px;
+    width: 200px;
+    height: 500px;
+}
+.drop-hover >  span, .drop-hover >  a {
+    border: 1px #08c solid;
+    color: #555555 !important;
+}
+.accordion-heading a {
+    background-color: #ddd;
+}
+.accordion-body img.pin {
+    border: 0;
+    width: 12px;
+    height: 12px;
+    opacity: 0.65;
+    bottom: 14px;
+    cursor: pointer;
+    position: absolute;
+    right: 14px;
+    top: 14px;
+}
+.accordion-body img.pin:hover {
+    opacity: 1;
+}
+
+a.thumbnail:hover div.xxx-hoverit {
+    border: 1px solid #0088cc !important;
+    transition-delay: 0s;
+    transition-duration: 0.2s;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+a.thumbnail div.xxx-hoverit {
+    position: absolute;
+    right: -1px;
+    border: 1px #dddddd solid;
+    border-radius: 0 5px;
+    top: -1px;
+    width: 20px;
+    text-align: center;
+}
