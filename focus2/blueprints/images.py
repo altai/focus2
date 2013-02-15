@@ -69,3 +69,18 @@ def index():
 @BP.route('/register/')
 def register():
     return {}
+
+
+@BP.route('/<id>')
+def show(id):
+    api = flask.g.api
+    image = api.images.get(id)
+    return {
+        "data": {
+            "image": image,
+            "kernel": (api.images.get(image["kernel"]["id"])
+                       if "kernel" in image else None),
+            "ramdisk": (api.images.get(image["ramdisk"]["id"])
+                        if "ramdisk" in image else None),
+        }
+    }

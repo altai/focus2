@@ -115,6 +115,32 @@ Headers: %s
         return self.request("DELETE", *args, **kwargs)
 
 
+class Collection(object):
+    def __init__(self, requester, resource_name):
+        self.requester = requester
+        self.resource_name = resource_name
+
+    def list(self, limit=None, offset=None, sort=None, filter=None):
+        query = filter or {}
+        if sort:
+            query["sortby"] = sort
+        if limit is not None:
+            query["limit"] = limit
+        if offset is not None:
+            query["offset"] = offset
+        return self.requester.get(self.resource_name, data=query or None)
+
+    def get(self, id):
+        return self.requester.get("%s/%s" % (self.resource_name, id))
+
+    def create(self, data=None):
+        return self.requester.post("%s/" % self.resource_name, data=data or {})
+
+    def __call__(self, **kwargs):
+        return Collection(self.requester,
+                          self.resource_name % kwargs)
+
+
 class Api(object):
     def __init__(self,
                  get_credentials=get_credentials,
@@ -122,6 +148,21 @@ class Api(object):
         """Accept sources of credentials and endpoints to simplify testing
         """
         self.r = Requester(get_endpoint, get_credentials)
+        for obj in ("projects", "networks", "fw_rule_sets",
+                    "users", "vms", "images",
+                    "invites", "audit_log", "me",
+                    "instance_types"):
+            setattr(self, obj, Collection(self.r, obj.replace("_", "-")))
+        self.fw_rules = Collection(
+            self.r, "fw-rule-sets/%(fw_rule_set_id)s/rules")
+        self.project_users = Collection(
+            self.r, "projects/%(project_id)s/users")
+        self.vm_fw_rule_sets = Collection(
+            self.r, "vms/%(vm_id)s/fw-rule-sets"),
+        self.users_ssh_keys = Collection(
+            self.r, "/users/%(user_id)s/ssh-keys")
+        self.my_ssh_keys = Collection(
+            self.r, "me/ssh-keys")
 
     def are_credentials_correct(self, username=None, password=None):
         try:
@@ -130,12 +171,6 @@ class Api(object):
             return False
         else:
             return True
-
-    def get_instance_types(self):
-        return self.r.get('instance-types/')['instance-types']
-
-    def get_projects(self):
-        return self.r.get('projects/')
 
     def send_password_recovery_email(self, identifier, kind, link_template):
         return self.r.post('/me/reset-password',
@@ -146,7 +181,5 @@ class Api(object):
         return self.r.post('/me/reset-password/{}'.format(token),
                            data={'password': password}, is_anonymous=True)
 
-    def find_vms(self, **kwargs):
-        return self.r.get('vms', data=kwargs)
 
 client = Api(get_credentials)

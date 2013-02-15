@@ -1,1 +1,49 @@
 {% extends "base/base.html" %}
+
+{% macro project_table(x) -%}
+  <div class='span7' style='overflow: hidden'>
+    <table class='tiled-list__item'>
+      <tr>
+        <td class='name'>{{ x['name'] }}</td>
+        <td class="name" style="padding-top: 12px;'">
+          <div style="width: 40px; height: 40px; padding-left: 10px;padding-right: 10px;">
+            <div style="margin: 10px; width: 20px; height: 20px; background-color: green; text-indent: -100px; border-radius: 10px; overflow: hidden;">
+              OK
+            </div>
+          </div>
+        </td>
+        <td class='value'>$what?</td>
+        <td class='value'>{{x["total_users"]}}</td>
+        <td class='value'>{{x["total_vms"]}}</td>
+        <td class='value'>{{x["total_images"]}}</td>
+        <td class='value'>{{x["network"]["vlan"]}}</td>
+        <td class='value'>{{x["network"]["cidr"]}}</td>
+      </tr>
+      <tr>
+        <td class='actions nobr'>
+          <a class='btn btn-mini btn-success' href="{{ url_for('vms.spawn')}}?project={{ x['id'] }}">
+            <i class='icon-plus-sign icon-white'></i>
+              VM
+          </a>
+        </td>
+        <td class='title'>Status</td>
+        <td class='title'>Cost</td>
+        <td class='title'>Users</td>
+        <td class='title'>VMs</td>
+        <td class='title'>Images</td>
+        <td class='title'>VLAN</td>
+        <td class='title'>Network</td>
+      </tr>
+    </table>
+  </div>
+{%- endmacro %}
+
+{% block content %}
+  <div class='container'>
+    <div class='tiled-list'>
+      {% for pr in data.projects %}
+        {{ project_table(pr) }}
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
