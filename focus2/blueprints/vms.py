@@ -22,6 +22,7 @@ import itertools
 
 import flask
 from flask import blueprints
+from flask.ext import wtf
 import werkzeug
 
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
@@ -64,15 +65,15 @@ def index():
     '''Manage'''
     query = flask.request.args.get('q', '')
     deconstruct = search.transform_search_query(query, 'name:eq')
-    r = flask.g.api.find_vms(**dict(deconstruct, limit=0))
+    r = flask.g.api.vms.get(filter=deconstruct, limit=0)
     try:
         p = pagination.Pagination(1, r['collection']['size'])
     except werkzeug.exceptions.NotFound:
         paginator = None
         data = []
     else:
-        r = flask.g.api.find_vms(**dict(deconstruct,
-                                        limit=p.limit, offset=p.offset))
+        r = flask.g.api.vms.get(filter=deconstruct,
+                         limit=p.limit, offset=p.offset)
         paginator = pagination.Pagination(1, r['collection']['size'])
         data = r['vms']
 
@@ -86,10 +87,15 @@ def index():
         ] + [
             {'title': x['name'],
              'url': flask.request.path + '?project_id=' + x['id']} for x
-            in flask.g.api.get_projects()['projects']
+            in flask.g.api.projects.get()['projects']
         ],
         'user_searches': flask.session.get('user_searches', []),
     }
+
+
+class SpawnForm(wtf.Form):
+    project = wtf.SelectField('Project', validators=[wtf.Required()])
+    image = wtf.SelectField('Image', validators=[wtf.Required()])
 
 
 @breadcrumbs('Start VM')
@@ -105,7 +111,22 @@ def index():
 @BP.route('/spawn/', methods=['GET', 'POST'])
 def spawn():
     '''Spawn'''
-    return {}
+    form = SpawnForm()
+    if form.validate_on_submit():
+        return flask.redirect(flask.request.path)
+    return {
+        'form': form,
+        "data": {
+            "projects": [
+                "IT",
+                "OSCORE",
+            ],
+            "images": [
+                {'name': 'mini image</script>', },
+                {'name': 'Gentoo', },
+            ],
+        },
+    }
 
 
 @breadcrumbs('Types')
@@ -121,4 +142,4 @@ def spawn():
 @BP.route('/types/')
 def types():
     '''Types'''
-    return flask.g.api.get_instance_types()
+    return flask.g.api.instance_types.get()
