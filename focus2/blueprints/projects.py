@@ -50,7 +50,34 @@ dash = partial(basedash, agt='Projects', wga=2)
       wgl=0)
 @BP.route('/')
 def summary():
-    return {}
+
+    def get_total(obj_list):
+        res = {}
+        for obj in obj_list:
+            project_id = obj["project"]["id"]
+            res[project_id] = res.get(project_id, 0) + 1
+        return res
+
+    api = flask.g.api
+    projects = api.projects.list()["projects"]
+    total_users = {}
+    for usr in api.users.list()["users"]:
+        for proj in usr["projects"]:
+            total_users[proj["id"]] = total_users.get(proj["id"], 0) + 1
+    total = {
+        "vms": get_total(api.vms.list()["vms"]),
+        "images": get_total(api.images.list()["images"]),
+        "users": total_users,
+    }
+    for p in projects:
+        p["network"] = api.networks.get(p["network"]["id"])
+        for key, value in total.iteritems():
+            p["total_%s" % key] = value.get(p["id"], 0)
+    return {
+        "data": {
+            "projects": projects,
+        },
+    }
 
 
 @dash(st='Security Groups',

@@ -1,8 +1,12 @@
-{% macro input_horizontal(field, ng_model=None) -%}
+{% macro input_horizontal(field, ng_model=None, is_required=False) -%}
 <div class='control-group{% if field.errors %} error{% endif %}'>
   {% if field.widget.input_type != 'checkbox' %}
   <label class='control-label' for='{{ field.label.field_id }}'>
+    {% if is_required %}
+    <b>{{ field.label.text }}</b>
+    {% else %}
     {{ field.label.text }}
+    {% endif %}
   </label>
   {% endif %}
   <div class='controls'>
@@ -36,33 +40,65 @@
 </div>
 {%- endmacro %}
 
-{% macro select_horizontal(field, is_required=True) -%}
-<div class='control-group{% if field.errors %} error{% endif %}'>
+{% macro select_horizontal(field,
+  data,
+  is_required=False,
+  is_multiple=False,
+  group_attrs=None,
+  plus_button_href=None,
+  opt_id="id",
+  opt_name="name"
+  ) -%}
+  {% set field_id = field.label.field_id %}
+<div class='control-group{% if field.errors %} error{% endif %}'
+  {% if group_attrs %}{{ group_attrs|safe }}{% endif %}>
   <label class='control-label' for='{{ field.label.field_id }}'>
     {% if is_required %}
-    <b>{{ field.label.text }}</b>
+      <b>{{ field.label.text }}</b>
     {% else %}
-    {{ field.label.text }}
+      {{ field.label.text }}
     {% endif %}
   </label>
+
   <div class='controls'>
-    <select id='{{ field.label.field_id }}'
-            name='{{ field.label.field_id }}'
+    <select id='{{ field_id }}'
+            name='{{ field_id }}'
             class='select2'
+            {% if is_multiple %}multiple{% endif %}
+            ng-model='form.{{field_id}}'
             {% for k, v in kwargs.iteritems() %}
-            {{ k.replace("_", "-") }}="{{ v }}"
-            {% endfor %}>
+              {{ k.replace("_", "-") }}="{{ v }}"
+            {% endfor %}
+            {% if not is_required %}
+              allow-clear
+            {% endif %}
+            >
+            {% if is_multiple %}
+              <option></option>
+            {% else %}
+              <option value=""></option>
+            {% endif %}
+            {% for i in data[field_id] %}
+              <option value="{{ i[opt_id] }}">{{ i[opt_name] }}</option>
+            {% endfor %}
     </select>
+    {% if plus_button_href %}
+    <span class="help-inline">
+      <a class="btn btn-mini btn-success" href="{{plus_button_href}}">
+        <i class="icon-plus-sign icon-white"></i>
+      </a>
+    </span>
+    {% endif %}
     {% if field.errors %}
     <span class='help-inline'>
       {% for x in field.errors %}
-      {% if not loop.first %}
-      <br>
-      {% endif %}
-      {{ x }}
+        {% if not loop.first %}
+          <br/>
+        {% endif %}
+        {{ x }}
       {% endfor %}
     </span>
-    {% endif %}
+  {% endif %}
   </div>
 </div>
 {%- endmacro %}

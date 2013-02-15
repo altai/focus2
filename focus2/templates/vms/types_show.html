@@ -1,0 +1,60 @@
+{% extends "base/base.html" %}
+
+
+{% block css %}
+<link href="{{ url_for('static', filename='deps/select2/select2.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='deps/jquery/css/jquery-ui-1.8.24.custom.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='focus2/css/select2.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='deps/angular/angular.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/select2/select2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/jquery/js/jquery-ui-1.8.24.custom.min.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+<div class='container'>
+  <div>
+    <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
+      <a href="{{ url_for('vms.spawn')}}?instance_type={{data.instance_type["id"]}}"
+         class="btn btn-success">Spawn VM</a>
+    </div>
+  </div>
+  <table class="table table-striped table-bordered table-condensed">
+    <tr>
+      <td colspan=2>
+        <h4>
+          Type
+        </h4>
+      </td>
+    </tr>
+    <tr>
+      <td width="200px">Id</td>
+      <td>{{data.instance_type["id"]}}</td>
+    </tr>
+    <tr>
+      <td>Name</td>
+      <td>{{data.instance_type["name"]}}</a></td>
+    </tr>
+    <tr>
+      <td>RAM</td>
+      <td>{{data.instance_type["ram"] | filesizeformat}}</td>
+    </tr>
+    <tr>
+      <td>Disk</td>
+      <td>{{data.instance_type["root-size"] | filesizeformat}}</td>
+    </tr>
+    <tr>
+      <td>Additional Disk</td>
+      <td>{{data.instance_type["ephemeral-size"] | filesizeformat}}</td>
+    </tr>
+    <tr>
+      <td>Virtual CPUs</td>
+      <td>{{data.instance_type["cpus"]}}</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
