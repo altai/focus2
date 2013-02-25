@@ -19,7 +19,7 @@
           <div class="control-group ">
             <label class="control-label">Public Key</label>
             <div class="controls">
-	      <textarea name="public_key" id="public_key"></textarea>
+	      <textarea name="public_key" id="public_key">{{form.public_key.data or ""}}</textarea>
               <p class="help-block">Can be omitted. New keypair will be generated</p>
             </div>
           </div>

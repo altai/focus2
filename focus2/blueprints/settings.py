@@ -70,15 +70,28 @@ def ssh_keys_create():
     form = SshKeyCreateForm()
     api = flask.g.api
     if form.validate_on_submit():
-        ssh_key_data = {
-            "name": form.name.data,
-            "public-key": form.public_key.data,
-        }
-        api.my_ssh_keys.create(ssh_key_data)
-        return flask.redirect(flask.request.path)
+        name = form.name.data
+        ssh_key_data = {"name": name}
+        if form.public_key.data:
+            ssh_key_data["public-key"] = form.public_key.data
+        try:
+            api.my_ssh_keys.create(ssh_key_data)
+        except:
+            # TODO: show error
+            flask.flash("Cannot create SSH key", "error")
+        else:
+            flask.flash("Successfully created SSH key %s" % name, "success")
+            return flask.redirect(flask.url_for(".ssh_keys"))
     return {
         "form": form,
     }
+
+
+@BP.route('/ssh-keys/<name>/delete', methods=["POST"])
+def ssh_keys_delete(name):
+    flask.g.api.my_ssh_keys.delete(name)
+    flask.flash("Successfully deleted %s" % name, "success")
+    return flask.redirect(flask.url_for(".ssh_keys"))
 
 
 @dash(st='Credentials',
@@ -125,16 +138,6 @@ def notifications():
     return {}
 
 
-@dash(st='Avatar',
-      spu='focus2/img/small_avatar.png',
-      bt='Avatar',
-      bpu='focus2/img/avatar.png',
-      wgl=3)
-@BP.route('/avatar/')
-def avatar():
-    return {}
-
-
 class ChangePasswordForm(wtf.Form):
     current = wtf.TextField(
         'Current',
@@ -143,7 +146,7 @@ class ChangePasswordForm(wtf.Form):
     new = wtf.TextField(
         'New',
         widget=wtf.widgets.PasswordInput(),
-        validators=[wtf.Required()])
+        validators=[wtf.Required(), wtf.Length(min=6)])
     confirm = wtf.TextField(
         'Confirm',
         widget=wtf.widgets.PasswordInput(),
@@ -171,6 +174,7 @@ def change_password():
             filter={"name:eq": flask.session["name"]})["users"][0]
         api.users.update(user["id"], {"password": form.new.data})
         flask.session["password"] = form.new.data
+        flask.flash("Successfully updated password", "success")
         return flask.redirect(flask.request.path)
     return {
         "form": form,

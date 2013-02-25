@@ -16,12 +16,11 @@
 
 
 {% block content %}
+  {% from 'base/macros.html' import spawn_vm_button %}
+
 <div class='container'>
   <div>
-    <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
-      <a href="{{ url_for('vms.spawn')}}?instance_type={{data.instance_type["id"]}}"
-         class="btn btn-success">Spawn VM</a>
-    </div>
+    {{spawn_vm_button("instance_type=" + data.instance_type["id"])}}
   </div>
   <table class="table table-striped table-bordered table-condensed">
     <tr>

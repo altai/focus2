@@ -86,3 +86,8 @@ def show(id):
                         if "ramdisk" in image else None),
         }
     }
+
+
+@BP.route('/<id>/<command>', methods=["GET", "POST"])
+def action(id, command):
+    return {}

@@ -80,6 +80,20 @@ def summary():
     }
 
 
+@BP.route('/<id>')
+def show(id):
+    api = flask.g.api
+    stats = api.projects.get(id, "stats")
+    network = api.networks.find(project=id)
+    return {
+        "data": {
+            "project": stats["project"],
+            "stats": stats,
+            "network": network,
+        },
+    }
+
+
 @dash(st='Security Groups',
       spu='focus2/img/small_security_groups.png',
       bt='Security Groups',
@@ -108,6 +122,23 @@ def billing():
 @BP.route('/members/')
 def members():
     return {}
+
+
+@BP.route('/members/<id>')
+def members_show(id):
+    api = flask.g.api
+    user = api.users.find(id=id)
+    my_projects = set(
+        (p["id"]
+         for p in api.projects.list(
+                filter={"my-projects": True})["projects"]))
+    user["projects"] = filter(
+        lambda p: p["id"] in my_projects, user["projects"])
+    return {
+        "data": {
+            "user": user,
+        },
+    }
 
 
 @dash(st='Audit',

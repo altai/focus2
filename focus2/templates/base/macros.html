@@ -1,3 +1,17 @@
+{% macro field_errors(field) -%}
+    {% if field.errors %}
+    <span class='help-inline'>
+      {% for x in field.errors %}
+      {% if not loop.first %}
+      <br>
+      {% endif %}
+      {{ x }}
+      {% endfor %}
+    </span>
+    {% endif %}
+{%- endmacro %}
+
+
 {% macro input_horizontal(field, ng_model=None, is_required=False) -%}
 <div class='control-group{% if field.errors %} error{% endif %}'>
   {% if field.widget.input_type != 'checkbox' %}
@@ -21,21 +35,12 @@
     </label>
     {% else %}
     {% if ng_model is not none %}
-    <input id='{{ field.label.field_id }}' name='{{ field.name }}' ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model='{{ ng_model }}' type='{{ field.widget.input_type }}' value='{% if field.data %}{{ field.data }}{% endif %}'>
+    <input id='{{ field.label.field_id }}' name='{{ field.name }}' ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model='{{ ng_model }}' type='{{ field.widget.input_type }}' value='{{ field.data or "" }}'>
     {% else %}
-    <input id='{{ field.label.field_id }}' name='{{ field.name }}' placeholder='{{ field.placeholder }}' type='{{ field.widget.input_type }}' value='{% if field.data %}{{ field.data }}{% endif %}'>
+    <input id='{{ field.label.field_id }}' name='{{ field.name }}' placeholder='{{ field.placeholder }}' type='{{ field.widget.input_type }}' value='{{ field.data or "" }}'>
     {% endif %}
     {% endif %}
-    {% if field.errors %}
-    <span class='help-inline'>
-      {% for x in field.errors %}
-      {% if not loop.first %}
-      <br>
-      {% endif %}
-      {{ x }}
-      {% endfor %}
-    </span>
-    {% endif %}
+    {{field_errors(field)}}
   </div>
 </div>
 {%- endmacro %}
@@ -101,4 +106,44 @@
   {% endif %}
   </div>
 </div>
+{%- endmacro %}
+
+
+{% macro spawn_vm_button(querystring) -%}
+  <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
+    <a href="{{url_for('vms.spawn')}}?{{querystring}}" class="btn btn-success">
+       <i class='icon-plus-sign icon-white'></i>
+       Spawn VM
+    </a>
+  </div>
+{%- endmacro %}
+
+
+{% macro modal_dialog(id, title, message, url, cannot_revert=False) -%}
+  <div id="{{id}}" class="modal hide">
+    <div class="modal-header">
+      <a data-dismiss="modal" class="close">×</a>
+      <h3>{{title}}</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        {{message}}
+      </p>
+    </div>
+    <div class="modal-footer">
+      <form method="post" action="{{url}}">
+        {% if cannot_revert %}
+        <span class="label label-important" style="float: left;">
+          Important: this action cannot be reverted
+        </span>
+        {% endif %}
+        <button class="btn">
+          Yes
+        </button>
+        <a class="btn btn-primary" href="#" data-dismiss="modal">
+          No
+        </a>
+      </form>
+    </div>
+  </div>
 {%- endmacro %}

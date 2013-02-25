@@ -1,6 +1,21 @@
 #!/bin/bash
 
+STATUS=0
 FILES=$(git diff --staged --name-status | awk '{  if ($1 != "D" && $2 ~ ".*.py$") print $2 }')
 if [ -n "$FILES" ]; then
-    pep8 -r $FILES
+    pep8 -r $FILES || STATUS=1
+    if grep -n -E --color '(import pdb|pdb.set_trace)' $FILES; then
+        echo "Please remove pdb"
+        STATUS=1
+    fi
 fi
+
+FILES=$(git diff --staged --name-status | awk '{  if ($1 != "D" && $2 ~ ".*.html$") print $2 }')
+if [ -n "$FILES" ]; then
+    if grep -n -E --color '\s+$' $FILES; then
+        echo "Please remove trailing spaces"
+        STATUS=1
+    fi
+fi
+
+exit $STATUS

@@ -1,6 +1,8 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+  {% from 'base/macros.html' import modal_dialog %}
+
   <div class="container">
     <ul class="breadcrumb">
       <li><a href="/">Home</a> <span class="divider">/</span></li>
@@ -23,40 +25,30 @@
             <td>{{ssh_key["name"]}}</td>
             <td class="td-hide-under-768px">{{ssh_key["fingerprint"]}}</td>
             <td class="nobr">
-              <div id="show_key_{{ssh_key["name"]}}" class="modal hide">
+
+              <div id="show_{{ssh_key["name"]}}" class="modal hide">
                 <div class="modal-header">
                   <a data-dismiss="modal" class="close">×</a>
                   <h3>Public Key for {{ssh_key["name"]}}</h3>
                 </div>
                 <div class="modal-body">
-                  <textarea style="width: 521px; height: 105px;/* ad hoc */" rows="3" class="input-xlarge">{{ssh_key["public-key"]}}
-                  </textarea>
+                  <textarea style="width: 521px; height: 105px;/* ad hoc */" rows="3" class="input-xlarge">{{ssh_key["public-key"]}}</textarea>
                 </div>
                 <div class="modal-footer">
-                  <a data-dismiss="modal" href="#" class="btn btn-primary">Copy to clipboard</a>
                   <a data-dismiss="modal" href="#" class="btn">Close</a>
                 </div>
               </div>
-              <a href="#show_key_{{ssh_key["name"]}}"
+
+              {{modal_dialog("delete_%s" % ssh_key["name"], "Delete Confirmation",
+                             "Are you sure to delete SSH key %s?" % (ssh_key["name"]),
+                             url_for("settings.ssh_keys_delete", name=ssh_key["name"]))}}
+
+              <a href="#show_{{ssh_key["name"]}}"
                  class="btn btn-primary btn-mini" data-toggle="modal">
                  <i class="icon-eye-open icon-white"></i>
               </a>
-              <div id="delete_key_{{ssh_key["name"]}}" class="modal hide">
-                <div class="modal-header">
-                  <a data-dismiss="modal" class="close">×</a>
-                  <h3>Confirmation request</h3>
-                </div>
-                <div class="modal-body">
-                  <p>Sure to delete "{{ssh_key["name"]}}"?</p>
-                </div>
-                <div class="modal-footer">
-                  <form action="/projects/6/keypairs/delete/{{ssh_key["name"]}}/" method="post">
-                    <button class="btn">Delete</button>
-                    <a data-dismiss="modal" href="#" class="btn btn-primary">No</a>
-                  </form>
-                </div>
-              </div>
-              <a href="#delete_key_{{ssh_key["name"]}}" class="btn btn-danger btn-mini" data-toggle="modal"><i class="icon-remove icon-white"></i></a>
+
+              <a href="#delete_{{ssh_key["name"]}}" class="btn btn-danger btn-mini" data-toggle="modal"><i class="icon-remove icon-white"></i></a>
             </td>
           </tr>
         {% endfor %}
