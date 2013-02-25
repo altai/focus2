@@ -130,8 +130,18 @@ class Collection(object):
             query["offset"] = offset
         return self.requester.get(self.resource_name, data=query or None)
 
-    def get(self, id):
-        return self.requester.get("%s/%s" % (self.resource_name, id))
+    def get(self, id, field=None):
+        if field:
+            field = "/%s" % field
+        else:
+            field = ""
+        return self.requester.get("%s/%s%s" % (self.resource_name, id, field))
+
+    def find(self, **kwargs):
+        lst = self.list(filter=dict(
+                (("%s:eq" % k, v)
+                 for k, v in kwargs.iteritems())))
+        return lst[lst["collection"]["name"]][0]
 
     def create(self, data=None):
         return self.requester.post("%s/" % self.resource_name, data=data or {})
@@ -139,6 +149,12 @@ class Collection(object):
     def update(self, id, data=None):
         return self.requester.put(
             "%s/%s" % (self.resource_name, id), data=data or {})
+
+    def action(self, id, command, query=None, body=None):
+        # TODO: support query
+        return self.requester.post(
+            "%s/%s/%s" % (self.resource_name, id, command),
+            data=body or {})
 
     def __call__(self, **kwargs):
         return Collection(self.requester,
@@ -170,7 +186,7 @@ class Api(object):
 
     def are_credentials_correct(self, username=None, password=None):
         try:
-            self.r.get('/', username=username, password=password)
+            self.r.get('me', username=username, password=password)
         except LoginException:
             return False
         else:
@@ -185,7 +201,5 @@ class Api(object):
         return self.r.post('/me/reset-password/{}'.format(token),
                            data={'password': password}, is_anonymous=True)
 
-    def find_vms(self, **kwargs):
-        return self.r.get('vms', data=kwargs)
 
 client = Api(get_credentials)
