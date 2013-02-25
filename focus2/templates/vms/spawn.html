@@ -112,7 +112,7 @@
           <h3>Image Details</h3>
           <table cellspacing="0" cellpadding="0" width="700">
             <tr><td width="25%">ID:</td><td>{{form.image}}</td></tr>
-            <tr><td>Disk Format:</td><td>{{form.image | fieldbyid:"image":"disk-format"}}</td></tr>
+            <tr><td>Disk Format:</td><td>{{form.image | fieldbyid:"image":"disk-format" | diskformat}}</td></tr>
             <tr><td>Size:</td><td>{{form.image | fieldbyid:"image":"size" | filesizeformat}}</td></tr></table>
         </div>
 

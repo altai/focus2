@@ -125,16 +125,6 @@ def notifications():
     return {}
 
 
-@dash(st='Avatar',
-      spu='focus2/img/small_avatar.png',
-      bt='Avatar',
-      bpu='focus2/img/avatar.png',
-      wgl=3)
-@BP.route('/avatar/')
-def avatar():
-    return {}
-
-
 class ChangePasswordForm(wtf.Form):
     current = wtf.TextField(
         'Current',

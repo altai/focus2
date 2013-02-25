@@ -16,7 +16,15 @@
 
 
 {% block content %}
+  {% from 'base/macros.html' import spawn_vm_button %}
+
   <div class="container">
+    {% if data.image is image_spawnable %}
+    <div>
+      {{spawn_vm_button("image=" + data.image["id"])}}
+    </div>
+    {% endif %}
+
     <table class="table table-striped table-bordered table-condensed" style="margin-top: 5px;">
       <tr>
         <td colspan=2>
@@ -32,12 +40,18 @@
         <td>{{data.image["name"]}}</td>
       </tr>
       <tr>
-        <td>Container Format</td>
-        <td>{{data.image["container-format"]}}</td>
+        <td>Type</td>
+        <td>
+          {% if data.image["kernel"] %}
+            Amazon machine image
+          {% else %}
+            Solid
+          {% endif %}
+        </td>
       </tr>
       <tr>
         <td>Disk Format</td>
-        <td>{{data.image["disk-format"]}}</td>
+        <td>{{data.image["disk-format"] | diskformat}}</td>
       </tr>
       <tr>
         <td>Global</td>
@@ -54,16 +68,6 @@
       <tr>
         <td>Uploaded</td>
         <td>{{data.image["created"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
-      </tr>
-      <tr>
-        <td>Type</td>
-        <td>
-          {% if data.image["kernel"] %}
-            Amazon Like
-          {% else %}
-            Solid
-          {% endif %}
-        </td>
       </tr>
       <tr>
         <td>User</td>
