@@ -118,9 +118,12 @@ def enumerate_dashboard_objects(*args, **kwargs):
 
 @BP.route('/', methods=['GET', 'POST'])
 def index():
-    c = flask.g.db.cursor()
-    if not c.execute('SELECT body FROM dashboard_objects WHERE id = %s',
-                     (flask.session['name'],)):
+    cursor = flask.g.db.cursor()
+    exist = cursor.execute('SELECT body FROM dashboard_objects WHERE id = %s',
+                     (flask.session['name'],)) > 0
+    if exist:
+        do = json.loads(cursor.fetchone()[0])
+    else:
         _groups = {}
         cells = []
         for x in DASHBOARD_OBJECTS:
@@ -147,6 +150,41 @@ def index():
             'groups': sorted(_groups.itervalues(), key=lambda x: x['weight']),
             'cells': cells + [None for x in xrange(15 - len(cells))]
         }
+    if flask.request.method == 'POST':
+        if 'employ' in flask.request.json:
+            href = flask.request.json['href']
+            employ = flask.request.json['employ']
+            x = None
+            for g in do['groups']:
+                if x is not None:
+                    break
+                for l in g['links']:
+                    if l['href'] == href:
+                        l['employed'] = employ
+                        x = l
+                        break
+            for i, c in enumerate(do['cells']):
+                if employ:
+                    if c is None:
+                        do['cells'][i] = {
+                            'href': x['href'],
+                            'img': x['big_url'],
+                            'full_title': x['big_title']
+                            }
+                        break
+                else:
+                    if c is not None:
+                        if c['href'] == href:
+                            do['cells'][i] = None
+                            break
+            cursor.execute(
+                'UPDATE dashboard_objects SET body = %(body)s '
+                'WHERE id = %(id)s'
+                if exist else
+                'INSERT INTO dashboard_objects (body, id) '
+                'VALUES (%(body)s, %(id)s)',
+                {'body': json.dumps(do),
+                 'id': flask.session['name']})
+        return flask.jsonify({})
     else:
-        do = json.loads(c.fetchone()[0])
-    return {'dashboard_objects': do}
+        return {'dashboard_objects': do}
