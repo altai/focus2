@@ -41,19 +41,20 @@ function DashboardController($scope, $http){
             for (var i = 0; i < $scope.groups.length; i++){
                 for (var j = 0; j < $scope.groups[i].links.length; j++){
                     if (href === $scope.groups[i].links[j].href){
-                        $scope.groups[i].links[j].employ = true;
+                        $scope.groups[i].links[j].employed = true;
                         link = $scope.groups[i].links[j]
                         break;
                     }
                 }
             }
             for (var i = 0; i < $scope.cells.length; i++){
-                if (href === $scope.cells[i].href){
+                if ($scope.cells[i] == null){
                     $scope.cells[i] = {
-//                        href: link.href,
-//
+                        href: link.href,
+                        full_title: link.big_title,
+                        img: link.big_url
                     };
-                    break
+                    break;
                 }
             }
         })

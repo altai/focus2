@@ -43,7 +43,8 @@
                      {% endraw %}
                      src='{{ url_for("static", filename="focus2/img/1354112565_pin.png") }}'
                      {% raw %}
-                     ng-show='!link.employed'>
+                     ng-show='!link.employed'
+                     ng-click="pin(link.href)">
                 <a dashboard-accordion-link='link' href='{{ link.href }}' style="background-image: url('{{ link.small }}'); padding-left: 20px; background-repeat: no-repeat; background-position: 2px center; ">
                   {{ link.title }}
                 </a>
