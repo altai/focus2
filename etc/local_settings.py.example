@@ -1,3 +1,5 @@
+# -*- python -*-
+
 API_ENDPOINT = 'http://a007:5039'
 APP_TEMP_DIR = '/tmp'
 DB_HOST = 'localhost'

@@ -30,14 +30,8 @@ import json
 
 from _version import __version__
 
-DEBUG = False
-CSRF_ENABLED = False
-API_ENDPOINT = ''
-SECRET_KEY = '1ecdf1e7-306f-4b82-8d2e-bee89bffd6c9'
-APP_TEMP_DIR = '/var/lib/focus2/'
 
-
-def application_factory(config=(), api_object=None,
+def application_factory(api_object=None,
                         api_object_path='focus2.api:client'):
     """Application factory.
     Accepts:
@@ -75,18 +69,9 @@ def application_factory(config=(), api_object=None,
             return response
     app = AppTemplate(__name__)
     # configure
-    app.config.from_object(__name__)
-    for x in config:
-        if isinstance(x, basestring):
-            try:
-                app.config.from_pyfile(x)
-            except IOError:
-                try:
-                    app.config.from_envvar(x)
-                except RuntimeError:
-                    pass
-        else:
-            app.config.from_object(x)
+    app.config.from_object("focus2.settings")
+    app.config.from_pyfile(
+        os.environ.get("FOCUS2_SETTINGS", "/etc/focus2/local_settings.py"))
 
     def connect(app):
         return MySQLdb.connect(host=app.config['DB_HOST'],
