@@ -12,3 +12,6 @@
     bottom: 14px;
     cursor: pointer;
 }
+.drop-hover {
+    color: #c0c0c0 !important;
+}

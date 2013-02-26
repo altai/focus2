@@ -151,6 +151,7 @@ def index():
             'cells': cells + [None for x in xrange(15 - len(cells))]
         }
     if flask.request.method == 'POST':
+        is_dirty = False
         if 'employ' in flask.request.json:
             href = flask.request.json['href']
             employ = flask.request.json['employ']
@@ -177,6 +178,33 @@ def index():
                         if c['href'] == href:
                             do['cells'][i] = None
                             break
+            is_dirty = True
+        elif 'changes' in flask.request.json:
+            for d in flask.request.json['changes']:
+                x = None
+                for g in do['groups']:
+                    if x is not None:
+                        break
+                    for l in g['links']:
+                        if d['href'] == l['href']:
+                            l['employed'] = bool(d['index'])
+                            x = l
+                            break
+                # remove occurences of the item in wrong places
+                for i, c in enumerate(do['cells']):
+                    item_match = c is not None and c['href'] == d['href']
+                    i_ok = d['index'] and i == d['index']
+                    if item_match and not i_ok:
+                        do['cells'][i] = None
+                # ensure the item occurs in right place
+                if bool(d['index']) and x is not None:
+                    do['cells'][d['index']] = {
+                        'href': x['href'],
+                        'img': x['big_url'],
+                        'full_title': x['big_title']
+                        }
+            is_dirty = True  # quite frequently
+        if is_dirty:
             cursor.execute(
                 'UPDATE dashboard_objects SET body = %(body)s '
                 'WHERE id = %(id)s'
