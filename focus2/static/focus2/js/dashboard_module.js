@@ -28,7 +28,7 @@ function DashboardController($scope, $http){
             }
             for (var i = 0; i < $scope.cells.length; i++){
                 if (href === $scope.cells[i].href){
-                    $scope.cells[i].employed = false;
+                    $scope.cells[i] = false;
                     break;
                 }
             }
