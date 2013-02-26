@@ -1,10 +1,12 @@
 {% extends "dashboard/base.html" %}
 
 {% block js %}
+<script src="{{ url_for('static', filename='deps/jquery/js/jquery-ui-1.10.1.custom.min.js') }}"></script>
 <script src="{{ url_for('static', filename='focus2/js/dashboard_module.js') }}"></script>
 {% endblock %}
 
 {% block css %}
+<link href="{{ url_for('static', filename='deps/jquery/css/smoothness/jquery-ui-1.10.1.custom.min.css')}}" rel='stylesheet' type='text/css'>
 <link href="{{ url_for('static', filename='focus2/css/dashboard.css')}}" rel='stylesheet' type='text/css'>
 <link href="{{ url_for('static', filename='focus2/css/index.css')}}" rel='stylesheet' type='text/css'>
 {% endblock %}
@@ -13,7 +15,7 @@
 {% block content %}
 <script>
   //<![CDATA[
-    window.data = {{ dashboard_objects|tojson|safe }}
+    window.data = {{ dashboard_objects|tojson|safe }};
   //]]>
 </script>
 <div class='container' ng-app='dashboard_module' ng-controller='DashboardController'>
@@ -30,21 +32,19 @@
             <div class='accordion-inner'>
               <p ng-repeat='link in group.links' style='position: relative'>
                 <img class='pin'
-                     dashboard-link-unpin='{{ link.href }}'
                      {% endraw %}
                      src='{{ url_for("static", filename="focus2/img/1354112560_pushpin-2.png") }}'
                      {% raw %}
                      ng-show='link.employed'
-                    ng-click="unpin(link.href)"
-                  >
+                     ng-click="unpin(link.href)"
+                     >
                 <img class='pin'
-                     dashboard-link-pin='{{ link.href }}'
                      {% endraw %}
                      src='{{ url_for("static", filename="focus2/img/1354112565_pin.png") }}'
                      {% raw %}
                      ng-show='!link.employed'
                      ng-click="pin(link.href)">
-                <a dashboard-accordion-link='link' href='{{ link.href }}' style="background-image: url('{{ link.small }}'); padding-left: 20px; background-repeat: no-repeat; background-position: 2px center; ">
+                <a drag-from-left="link" dashboard-accordion-link='link' href='{{ link.href }}' style="background-image: url('{{ link.small }}'); padding-left: 20px; background-repeat: no-repeat; background-position: 2px center; ">
                   {{ link.title }}
                 </a>
               </p>
@@ -54,10 +54,10 @@
       </div>
 
     <div class='span10 quick-links'>
-        <div class='droppable droppable-empty' dashboard-cell-box='dashboard-cell-box' ng-repeat='cell in cells'>
-            <span class='thumbnail' ng-show='!cell'>Drag link here</span>
-            <a class='thumbnail' dashboard-cell-link='cell' href='{{ cell.href }}' ng-show='cell'>
-                <div class='xxx-hoverit' dashboard-link-unpin='{{ cell.href }}'>x</div>
+        <div class='droppable droppable-empty' dashboard-cell-box='dashboard-cell-box' ng-repeat='cell in cells' drop-from-left>
+            <span class='thumbnail'ng-show='!cell'>Drag link here</span>
+            <a class='thumbnail' href='{{ cell.href }}' ng-show='cell' draggable-cell>
+                <div class='xxx-hoverit' ng-click='unpin(cell.href)' eat-click>x</div>
                 <img ng-src='{{ cell.img }}'>
                 <div class='caption'>
                   <h5 class='nobr'>{{ cell.full_title }}</h5>
