@@ -187,7 +187,7 @@ def index():
                         break
                     for l in g['links']:
                         if d['href'] == l['href']:
-                            l['employed'] = bool(d['index'])
+                            l['employed'] = d['index'] is not None
                             x = l
                             break
                 # remove occurences of the item in wrong places
@@ -197,7 +197,7 @@ def index():
                     if item_match and not i_ok:
                         do['cells'][i] = None
                 # ensure the item occurs in right place
-                if bool(d['index']) and x is not None:
+                if d['index'] is not None and x is not None:
                     do['cells'][d['index']] = {
                         'href': x['href'],
                         'img': x['big_url'],

@@ -1,4 +1,5 @@
 'use strict';
+
 var module = angular.module('dashboard_module', []);
 
 module.directive('showWhenReady', function(){
@@ -42,9 +43,15 @@ module.directive('dropFromLeft', function($http){
         $(element).data('index', parseInt(scope.$eval('$index'))).droppable({
             scope: "cells",
             drop: function(event, ui){
-                var link = ui.draggable.data('link');
+                var link = ui.draggable.data('link'); // set when dragged from the left
                 var cell = ui.draggable.data('cell');
                 var index = scope.$eval('$index')
+                for (var i = 0; i < scope.cells.length; i++){
+                    var x = scope.cells[i];
+                    if (x){
+                        if (link && link.href == x.href) return;
+                    }
+                }
                 if (link){
                     // dragged from the left
                     var existing_cell = scope.$eval('cells[' + index + ']');
@@ -69,8 +76,10 @@ module.directive('dropFromLeft', function($http){
                         // we dragged something from link list at the left
                         // and nothing to do on this level
                     }
+                    link.employed = true;
                     var cmd = 'cells[' + index + '] = {href: \'' + link.href + '\', img: \'' + link.big_url + '\', full_title: \'' + link.big_title  + '\'}';
                     scope.$apply(cmd);
+                    
                     $http.post('/', {changes: [
                             {
                                 href: link.href,
@@ -153,6 +162,9 @@ function DashboardController($scope, $http){
     }
 
     $scope.pin = function(href){
+        for (var i = 0; i < $scope.cells.length; i++){
+            if ($scope.cells[i] && $scope.cells[i].href == href) return;
+        }
         var link;
         for (var i = 0; i < $scope.groups.length; i++){
             for (var j = 0; j < $scope.groups[i].links.length; j++){
