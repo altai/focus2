@@ -1,0 +1,52 @@
+{% extends "base/base.html" %}
+
+
+{% block css %}
+<link href="{{ url_for('static', filename='deps/select2/select2.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='deps/jquery/css/jquery-ui-1.8.24.custom.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='focus2/css/select2.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='deps/angular/angular.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/select2/select2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/jquery/js/jquery-ui-1.8.24.custom.min.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+  {% from 'base/macros.html' import spawn_vm_button %}
+
+  <div class='container'>
+    <div>
+      {{spawn_vm_button("project=" + data.project["id"])}}
+    </div>
+    <table class="table table-striped table-bordered table-condensed">
+      <tr>
+        <th width="200px">Name</th>
+        <th>{{data.project["name"]}}</th>
+      </tr>
+      <tr>
+        <td>Total Users</td>
+        <td>{{data.stats["members"]}}</td>
+      </tr>
+      <tr>
+        <td>Total Images</td>
+        <td>{{data.stats["total-images"]}}</td>
+      </tr>
+      <tr>
+        <td>Total Virtual Machines</td>
+        <td>{{data.stats["vms"]}}</td>
+      </tr>
+      <tr>
+        <td>VLAN</td>
+        <td>{{data.network["vlan"]}}</td>
+      </tr>
+      <tr>
+        <td>CIDR</td>
+        <td>{{data.network["cidr"]}}</td>
+      </tr>
+    </table>
+  </div>
+{% endblock %}
