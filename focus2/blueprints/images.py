@@ -86,3 +86,14 @@ def show(id):
                         if "ramdisk" in image else None),
         }
     }
+
+
+@BP.route('/<id>/<command>', methods=["POST"])
+def action(id, command):
+    api = flask.g.api
+    if command == "remove":
+        img = api.images.get(id)
+        api.images.delete(id)
+        flask.flash("Successfully deleted %s" % img["name"], "success")
+        return flask.redirect(flask.url_for(".index"))
+    abort(404)

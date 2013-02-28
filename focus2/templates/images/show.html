@@ -16,7 +16,25 @@
 
 
 {% block content %}
+  {% from 'base/macros.html' import spawn_vm_button %}
+  {% from 'base/macros.html' import modal_dialog %}
+
+  {{modal_dialog("delete", "Delete Confirmation",
+                 "Are you sure to delete image %s?" % data["image"]["name"],
+                 url_for("images.action", id=data["image"]["id"], command="remove"),
+                 cannot_revert=True)}}
+
   <div class="container">
+
+    <div>
+      {% if data.image is image_spawnable %}
+        {{spawn_vm_button("image=" + data.image["id"])}}
+      {% endif %}
+      <div class="span1 pull-right" style="margin: 0px 0px 20px 0px;">
+        <a href="#delete" class="btn btn-danger" data-toggle="modal">Delete</a>
+      </div>
+    </div>
+
     <table class="table table-striped table-bordered table-condensed" style="margin-top: 5px;">
       <tr>
         <td colspan=2>
@@ -32,12 +50,18 @@
         <td>{{data.image["name"]}}</td>
       </tr>
       <tr>
-        <td>Container Format</td>
-        <td>{{data.image["container-format"]}}</td>
+        <td>Type</td>
+        <td>
+          {% if data.image["kernel"] %}
+            Amazon machine image
+          {% else %}
+            Solid
+          {% endif %}
+        </td>
       </tr>
       <tr>
         <td>Disk Format</td>
-        <td>{{data.image["disk-format"]}}</td>
+        <td>{{data.image["disk-format"] | diskformat}}</td>
       </tr>
       <tr>
         <td>Global</td>
@@ -49,32 +73,16 @@
       </tr>
       <tr>
         <td>Size</td>
-        <td>{{data.image["size"] | filesizeformat}}</td>
+        <td>{{data.image["size"] | filesizeformat(exactly=True)}}</td>
       </tr>
       <tr>
         <td>Uploaded</td>
         <td>{{data.image["created"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
       </tr>
       <tr>
-        <td>Type</td>
-        <td>
-          {% if data.image["kernel"] %}
-            Amazon Like
-          {% else %}
-            Solid
-          {% endif %}
-        </td>
-      </tr>
-      <tr>
-        <td>User</td>
-        <td>
-          <a href="user_details.html">openstack-core@griddynamics.com</a>
-        </td>
-      </tr>
-      <tr>
         <td>Download URL</td>
         <td>
-          <a href="#">http://griddynamics.com/images/mini_img.img?download</a>
+          <a href="{{url_for("images.show", id=data.image["id"], _external=True)}}?download">{{url_for("images.show", id=data.image["id"], _external=True)}}?download</a>
         </td>
       </tr>
     </table>
@@ -95,7 +103,7 @@
         </tr>
         <tr>
           <td>Size</td>
-          <td>{{data.kernel["size"] | filesizeformat}}</td>
+          <td>{{data.kernel["size"] | filesizeformat(exactly=True)}}</td>
         </tr>
       </table>
     {% endif %}
@@ -116,10 +124,9 @@
         </tr>
         <tr>
           <td>Size</td>
-          <td>{{data.ramdisk["size"] | filesizeformat}}</td>
+          <td>{{data.ramdisk["size"] | filesizeformat(exactly=True)}}</td>
         </tr>
       </table>
     {% endif %}
-    <a href="#" class="btn btn-danger">Delete</a>
   </div>
 {% endblock %}
