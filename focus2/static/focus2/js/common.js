@@ -32,6 +32,19 @@ module.filter('fieldbyid', function() {
     }
 });
 
+
+module.filter('diskformat', function() {
+    return function(value) {
+        var fmt = {
+            "aki": "Amazon kernel image",
+            "ari": "Amazon ramdisk image",
+            "ami": "Amazon machine image",
+        }
+        return fmt[value] || value;
+    }
+});
+
+
 function getHumanReadableLifespan(minutes) {
     // FIXME
     return 0;
@@ -45,8 +58,23 @@ jQuery(function($) {
         var $this = $(this);
         options.allowClear = (typeof($this.attr("allow-clear")) != undefined);
         $this.select2(options);
-    });                       
+    });
 });
+
+
+/*
+  Example:
+  var qvalue = $.querystring('q', 'default-q-value');
+ */
+(function($){
+    $.extend({
+	querystring: function(name, dflt) {
+	    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+	    return match && decodeURIComponent(match[1].replace(/\+/g, ' ')) || dflt;
+	}
+    });
+})(jQuery);
+
 
 module.directive('slider', function(){
     return function(scope, element, attrs){

@@ -28,7 +28,8 @@ import werkzeug.utils
 import MySQLdb
 import json
 
-from _version import __version__
+from focus2._version import __version__
+from focus2.utils import jinja as utils_jinja
 
 
 def application_factory(api_object=None,
@@ -67,7 +68,9 @@ def application_factory(api_object=None,
                 result = rv
             response = super(AppTemplate, self).make_response(result)
             return response
+
     app = AppTemplate(__name__)
+    utils_jinja.setup_env(app.jinja_env)
     # configure
     app.config.from_object("focus2.settings")
     app.config.from_pyfile(
