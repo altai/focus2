@@ -28,6 +28,8 @@ import werkzeug
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 from focus2.blueprints.dashboard import dash
 from focus2.utils import search, pagination, forms
+from focus2.utils import jinja as utils_jinja
+
 
 """
 =============
@@ -118,14 +120,14 @@ def spawn():
     form = CreateForm()
     api = flask.g.api
     data = {
-        "project": api.projects.list()["projects"],
-        "image": api.images.list()["images"],
+        "project": api.projects.list(filter={"my-projects": True})["projects"],
+        "image": filter(utils_jinja.image_spawnable,
+                        api.images.list()["images"]),
         "instance_type": api.instance_types.list()["instance-types"],
         "ssh_key": api.my_ssh_keys.list()["ssh-keys"],
         "fw_rule_set": api.fw_rule_sets.list()["fw-rule-sets"],
     }
     if form.is_submitted():
-#        import pdb; pdb.set_trace()
         for key in ("project", "image", "instance_type",
                     "fw_rule_set"):
             getattr(form, key).choices = [
@@ -145,8 +147,9 @@ def spawn():
              for k in ("name", "project",
                        "image", "instance-type"))
         )
+        # TODO: handle errors
         vm = api.vms.create(vm_data)
-        return flask.redirect(url_for("vms.show", id=vm["id"]))
+        return flask.redirect(flask.url_for("vms.show", id=vm["id"]))
     return {
         "form": form,
         "data": data,
@@ -159,13 +162,40 @@ def show(id):
     vm = api.vms.get(id)
     image = api.images.get(vm["image"]["id"])
     instance_type = api.instance_types.get(vm["instance-type"]["id"])
+    network = api.networks.find(project=vm["project"]["id"])
     return {
         "data": {
             "vm": vm,
             "image": image,
             "instance_type": instance_type,
+            "network": network,
         },
     }
+
+
+@BP.route('/<id>/<command>', methods=["GET", "POST"])
+def action(id, command):
+    if command not in ("console-output",
+                       "reboot",
+                       "remove",
+                       "reset",
+                       "vnc"):
+        flask.abort(404)
+
+    if (command not in ("console-output", "vnc") and
+        flask.request.method == "GET"):
+        flask.abort(405)
+
+    resp = flask.g.api.vms.action(id, command)
+    if command == "vnc":
+        return flask.redirect(resp["url"])
+    if command == "console-output":
+        resp = flask.make_response(resp["console-output"])
+        resp.headers["Content-type"] = "text/plain; charset=utf-8"
+        return resp
+
+    flask.flash("Successfully %s the virtual machine" % command, "success")
+    return flask.redirect(flask.url_for("vms.show", id=id))
 
 
 @breadcrumbs('Types')

@@ -16,13 +16,29 @@
 
 
 {% block content %}
+  {% from 'base/macros.html' import modal_dialog %}
+
+  {{modal_dialog("reboot", "Reboot Confirmation",
+                 "Are you sure to reboot VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
+                 url_for("vms.action", id=data["vm"]["id"], command="reboot"))}}
+  {{modal_dialog("reset", "Reset Confirmation",
+                 "Are you sure to reset VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
+                 url_for("vms.action", id=data["vm"]["id"], command="reset"))}}
+  {{modal_dialog("delete", "Delete Confirmation",
+                 "Are you sure to delete VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
+                 url_for("vms.action", id=data["vm"]["id"], command="remove"),
+                 cannot_revert=True)}}
+
   <div class='container'>
     <div>
       <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
-        <a href="#" class="btn btn-success">Reboot</a><a href="#" class="btn btn-success">Reset</a><a href="#" class="btn btn-success">Show VNC</a><a href="#" class="btn btn-success">Show log</a>
+        <a href="#reboot" class="btn btn-success" data-toggle="modal">Reboot</a>
+        <a href="#reset" class="btn btn-success" data-toggle="modal">Reset</a>
+        <a href="{{url_for("vms.action", id=data.vm["id"], command="vnc")}}"  target="_blank" class="btn btn-success">Show VNC</a>
+        <a href="{{url_for("vms.action", id=data.vm["id"], command="console-output")}}"  target="_blank" class="btn btn-success">Show log</a>
       </div>
       <div class="span1 pull-right" style="margin: 0px 0px 20px 0px;">
-        <a href="#" class="btn btn-danger">Delete</a>
+        <a href="#delete" class="btn btn-danger" data-toggle="modal">Delete</a>
       </div>
     </div>
     <table class="table table-striped table-bordered table-condensed" style="margin-top: 5px;">
@@ -38,8 +54,12 @@
         <td>{{data.vm["id"]}}</td>
       </tr>
       <tr>
+        <td>Status</td>
+        <td>{{"%s%s" % (data.vm["state"], " (no suitable host found)" if not data.vm["hostId"] and data.vm["state"] == "ERROR" else "")}}</td>
+      </tr>
+      <tr>
         <td>VLAN</td>
-        <td>321</td>
+        <td>{{data.network["vlan"]}}</td>
       </tr>
       <tr>
         <td>IP</td>
@@ -56,55 +76,12 @@
       </tr>
       <tr>
         <td>Project</td>
-        <td><a href="project_details.html">{{data.vm["project"]["name"]}}</a></td>
+        <td><a href="{{url_for("projects.show", id=data.vm["project"]["id"])}}">{{data.vm["project"]["name"]}}</a></td>
       </tr>
       <tr>
         <td>User</td>
         <td>
-          <a href="user_details.html"> openstack-core@griddynamics.com </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Tags</td>
-        <td>
-          <select class="select2 chzn-select-tagged" multiple>
-            <option selected>a1</option>
-            <option selected>gdfigujfdi</option>
-            <option selected>tag1</option>
-            <option>tag2</option>
-            <option>tag7</option>
-          </select>
-        </td>
-      </tr>
-      <tr ng-controller="MetadataController">
-        <td>
-          <div style="position: relative;">
-            <span class="help-inline" style="position: absolute; display: block; right: 4px;">
-              <a class="btn btn-mini btn-success" ng-click="show_add=!show_add" ng-show="!show_add">
-                <i class="icon-plus-sign icon-white"></i>
-              </a>
-            </span>
-            Metadata
-          </div>
-        </td>
-        <td>
-          <div class="controls" style="position: relative;">
-            <p ng-show="pairs.length == 0 && !show_add" style="padding-top: 6px"><i>Add some metadata.</i></p>
-            <div ng-repeat="x in pairs" ng-controller="ExistingPairController">
-              <input type="text" ng-model="x.name" ng-disabled="disabled"/> 
-              <input type="text" ng-model="x.value" ng-disabled="disabled"/>
-              <a class="btn btn-mini btn-danger" ng-click="removePair(name)" ng-show="disabled" style="margin-top: -8px"><i class="icon-remove-sign icon-white"></i></a>
-              <a class="btn btn-mini btn-info" ng-click="editPair()" ng-show="disabled" style="margin-top: -8px"><i class="icon-pencil icon-white"></i></a>
-              <a class="btn btn-mini btn-primary" ng-click="disabled=true" ng-show="!disabled" style="margin-top: -8px"><i class="icon-ok icon-white"></i></a>
-              <a class="btn btn-mini" ng-click="restorePair()" ng-show="!disabled" style="margin-top: -8px"><i class="icon-ban-circle"></i></a>
-            </div>
-            <p ng-show="show_add">
-              <input type="text" ng-model="name" placeholder="Key"/>
-              <input type="text" ng-model="value" placeholder="Value"/>
-              <a class="btn btn-mini btn-primary" ng-click="add()" style="margin-top: -8px"><i class="icon-ok icon-white"></i></a>
-              <a class="btn btn-mini" ng-click="show_add=!show_add" style="margin-top: -8px"><i class="icon-ban-circle"></i></a>
-            </p>
-          </div>
+          <a href="{{url_for("projects.members_show", id=data.vm["created-by"]["id"])}}">{{data.vm["created-by"]["name"]}}</a>
         </td>
       </tr>
       <tr>
