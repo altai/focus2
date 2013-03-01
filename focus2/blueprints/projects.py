@@ -22,9 +22,12 @@ from functools import partial
 import flask
 
 from flask import blueprints
+import werkzeug
 
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
+from focus2.utils import search, pagination, forms
+
 
 """
 ==================
@@ -148,7 +151,36 @@ def members_show(id):
       wgl=4)
 @BP.route('/audit/')
 def audit():
-    return {}
+    api = flask.g.api
+    l = api.audit_log.list()
+    query = flask.request.args.get("q", "")
+    deconstruct = None  # search.transform_search_query(query, "name:eq")
+    r = api.audit_log.list(filter=deconstruct, limit=0)
+    try:
+        p = pagination.Pagination(1, r["collection"]["size"])
+    except werkzeug.exceptions.NotFound:
+        paginator = None
+        data = []
+    else:
+        r = api.audit_log.list(
+            filter=deconstruct, limit=p.limit, offset=p.offset)
+        paginator = pagination.Pagination(1, r["collection"]["size"])
+        data = r["audit-log"]
+
+    return {
+        "query": query,
+        "deconstruct": deconstruct,
+        "data": data,
+        "paginator": paginator,
+        "predefined_searches": [
+            {"title": "My VMs", "url": flask.request.path + "?my"},
+        ] + [
+            {"title": x["name"],
+             "url": flask.request.path + "?project_id=" + x["id"]} for x
+            in flask.g.api.projects.list()["projects"]
+        ],
+        "user_searches": flask.session.get("user_searches", []),
+    }
 
 
 @dash(st='Invite',

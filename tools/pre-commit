@@ -7,7 +7,7 @@ STATUS=0
 FILES="$(git diff --cached --name-only --diff-filter=AM | grep -E '\.py$')"
 if [ -n "$FILES" ]; then
     pep8 -r $FILES || STATUS=1
-    if grep -n -E --color '(import pdb|pdb.set_trace)' $FILES; then
+    if grep -nEH --color '(import pdb|pdb.set_trace)' $FILES; then
         echo "Please remove pdb"
         STATUS=1
     fi
@@ -15,7 +15,7 @@ fi
 
 FILES="$(git diff --cached --name-only --diff-filter=AM | grep -E '\.(py|html|js)$')"
 if [ -n "$FILES" ]; then
-    if grep -n -E --color '\s+$' $FILES; then
+    if grep -nEH --color '\s+$' $FILES; then
         echo "Please remove trailing spaces"
         STATUS=1
     fi

@@ -1,1 +1,101 @@
 {% extends "base/base.html" %}
+
+{% block css %}
+<link href="{{ url_for('static', filename='deps/select2/select2.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='deps/jquery/css/smoothness/jquery-ui-1.10.1.custom.min.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='focus2/css/select2.css') }}" rel='stylesheet' type='text/css'>
+<link href="{{ url_for('static', filename='deps/daterangepicker/daterangepicker.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='deps/angular/angular.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/select2/select2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/jquery/js/jquery-ui-1.10.1.custom.min.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/date.js') }}"></script>
+<script src="{{ url_for('static', filename='deps/daterangepicker/daterangepicker.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+  {% from 'base/macros.html' import search_pagination %}
+
+  <div class='container'>
+
+    <div class="row spaceup">
+      <div class="span12">
+        <form class="form-inline form">
+          <div class="input-prepend">
+            <span class="add-on"><i class="icon-calendar"></i></span><input type="text" class="daterange"/>
+          </div>
+          <div class="input-append">
+            <input type="text" class="span2 search" ng-model="query">
+              <a class="btn">Search</a>
+          </div>
+          <div class="input-append">
+          <select multiple name="who" class="select2 span5" id="who" data-placeholder="User" tabindex="1">
+            <option></option>
+            <option>apugachev@griddynamics.com</option>
+            <option>spugachev@griddynamics.com</option>
+            <option>nsavin@griddynamics.com</option>
+          </select>
+          </div>
+          <div class="btn-group" >
+            <a href="#" class="btn">Export CSV</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Export XML</a></li>
+              <li><a href="#">Export JSON</a></li>
+            </ul>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if data %}
+      <table class='table table-striped table-bordered table-condensed'>
+        <thead>
+          <tr>
+            <th>
+              <input type='checkbox'>
+            </th>
+            <th>
+              When
+            </th>
+            <th>
+              What
+            </th>
+            <th>
+              Who
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for x in data %}
+            <tr>
+              <td>
+                <input type='checkbox'>
+              </td>
+              <td>
+                {{ x.timestamp | datetimeformat("%d/%m/%Y %H:%M:%S") }}
+              </td>
+              <td>
+                {{ x.method }} {{ x.resource }} {{ x.response_status }}
+              </td>
+              <td>
+                <a href="{{ url_for("projects.members_show", id=x["user"]["id"]) }}">
+                  {{ x.user.name }}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class='alert alert-info'>
+        Use search to find virtual machines you are interested in.
+      </div>
+    {% endif %}
+    {{ search_pagination(paginator) }}
+  </div>
+{% endblock %}
+
