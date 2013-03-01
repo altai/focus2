@@ -32,8 +32,11 @@ from focus2.api import exceptions as api_exceptions
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 
+from focus2.utils import forms
 from focus2.utils import billing as utils_billing
 from focus2.utils import pagination
+from focus2.utils import search
+
 
 """
 ==================
@@ -240,10 +243,8 @@ def billing():
         data = bh.report(period_start=date_range[0],
                          period_end=date_range[1])
         data = filter(lambda x: x["rtype"] in resources, data)
-        try:
-            paginator = pagination.Pagination(page, len(data), perPage)
-        except werkzeug.exceptions.NotFound:
-            paginator = pagination.Pagination(1, len(data), perPage)
+        paginator = pagination.Pagination(
+            page, len(data), perPage, abort=False)
         data = bh.add_details(data[paginator.page_slice])
         pages = list(paginator.iter_pages())
         current = paginator.page
@@ -287,6 +288,7 @@ def members_show(id):
     }
 
 
+# TODO: show human-readable audit messages and search their content
 @dash(st='Audit',
       spu='focus2/img/small_audit.png',
       bt='Audit',
@@ -294,7 +296,57 @@ def members_show(id):
       wgl=4)
 @BP.route('/audit/')
 def audit():
-    return {}
+    api = flask.g.api
+    if flask.request.args.get("api_marker"):
+        perPage = int(flask.request.args['perPage'])
+        page = int(flask.request.args['page'])
+        date_range = flask.request.args['date_range'].split(" - ")
+        for i in xrange(2):
+            date_range[i] = datetime.datetime.strptime(
+                    date_range[i], "%m.%d.%Y")
+        date_range[1] = date_range[1] + datetime.timedelta(days=1)
+        for i in xrange(2):
+            date_range[i] = ("%sZ" % date_range[i].isoformat())
+        data_filter = {
+            "timestamp:ge": date_range[0],
+            "timestamp:le": date_range[1],
+        }
+        users = flask.request.args["users"]
+        if users:
+            user_by_name = dict((u["name"], u)
+                                for u in api.users.list()["users"])
+            user_ids = []
+            for u in users.split(","):
+                try:
+                    user_ids.append(user_by_name[u]["id"])
+                except KeyError:
+                    pass
+            data_filter["user:in"] = "|".join(user_ids)
+        paginator = pagination.Pagination(
+            page,
+            api.audit_log.list(
+                filter=data_filter, limit=0)["collection"]["size"],
+            perPage,
+            abort=False)
+        data = api.audit_log.list(filter=data_filter,
+                                  limit=paginator.limit,
+                                  offset=paginator.offset)["audit-log"]
+        pages = list(paginator.iter_pages())
+        current = paginator.page
+        return flask.jsonify({
+            "data": data,
+            "pagination": {
+                "pages": pages,
+                "current": current,
+            },
+        })
+
+    users = api.users.list()["users"]
+    return {
+        "data": {
+            "users": users,
+        },
+    }
 
 
 # TODO: make it configurable with Focus2 UI
