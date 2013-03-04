@@ -24,7 +24,6 @@ import unittest
 import jsonschema
 
 from focus2 import application_factory
-from focus2.api import Api
 from focus2.blueprints import dashboard
 
 

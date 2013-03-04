@@ -1,29 +1,27 @@
-import Cookie
-import unittest
+import fixtures
+import testtools
 
-import mox
+import Cookie
 
 from focus2 import application_factory
-from focus2.api import Api
+from focus2.api import client as api_client
 
 
 class Debug(object):
     DEBUG = True
 
 
-class Authentication(unittest.TestCase):
+class Authentication(testtools.TestCase):
 
-    def get_client(self, api):
-        return application_factory([Debug()], api).test_client()
+    def get_client(self):
+        self.useFixture(fixtures.MonkeyPatch(
+            "focus2.api.client.MeCollection.check_credentials",
+            lambda self, auth=None: auth == ('okname', 'okpass')))
+        return application_factory().test_client()
 
     def test_endpoints_protected(self):
         """Test non-exempted endpoints are restricted from anonynous"""
-        mocker = mox.Mox()
-        api = mocker.CreateMock(Api())
-        api.are_credentials_correct().AndReturn(False)
-        mocker.ReplayAll()
-
-        client = self.get_client(api)
+        client = self.get_client()
 
         rv = client.get('/authentication/login/')
         self.assertEqual(rv.status_code, 200)
@@ -40,14 +38,7 @@ class Authentication(unittest.TestCase):
 
     def test_protection_works(self):
         """Anonymous is able to login with correct credentials"""
-        mocker = mox.Mox()
-        api = mocker.CreateMock(Api())
-        api.are_credentials_correct('noname', 'nopass').AndReturn(False)
-        api.are_credentials_correct('okname', 'okpass').AndReturn(True)
-        api.are_credentials_correct().AndReturn(False)
-        mocker.ReplayAll()
-
-        client = self.get_client(api)
+        client = self.get_client()
 
         rv = client.post('/authentication/login/',
                          data={'name': 'noname', 'password': 'nopass'})
@@ -74,13 +65,7 @@ class Authentication(unittest.TestCase):
 
     def test_remember_me(self):
         """Temporal cookie is set w/o checkbox and persistent with checkbox"""
-        mocker = mox.Mox()
-        api = mocker.CreateMock(Api())
-        api.are_credentials_correct('okname', 'okpass').AndReturn(True)
-        api.are_credentials_correct('okname', 'okpass').AndReturn(True)
-        mocker.ReplayAll()
-
-        client = self.get_client(api)
+        client = self.get_client()
 
         rv = client.post('/authentication/login/',
                          data={'name': 'okname', 'password': 'okpass'})
