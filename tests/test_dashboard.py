@@ -19,16 +19,15 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
-import unittest
+import testtools
 
 import jsonschema
 
 from focus2 import application_factory
-from focus2.api import Api
 from focus2.blueprints import dashboard
 
 
-class Dashboard(unittest.TestCase):
+class Dashboard(testtools.TestCase):
     def test_pushpin(self):
         def test():
             @dashboard.dash(st='Short title',

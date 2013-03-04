@@ -1,11 +1,11 @@
-import unittest
+import testtools
 
 import werkzeug
 
 from focus2.utils.pagination import Pagination
 
 
-class TC(unittest.TestCase):
+class TC(testtools.TestCase):
     def test_empty(self):
         p = Pagination(1, 0, 10)
         self.assertEqual(list(p.iter_pages()), [])

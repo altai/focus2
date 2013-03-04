@@ -1,8 +1,8 @@
-import unittest
+import testtools
 from focus2.utils import views
 
 
-class Protocols(unittest.TestCase):
+class Protocols(testtools.TestCase):
     def test_simple(self):
 
         @views.view_metadata

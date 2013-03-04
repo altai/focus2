@@ -1,9 +1,9 @@
-import unittest
+import testtools
 
 from focus2.utils.search import transform_search_query as dsq
 
 
-class TestCase(unittest.TestCase):
+class TestCase(testtools.TestCase):
     def test_empty(self):
         self.assertEqual(dsq('', 'id:in'), {})
 

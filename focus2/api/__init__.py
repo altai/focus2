@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Focus2
-# Copyright (C) 2012 Grid Dynamics Consulting Services, Inc
+# Copyright (C) 2012-2013 Grid Dynamics Consulting Services, Inc
 # All Rights Reserved
 #
 # This program is free software; you can redistribute it and/or
@@ -18,7 +17,3 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
-
-
-import testtools
-from focus2 import application_factory

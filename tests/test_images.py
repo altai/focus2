@@ -20,5 +20,5 @@
 # <http://www.gnu.org/licenses/>.
 
 
-import unittest
+import testtools
 from focus2 import application_factory
