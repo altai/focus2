@@ -19,6 +19,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
+import logging
 import os.path
 import pkgutil
 
@@ -30,24 +31,29 @@ import json
 
 from focus2._version import __version__
 from focus2.utils import jinja as utils_jinja
+from focus2.api import client
 
 
-def application_factory(api_object=None,
-                        api_object_path='focus2.api:client'):
+def application_factory(api_object=None):
     """Application factory.
     Accepts:
-    - list of objects or string file paths to python modules to configure from,
-    - optional custom Altai API client and path to import default client.
+    - optional custom Altai API client.
     """
-
-    # load api client object
-    if api_object is None:
-        api_object = werkzeug.utils.import_string(api_object_path)
 
     # define custom application class
     class AppTemplate(flask.Flask):
         class request_globals_class(object):
-            api = api_object
+            api_client = api_object
+
+            @property
+            def api(self):
+                if not self.api_client:
+                    self.api_client = client.AltaiApiClient(
+                        endpoint=flask.current_app.config["API_ENDPOINT"],
+                        auth=(flask.session.get("name", ""),
+                              flask.session.get("password", "")),
+                        http_log_debug=flask.current_app.debug)
+                return self.api_client
 
         jinja_options = werkzeug.ImmutableDict(
             extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
@@ -75,6 +81,13 @@ def application_factory(api_object=None,
     app.config.from_object("focus2.settings")
     app.config.from_pyfile(
         os.environ.get("FOCUS2_SETTINGS", "/etc/focus2/local_settings.py"))
+
+    if app.debug:
+        logger = logging.getLogger("focus2")
+        ch = logging.StreamHandler()
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+
 
     def connect(app):
         return MySQLdb.connect(host=app.config['DB_HOST'],

@@ -15,8 +15,8 @@ BuildRequires:  python-setuptools
 Requires:       python-flask >= 0.9
 Requires:       python-flask-wtf >= 0.6
 Requires:       MySQL-python
-Requires:       python-httplib2
-Requires:       python-jsonschema >= 0.2
+Requires:       python-requests >= 0.8
+Requires:       python-jsonschema >= 0.2, < 1.0
 
 Requires:       start-stop-daemon
 

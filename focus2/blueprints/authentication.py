@@ -25,7 +25,8 @@ from flask import blueprints
 from flask.ext import wtf
 import werkzeug.utils
 
-from focus2 import api
+from focus2.api import client
+from focus2.api import exceptions
 from focus2.utils import views
 
 """
@@ -57,8 +58,8 @@ class LoginForm(wtf.Form):
 
     def validate_password(self, field):
         if not self.errors and self.name.data and field.data:
-            if not flask.g.api.are_credentials_correct(self.name.data,
-                                                       self.password.data):
+            if not flask.g.api.check_credentials(auth=(
+                    self.name.data, self.password.data)):
                 raise wtf.ValidationError('Invalid credentials')
 
 
@@ -146,13 +147,13 @@ def run_authentication_check(*args, **kwargs):
     view = werkzeug.utils.import_string(
         'focus2.blueprints.%s:%s' % (bp, ep))
     if (not noauth.get(view) and
-            not flask.g.api.are_credentials_correct()):
+        not flask.g.api.check_credentials()):
         return flask.redirect(
             flask.url_for('authentication.login'))
     flask.g.is_authenticated = True
 
 
-@BP.app_errorhandler(api.LoginException)
+@BP.app_errorhandler(exceptions.Forbidden)
 def login_error(error):
     flask.flash('You are not logged in!', category='warning')
     return flask.redirect(flask.url_for('authentication.login'))
