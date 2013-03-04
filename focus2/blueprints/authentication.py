@@ -25,7 +25,8 @@ from flask import blueprints
 from flask.ext import wtf
 import werkzeug.utils
 
-from focus2 import api
+from focus2.api import client
+from focus2.api import exceptions
 from focus2.utils import views
 
 """
@@ -57,8 +58,8 @@ class LoginForm(wtf.Form):
 
     def validate_password(self, field):
         if not self.errors and self.name.data and field.data:
-            if not flask.g.api.are_credentials_correct(self.name.data,
-                                                       self.password.data):
+            if not flask.g.api.me.check_credentials(auth=(
+                    self.name.data, self.password.data)):
                 raise wtf.ValidationError('Invalid credentials')
 
 
@@ -87,8 +88,8 @@ def recover_password():
     form = PasswordRecoveryForm()
     if form.validate_on_submit():
         link_template = flask.url_for('.confirm_password', token='{{code}}')
-        flask.g.api.send_password_recovery_email(
-            form.identifier.data, form.kind.data, link_template)
+        flask.g.api.me.reset_password(
+            form.kind.data, form.identifier.data, link_template)
         flask.flash('Please check your email.', category='info')
         return flask.redirect(flask.request.path)
     form.identifier.placeholder = 'Registration email or login name'
@@ -111,7 +112,7 @@ class RecoverPasswordForm(wtf.Form):
 def confirm_password(token):
     form = RecoverPasswordForm()
     if form.validate_on_submit():
-        success, reason = flask.g.api.confirm_password_recovery(
+        success, reason = flask.g.api.me.apply_password_reset(
             form.token.data, form.password.data)
         if success:
             flask.flash('Your password was updated', 'success')
@@ -145,14 +146,13 @@ def run_authentication_check(*args, **kwargs):
     bp, ep = flask.request.endpoint.split('.')
     view = werkzeug.utils.import_string(
         'focus2.blueprints.%s:%s' % (bp, ep))
-    if (not noauth.get(view) and
-            not flask.g.api.are_credentials_correct()):
+    if not (noauth.get(view) or flask.g.api.me.check_credentials()):
         return flask.redirect(
             flask.url_for('authentication.login'))
     flask.g.is_authenticated = True
 
 
-@BP.app_errorhandler(api.LoginException)
+@BP.app_errorhandler(exceptions.Forbidden)
 def login_error(error):
     flask.flash('You are not logged in!', category='warning')
     return flask.redirect(flask.url_for('authentication.login'))

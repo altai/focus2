@@ -1,7 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Focus2
-# Copyright (C) 2012 Grid Dynamics Consulting Services, Inc
+# Copyright (C) 2012-2013 Grid Dynamics Consulting Services, Inc
 # All Rights Reserved
 #
 # This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
+import logging
 import os.path
 import pkgutil
 
@@ -30,44 +31,52 @@ import json
 
 from focus2._version import __version__
 from focus2.utils import jinja as utils_jinja
+from focus2.api import client
 
 
-def application_factory(api_object=None,
-                        api_object_path='focus2.api:client'):
-    """Application factory.
-    Accepts:
-    - list of objects or string file paths to python modules to configure from,
-    - optional custom Altai API client and path to import default client.
+class AppTemplate(flask.Flask):
+    class request_globals_class(object):
+        api_client = None
+
+        @property
+        def api(self):
+            if not self.api_client:
+                try:
+                    auth = (flask.session["name"],
+                            flask.session["password"])
+                except KeyError:
+                    auth = None
+                self.api_client = client.AltaiApiClient(
+                    endpoint=flask.current_app.config["API_ENDPOINT"],
+                    auth=auth,
+                    http_log_debug=flask.current_app.debug)
+            return self.api_client
+
+    jinja_options = werkzeug.ImmutableDict(
+        extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
+        autoescape=True)
+
+    def make_response(self, rv):
+        """Extend Flask behavior. We can return a dict from blueprint
+        endpoint and will have corresponding template rendered with
+        the dict as context.
+        """
+        if type(rv) is dict:
+            template_name = os.path.join(
+                *flask.request.endpoint.split('.')) + '.html'
+            result = flask.render_template(template_name, **rv)
+        elif isinstance(rv, (list, tuple)) and len(rv) == 2:
+            result = flask.render_template(rv[0], **rv[1])
+        else:
+            result = rv
+        response = super(AppTemplate, self).make_response(result)
+        return response
+
+
+def application_factory():
     """
-
-    # load api client object
-    if api_object is None:
-        api_object = werkzeug.utils.import_string(api_object_path)
-
-    # define custom application class
-    class AppTemplate(flask.Flask):
-        class request_globals_class(object):
-            api = api_object
-
-        jinja_options = werkzeug.ImmutableDict(
-            extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
-            autoescape=True)
-
-        def make_response(self, rv):
-            """Extend Flask behavior. We can return a dict from blueprint
-            endpoint and will have corresponding template rendered with
-            the dict as context.
-            """
-            if type(rv) is dict:
-                template_name = os.path.join(
-                    *flask.request.endpoint.split('.')) + '.html'
-                result = flask.render_template(template_name, **rv)
-            elif isinstance(rv, (list, tuple)) and len(rv) == 2:
-                result = flask.render_template(rv[0], **rv[1])
-            else:
-                result = rv
-            response = super(AppTemplate, self).make_response(result)
-            return response
+    Application factory.
+    """
 
     app = AppTemplate(__name__)
     utils_jinja.setup_env(app.jinja_env)
@@ -75,6 +84,12 @@ def application_factory(api_object=None,
     app.config.from_object("focus2.settings")
     app.config.from_pyfile(
         os.environ.get("FOCUS2_SETTINGS", "/etc/focus2/local_settings.py"))
+
+    if app.debug:
+        logger = logging.getLogger("focus2")
+        ch = logging.StreamHandler()
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
 
     def connect(app):
         return MySQLdb.connect(host=app.config['DB_HOST'],
@@ -99,12 +114,12 @@ def application_factory(api_object=None,
     tables = c.fetchall()
     if ('sessions',) not in tables:
         c.execute('CREATE TABLE sessions ('
-            'id int not null primary key auto_increment, '
-            'body text, mdate timestamp)')
+                  'id int not null primary key auto_increment, '
+                  'body text, mdate timestamp)')
         need_commit = True
     if ('dashboard_objects',) not in tables:
         c.execute('CREATE TABLE dashboard_objects ('
-            'id varchar(40) not null primary key, body text)')
+                  'id varchar(40) not null primary key, body text)')
         need_commit = True
     if need_commit:
         db.commit()

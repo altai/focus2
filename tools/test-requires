@@ -1,3 +1,4 @@
-mox==0.5.3
+fixtures>=0.3.12
 nose==1.2.1
 pep8==1.4
+testtools>=0.9.22
