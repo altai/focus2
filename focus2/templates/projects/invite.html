@@ -1,1 +1,37 @@
 {% extends "base/base.html" %}
+
+
+{% block content %}
+  {% from 'base/macros.html' import input_horizontal %}
+  {% from 'base/macros.html' import select_horizontal %}
+
+  <div class='container'>
+    <div class="row">
+      <div class="span6">
+        <form autocomplete="off" method="POST" class="form-horizontal well">
+          <fieldset>
+            {{ select_horizontal(form.projects,
+                 is_multiple=True,
+                 data=data, is_required=True) }}
+
+            {{ input_horizontal(form.email, is_required=True) }}
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Invite</button>
+              <a href="javascript: history.back();" class="btn">Cancel</a>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+
+      <div class="span5">
+        <h3>Allowed domains:</h3>
+        <ul>
+          {% for dom in data["domains"] %}
+            <li>{{ dom }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

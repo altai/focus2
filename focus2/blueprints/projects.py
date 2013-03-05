@@ -19,9 +19,12 @@
 # <http://www.gnu.org/licenses/>.
 
 from functools import partial
-import flask
 
+import flask
 from flask import blueprints
+from flask.ext import wtf
+
+from focus2.api import exceptions as api_exceptions
 
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
@@ -83,6 +86,7 @@ def summary():
 @BP.route('/<id>')
 def show(id):
     api = flask.g.api
+
     stats = api.projects.get(id, "stats")
     network = api.networks.find(project=id)
     return {
@@ -131,7 +135,7 @@ def members_show(id):
     my_projects = set(
         (p["id"]
          for p in api.projects.list(
-                filter={"my-projects": True})["projects"]))
+             filter={"my-projects": True})["projects"]))
     user["projects"] = filter(
         lambda p: p["id"] in my_projects, user["projects"])
     return {
@@ -151,11 +155,111 @@ def audit():
     return {}
 
 
+# TODO: make it configurable with Focus2 UI
+def get_invitation_domains():
+    return flask.current_app.config["INVITATION_DOMAINS"]
+
+
+class InviteForm(wtf.Form):
+    projects = wtf.SelectMultipleField("Projects", validators=[wtf.Required()])
+    email = wtf.TextField("Email", validators=[wtf.Required(), wtf.Email()])
+
+    def validate_email(self, field):
+        if not self.errors and field.data:
+            domains = get_invitation_domains()
+            if field.data.split("@", 1)[1] not in domains:
+                raise wtf.ValidationError("Domain is not allowed")
+
+
 @dash(st='Invite',
       spu='focus2/img/small_invite.png',
       bt='Invite a Member',
       bpu='focus2/img/invite.png',
       wgl=5)
-@BP.route('/invite/')
+@BP.route('/invite/', methods=("GET", "POST"))
 def invite():
-    return {}
+    api = flask.g.api
+    form = InviteForm()
+    projects = api.projects.list(filter={"my-projects": True})["projects"]
+    if form.is_submitted():
+        form.projects.choices = [(p["id"], None) for p in projects]
+        if form.validate():
+            email = form.email.data
+            try:
+                user = api.users.find(email=email)
+            except IndexError:
+                user = api.users.create({
+                    "email": email,
+                    "projects": form.projects.data,
+                    "invite": True,
+                    "send-invite-mail": True,
+                    "link-template": "%s{{code}}" % flask.url_for(
+                            ".invite_accept", code="",
+                            _external=True)
+                })
+                flask.flash("Successfully invited user %s" % email, "success")
+                return flask.redirect(flask.request.path)
+            else:
+                # TODO: invite existing user when Altai API allows it
+                flask.flash("Cannot invite user %s that already exists" %
+                            email, "error")
+    domains = get_invitation_domains()
+    return {
+        "form": form,
+        "data": {
+            "projects": projects,
+            "domains": domains,
+        },
+    }
+
+
+class InviteAcceptForm(wtf.Form):
+    login = wtf.TextField(
+        "Login",
+        validators=[wtf.Required()])
+    password = wtf.TextField(
+        "Password",
+        widget=wtf.widgets.PasswordInput(),
+        validators=[wtf.Required(), wtf.Length(min=6)],
+        default="")
+    confirm = wtf.TextField(
+        "Confirm",
+        widget=wtf.widgets.PasswordInput(),
+        validators=[wtf.Required(),
+                    wtf.EqualTo("password", "Passwords must match")],
+        default="")
+
+
+@BP.route('/invite/accept/<code>', methods=("GET", "POST"))
+def invite_accept(code):
+    api = flask.g.api
+    form = InviteAcceptForm()
+    if form.validate_on_submit():
+        try:
+            api.invites.accept_invite(
+                code, {
+                    "password": form.password.data,
+                    "name": form.login.data,
+                })
+        except api_exceptions.NotFound:
+            flask.flash(
+                "It seems that your invitation code is invalid or expired",
+                "error")
+        else:
+            flask.flash("Successfully registered as %s"
+                        % form.login.data, "success")
+        return flask.redirect(flask.url_for("dashboard.index"))
+
+    try:
+        user = api.invites.get_user_by_code(code)
+    except api_exceptions.NotFound:
+        flask.flash(
+            "It seems that your invitation code is invalid or expired",
+            "error")
+        return flask.redirect(flask.url_for("dashboard.index"))
+    return {
+        "form": form,
+        "data": {
+            "user": user,
+        }
+    }

@@ -116,6 +116,21 @@ class MeCollection(object):
             auth=None)
 
 
+class InvitesCollection(object):
+    def __init__(self, requester, resource_name):
+        self.requester = requester
+        self.resource_name = resource_name
+
+    def get_user_by_code(self, code):
+        return self.requester.get("invites/%s" % code,
+                                  auth=None)
+
+    def accept_invite(self, code, body):
+        return self.requester.put("invites/%s" % code,
+                                  body=body,
+                                  auth=None)
+
+
 class AltaiApiClient(object):
     USER_AGENT = "altai-api-client"
 
@@ -138,7 +153,7 @@ class AltaiApiClient(object):
 
         string_parts = ["curl -i"]
         try:
-            string_parts.append(" -u '%s:%s'" % self.auth)
+            string_parts.append(" -u '%s:%s'" % kwargs["auth"])
         except TypeError:
             pass
         string_parts.append(" -X %s" % method)
@@ -207,7 +222,7 @@ class AltaiApiClient(object):
     def _add_collections(self):
         for obj in ("projects", "networks", "fw_rule_sets",
                     "users", "vms", "images",
-                    "invites", "audit_log", "me",
+                    "audit_log",
                     "instance_types"):
             setattr(self, obj, Collection(self, obj.replace("_", "-")))
         self.fw_rules = Collection(
@@ -221,3 +236,4 @@ class AltaiApiClient(object):
         self.my_ssh_keys = Collection(
             self, "me/ssh-keys")
         self.me = MeCollection(self, "me")
+        self.invites = InvitesCollection(self, "invites")

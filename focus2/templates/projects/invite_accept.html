@@ -1,0 +1,64 @@
+{% extends "base/base.html" %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='focus2/js/invite_accept.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+  <div class='container' ng-app="invite_accept">
+    <div class="row">
+      <div class="span10" ng-controller="InviteAcceptController">
+        <form action="{{ request.path }}" autocomplete="off" method="POST" class="form-horizontal well">
+          <fieldset>
+            <legend>
+              Your registration in Altai Private Cloud for Developers is
+              almost complete.
+            </legend>
+            <div class='control-group'>
+              <label class='control-label' for='login'>
+                <b>Login</b>
+              </label>
+              <div class='controls'>
+                <input id='login' name='login' type='login' readonly value='{{ data["user"]["name"] }}'></input>
+              </div>
+            </div>
+
+            <div class='control-group{% if form.password.errors %} error{% endif %}' ng-class="{error: too_short()}">
+              <label class='control-label' for='password'>
+                <b>Password</b>
+              </label>
+              <div class='controls'>
+                <input id='password' name='password' type='password' ng-model="new_password" ng-init="new_password = {{form.password.data | tojson}}" value='{{form.password.data or ""}}'></input>
+                <span class='help-inline' ng-show="too_short()">
+                  Field must be at least 6 characters long.
+                </span>
+              </div>
+            </div>
+
+            <div class='control-group{% if form.confirm.errors %} error{% endif %}' ng-class="{error: !wha(), success: (password_match() && !too_short())}">
+              <label class='control-label' for='confirm'>
+                <b>Confirm</b>
+              </label>
+              <div class='controls'>
+                <input id='confirm' name='confirm' type='password' ng-model="confirm_password" ng-init="confirm_password = {{form.confirm.data | tojson}}" value='{{form.confirm.data or ""}}'></input>
+                <span class="help-inline" style="vertical-align: middle;" ng-hide="wha()">
+                  Retyped password must match new password.
+                </span>
+                <span class="help-inline" style="vertical-align: middle;" ng-show="password_match()">
+                  Passwords are matched
+                </span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" ng-click="">Register</button>
+              <a href="javascript: history.back();" class="btn">Cancel</a>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
