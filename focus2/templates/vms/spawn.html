@@ -39,7 +39,7 @@
           {{ select_horizontal(
                  form.image,
                  data=data, is_required=True,
-                 plus_button_href='upload_image.html',
+                 plus_button_href=url_for("images.register"),
                  data_placeholder='Select Image',
                  tabindex='2') }}
           {{ select_horizontal(

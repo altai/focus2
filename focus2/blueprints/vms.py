@@ -25,11 +25,12 @@ from flask import blueprints
 from flask.ext import wtf
 import werkzeug
 
+from focus2.api import exceptions as api_exceptions
+
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 from focus2.blueprints.dashboard import dash
 from focus2.utils import search, pagination, forms
 from focus2.utils import jinja as utils_jinja
-
 
 """
 =============
@@ -147,9 +148,13 @@ def spawn():
              for k in ("name", "project",
                        "image", "instance-type"))
         )
-        # TODO: handle errors
-        vm = api.vms.create(vm_data)
-        return flask.redirect(flask.url_for("vms.show", id=vm["id"]))
+        try:
+            vm = api.vms.create(vm_data)
+        except api_exceptions.ClientException as ex:
+            flask.flash("Cannot create VM: %s" % ex, "error")
+        else:
+            flask.flash("Successfully created VM %s" % vm["name"], "success")
+            return flask.redirect(flask.url_for("vms.show", id=vm["id"]))
     return {
         "form": form,
         "data": data,
@@ -183,7 +188,7 @@ def action(id, command):
         flask.abort(404)
 
     if (command not in ("console-output", "vnc") and
-        flask.request.method == "GET"):
+            flask.request.method == "GET"):
         flask.abort(405)
 
     resp = flask.g.api.vms.action(id, command)

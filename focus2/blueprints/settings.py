@@ -26,6 +26,7 @@ import flask
 from flask import blueprints
 from flask.ext import wtf
 
+from focus2.api import exceptions as api_exceptions
 from focus2.blueprints.dashboard import dash as basedash
 
 """
@@ -77,9 +78,8 @@ def ssh_keys_create():
             ssh_key_data["public-key"] = form.public_key.data
         try:
             ssh_key = api.my_ssh_keys.create(ssh_key_data)
-        except:
-            # TODO: show error
-            flask.flash("Cannot create SSH key", "error")
+        except api_exceptions.InvalidRequest as ex:
+            flask.flash("Cannot create SSH key: %s" % ex, "error")
         else:
             flask.flash("Successfully created SSH key %s" % name, "success")
             if not form.public_key.data:
