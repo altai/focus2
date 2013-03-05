@@ -42,9 +42,9 @@ class Pagination(object):
     Based on snippet http://flask.pocoo.org/snippets/44/.
     """
     def __init__(self, page, total_count, per_page=20):
-        self.page = page
-        self.per_page = per_page
-        self.total_count = total_count
+        self.page = int(page)
+        self.per_page = int(per_page)
+        self.total_count = int(total_count)
         if (page - 1) * per_page > total_count:
             flask.abort(404)
 
