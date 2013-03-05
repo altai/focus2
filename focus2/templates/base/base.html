@@ -14,8 +14,19 @@
     <link href="{{ url_for('static', filename='focus2/css/main.css')}}" rel='stylesheet' type='text/css'>
     {% endblock %}
     {% block css %}{% endblock %}
+    <!--[if lte IE 8]>
+        <script>
+          // The ieshiv takes care of our ui.directives, bootstrap module directives and
+          // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+          // However, IF you have custom directives (yours or someone else's) then
+          // enumerate the list of tags in window.myCustomTags
+          
+          window.myCustomTags = []; // optional
+        </script>
+        <script src="{{ url_for('static', filename='deps/angular-ui-0.3.1/angular-ui-ieshiv.min.js') }}"></script>
+        <![endif]-->
   </head>
-  <body class='{% block body_class %}{% endblock %}'>
+  <body class='{% block body_class %}{% endblock %}'{% block body_attrs %}{% endblock %}>
     {% block navbar %}
     <style>
             /*<![CDATA[*/
@@ -115,7 +126,6 @@
   <script src="{{ url_for('static', filename='deps/jquery/js/jquery-1.9.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='deps/bootstrap/js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='deps/angular-ui-0.3.1/angular-ui.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='deps/angular-ui-0.3.1/angular-ui-ieshiv.min.js') }}"></script>
   <script src="{{ url_for('static', filename='focus2/js/common.js') }}"></script>
   {% endblock %}
   {% block js %}{% endblock %}
