@@ -19,9 +19,10 @@
 # <http://www.gnu.org/licenses/>.
 
 from functools import partial
-import flask
 
+import flask
 from flask import blueprints
+from flask.ext import wtf
 
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
@@ -83,6 +84,7 @@ def summary():
 @BP.route('/<id>')
 def show(id):
     api = flask.g.api
+
     stats = api.projects.get(id, "stats")
     network = api.networks.find(project=id)
     return {
@@ -131,7 +133,7 @@ def members_show(id):
     my_projects = set(
         (p["id"]
          for p in api.projects.list(
-                filter={"my-projects": True})["projects"]))
+             filter={"my-projects": True})["projects"]))
     user["projects"] = filter(
         lambda p: p["id"] in my_projects, user["projects"])
     return {
@@ -151,11 +153,55 @@ def audit():
     return {}
 
 
+class InviteForm(wtf.Form):
+    projects = wtf.SelectMultipleField("Projects", validators=[wtf.Required()])
+    email = wtf.TextField("Email", validators=[wtf.Required(), wtf.Email()])
+
+
 @dash(st='Invite',
       spu='focus2/img/small_invite.png',
       bt='Invite a Member',
       bpu='focus2/img/invite.png',
       wgl=5)
-@BP.route('/invite/')
+@BP.route('/invite/', methods=("GET", "POST"))
 def invite():
+    api = flask.g.api
+    form = InviteForm()
+    data = {
+        "projects": api.projects.list(
+            filter={"my-projects": True})["projects"],
+        "domains": [
+            "gmail.com",
+            "griddynamics.com",
+            "mail.ru",
+        ],
+    }
+    if form.is_submitted():
+        form.projects.choices = [(p["id"], None) for p in data["projects"]]
+        if form.validate():
+            email = form.email.data
+            try:
+                user = api.users.find(email=email)
+            except IndexError:
+                user = api.users.create({
+                    "email": email,
+                    "projects": form.projects.data,
+                    "invite": True,
+                    "send-invite-mail": True,
+                    "link-template": flask.url_for(
+                        ".invite_accept", code="{{code}}")
+                })
+                flask.flash("Successfully invited user %s" % email, "success")
+                return flask.redirect(flask.request.path)
+            else:
+                flask.flash("Cannot invite user %s that already exists" %
+                            email, "error")
+    return {
+        "form": form,
+        "data": data,
+    }
+
+
+@BP.route('/invite/accept/<code>', methods=("GET", "POST"))
+def invite_accept(code):
     return {}
