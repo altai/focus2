@@ -64,25 +64,36 @@ BP = breadcrumbs('Virtual Machines')(BP)
 @BP.route('/')
 def index():
     '''Manage'''
-    query = flask.request.args.get('q', '')
-    deconstruct = search.transform_search_query(query, 'name:eq')
-    r = flask.g.api.vms.list(filter=deconstruct, limit=0)
-    try:
-        p = pagination.Pagination(1, r['collection']['size'])
-    except werkzeug.exceptions.NotFound:
-        paginator = None
-        data = []
-    else:
-        r = flask.g.api.vms.list(
-            filter=deconstruct, limit=p.limit, offset=p.offset)
-        paginator = pagination.Pagination(1, r['collection']['size'])
-        data = r['vms']
+
+    if 'api_marker' in flask.request.args:
+        query = flask.request.args.get('query')
+        deconstruct = search.transform_search_query(query, 'name:eq')
+        r = flask.g.api.vms.list(filter=deconstruct, limit=0)
+        perPage = int(flask.request.args['perPage'])
+        page = int(flask.request.args['page'])
+        try:
+            p = pagination.Pagination(page, r['collection']['size'], perPage)
+        except werkzeug.exceptions.NotFound:
+            data = []
+            pages = []
+            current = 1
+        else:
+            r = flask.g.api.vms.list(
+                filter=deconstruct, limit=p.limit, offset=p.offset)
+            paginator = pagination.Pagination(page, r['collection']['size'], perPage)
+            data = r['vms']
+            pages = list(paginator.iter_pages())
+            current = paginator.page
+        return flask.jsonify({
+                'data': data,
+                'pagination': {
+                    'pages': pages,
+                    'current': current
+                    }
+                })
+
 
     return {
-        'query': query,
-        'deconstruct': deconstruct,
-        'data': data,
-        'paginator': paginator,
         'predefined_searches': [
             {'title': 'My VMs', 'url': flask.request.path + '?my'},
         ] + [
