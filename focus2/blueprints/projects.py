@@ -30,6 +30,8 @@ from focus2.api import exceptions as api_exceptions
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 
+from focus2.utils import billing as utils_billing
+
 """
 ==================
 projects blueprint
@@ -192,6 +194,17 @@ def fw_rule_sets_action(id, command):
     flask.abort(404)
 
 
+def billing_client():
+    if not hasattr(flask.g, "billing_client"):
+        from openstackclient_base.billing.client import BillingClient
+        from openstackclient_base.client import HttpClient
+        bc = BillingClient(
+            HttpClient(endpoint=flask.current_app.config["BILLING_URL"],
+                       token="unused"))
+        flask.g.billing_client = bc
+    return flask.g.billing_client
+
+
 @dash(st='Billing',
       spu='focus2/img/small_billing.png',
       bt='Billing',
@@ -199,7 +212,11 @@ def fw_rule_sets_action(id, command):
       wgl=2)
 @BP.route('/billing/')
 def billing():
-    return {}
+    bh = utils_billing.BillingHelper(flask.g.api, billing_client())
+    return {
+        "tariffs": bh.tariff_list(),
+        "data": bh.report(),
+    }
 
 
 @dash(st='Members',
