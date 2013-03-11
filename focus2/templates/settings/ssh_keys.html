@@ -5,7 +5,7 @@
 
   <div class="container">
     <ul class="breadcrumb">
-      <li><a href="/">Home</a> <span class="divider">/</span></li>
+      <li><a href="{{ url_for("dashboard.index") }}">Home</a> <span class="divider">/</span></li>
       <li>Personal Settings <span class="divider">/</span></li>
       <li class="active">SSH Keys</li>
       <li class="pull-right"><a class="btn btn-mini btn-success nobr" href="{{url_for("settings.ssh_keys_create")}}"><i class="icon-plus-sign icon-white"></i>&nbsp;Add New Keypair</a></li>

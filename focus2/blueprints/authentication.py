@@ -78,7 +78,7 @@ def login():
         flask.session.permanent = form.remember_me.data
         flask.session['name'] = form.name.data
         flask.session['password'] = form.password.data
-        return flask.redirect('/')
+        return flask.redirect(flask.url_for("dashboard.index"))
     return locals()
 
 
