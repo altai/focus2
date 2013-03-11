@@ -81,3 +81,7 @@ class Pagination(object):
     @property
     def limit(self):
         return self.per_page
+
+    @property
+    def page_slice(self):
+        return slice(self.offset, self.page * self.per_page)

@@ -18,17 +18,22 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
+import datetime
 from functools import partial
 import json
 
 import flask
 from flask import blueprints
 from flask.ext import wtf
+import werkzeug
 
 from focus2.api import exceptions as api_exceptions
 
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
+
+from focus2.utils import billing as utils_billing
+from focus2.utils import pagination
 
 """
 ==================
@@ -192,6 +197,17 @@ def fw_rule_sets_action(id, command):
     flask.abort(404)
 
 
+def billing_client():
+    if not hasattr(flask.g, "billing_client"):
+        from openstackclient_base.billing.client import BillingClient
+        from openstackclient_base.client import HttpClient
+        bc = BillingClient(
+            HttpClient(endpoint=flask.current_app.config["BILLING_URL"],
+                       token="unused"))
+        flask.g.billing_client = bc
+    return flask.g.billing_client
+
+
 @dash(st='Billing',
       spu='focus2/img/small_billing.png',
       bt='Billing',
@@ -199,7 +215,50 @@ def fw_rule_sets_action(id, command):
       wgl=2)
 @BP.route('/billing/')
 def billing():
-    return {}
+    bh = utils_billing.BillingHelper(flask.g.api, billing_client())
+    if flask.request.args.get("api_marker"):
+        perPage = int(flask.request.args['perPage'])
+        page = int(flask.request.args['page'])
+        date_range = flask.request.args['date_range'].split(" - ")
+        for i in xrange(2):
+            date_range[i] = datetime.datetime.strptime(
+                    date_range[i], "%m.%d.%Y")
+        date_range[1] = date_range[1] + datetime.timedelta(days=1)
+        for i in xrange(2):
+            date_range[i] = ("%sZ" % date_range[i].isoformat())
+        resources = flask.request.args["resources"]
+        if not resources:
+            resources = ["nova/instance", "glance/image"]
+        else:
+            resources = resources.lower().split(",")
+            tmp_res = []
+            if "instances" in resources:
+                tmp_res.append("nova/instance")
+            if "images" in resources:
+                tmp_res.append("glance/image")
+            resources = tmp_res
+        data = bh.report(period_start=date_range[0],
+                         period_end=date_range[1])
+        data = filter(lambda x: x["rtype"] in resources, data)
+        try:
+            paginator = pagination.Pagination(page, len(data), perPage)
+        except werkzeug.exceptions.NotFound:
+            paginator = pagination.Pagination(1, len(data), perPage)
+        data = data[paginator.page_slice]
+        pages = list(paginator.iter_pages())
+        current = paginator.page
+        return flask.jsonify({
+            'data': data,
+            'pagination': {
+                'pages': pages,
+                'current': current
+            }
+        })
+
+    return {
+        "tariffs": bh.tariff_list(),
+        "data": bh.report(),
+    }
 
 
 @dash(st='Members',

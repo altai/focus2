@@ -45,20 +45,24 @@ module.filter('diskformat', function() {
 });
 
 
+function init_daterangepickers() {
+    $(".daterange").daterangepicker({
+        ranges: {
+            "Today": ["today", "today"],
+            "Yesterday": ["yesterday", "yesterday"],
+            "Last 7 Days": [Date.today().add({days: -6}), "today"],
+            "Last 30 Days": [Date.today().add({days: -29}), "today"],
+            "This Month": [Date.today().moveToFirstDayOfMonth(), Date.today().moveToLastDayOfMonth()],
+            "Last Month": [Date.today().moveToFirstDayOfMonth().add({months: -1}), Date.today().moveToFirstDayOfMonth().add({days: -1})]
+        }
+    });
+}
+
 jQuery(function($) {
     $(".help-tooltip").tooltip();
     $("[rel=tooltip]").tooltip();
     if (typeof(Date.today) != "undefined") {
-        $(".daterange").daterangepicker({
-            ranges: {
-                "Today": ["today", "today"],
-                "Yesterday": ["yesterday", "yesterday"],
-                "Last 7 Days": [Date.today().add({days: -6}), "today"],
-                "Last 30 Days": [Date.today().add({days: -29}), "today"],
-                "This Month": [Date.today().moveToFirstDayOfMonth(), Date.today().moveToLastDayOfMonth()],
-                "Last Month": [Date.today().moveToFirstDayOfMonth().add({months: -1}), Date.today().moveToFirstDayOfMonth().add({days: -1})]
-            }
-        });
+        init_daterangepickers();
     }
 });
 

@@ -146,3 +146,16 @@
     </div>
   </div>
 {%- endmacro %}
+
+
+{% macro search_pagination() -%}
+  {% raw %}
+    <div style="margin-top: 0px;" class="pagination" ng-show="search.data.length > 0">
+      <ul>
+        <li ng-repeat="x in search.pagination.pages" ng-class="search.pagination.current == x && 'active'">
+          <a ng-click="change_page(x)">{{ x }}</a>
+        </li>
+      </ul>
+    </div>
+  {% endraw %}
+{%- endmacro %}
