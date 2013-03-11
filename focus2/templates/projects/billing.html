@@ -1,1 +1,132 @@
 {% extends "base/base.html" %}
+
+{% block css %}
+  <link href="{{ url_for('static', filename='deps/daterangepicker/daterangepicker.css') }}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+
+{% block js %}
+  <script src="{{ url_for('static', filename='deps/date.js') }}"></script>
+  <script src="{{ url_for('static', filename='deps/daterangepicker/daterangepicker.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+  {% from 'base/macros.html' import search_pagination %}
+
+  <div class='container' ng-app>
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+          Current Tariffs
+        </a>
+      </div>
+
+      <div id="collapseOne" class="accordion-body collapse">
+        <div class="accordion-inner">
+          <table class="table table-striped table-bordered table-condensed">
+            <tbody>
+              <tr>
+                <td>nova/volume</td>
+                <td>${{ tariffs["nova/volume"] }}/year * GB</td>
+              </tr>
+              <tr>
+                <td colspan="2">nova/instance</td>
+              </tr>
+              <tr>
+                <td>local_gb</td>
+                <td>${{ tariffs["local_gb"] }}/year * GB</td>
+              </tr>
+              <tr>
+                <td>memory_mb</td>
+                <td>${{ tariffs["memory_mb"] }}/year * MB</td>
+              </tr>
+              <tr>
+                <td>vcpus</td>
+                <td>${{ tariffs["vcpus"] }}/year * processor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="row spaceup">
+      <div class="span12">
+        <form class="form-inline form" method="POST" action=".">
+          <div class="input-prepend">
+            <span class="add-on"><i class="icon-calendar"></i></span><input type="text" class="daterange"/>
+          </div>
+          <select multiple name="project" class="select2" id="project" data-placeholder="Select Resource" tabindex="1">
+            <option></option>
+            <option>Instances</option>
+            <option>Images</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Generate</button>
+        </form>
+      </div>
+    </div>
+
+    <table class="table table-striped table-bordered table-condensed" style="margin-top: 5px;">
+      <thead>
+        <tr>
+          <td>Total</td>
+          <td>$0.03</td>
+          <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+          <th>
+            Resource
+          </th>
+          <th>
+            Cost
+          </th>
+          <th>
+            Created At
+          </th>
+          <th>
+            Destroyed At
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in data %}
+        <tr>
+          <td>
+            {% if obj["rtype"] == "glance/image" %}
+              <img src="{{ url_for("static", filename="deps/glyphicons/png/glyphicons_137_computer_service.png") }}" width="14">
+            {% elif obj["rtype"] == "nova/instance" %}
+              <i class="icon-file"></i>
+            {% endif %}
+            {% if "details" in obj %}
+            <a href="{{ obj["details"]["url"] }}">
+              {{ obj["details"]["name"] }}
+            </a>
+            {% else %}
+              {{ obj["name"] }}
+            {% endif %}
+
+
+          </td>
+          <td>${{ obj["cost"] }}</td>
+          <td>{{ obj["created_at"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
+          <td>
+            {% if obj["destroyed_at"] %}
+              {{ obj["created_at"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}
+            {% else %}
+              in use
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class='alert alert-info'>
+      Use search to find virtual machines you are interested in.
+    </div>
+
+    {#{ search_pagination(paginator) }#}
+  </div>
+{% endblock %}
+
