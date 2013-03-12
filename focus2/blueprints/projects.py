@@ -98,14 +98,98 @@ def show(id):
     }
 
 
-@dash(st='Security Groups',
-      spu='focus2/img/small_security_groups.png',
-      bt='Security Groups',
-      bpu='focus2/img/security_groups.png',
+@dash(st='Firewall Rule Sets',
+      spu='focus2/img/small_fw_rule_sets.png',
+      bt='Firewall Rule Sets',
+      bpu='focus2/img/fw_rule_sets.png',
       wgl=1)
-@BP.route('/security-groups/')
-def security_groups():
+@BP.route('/fw-rule-sets/')
+def fw_rule_sets():
+    api = flask.g.api
+    api.fw_rule_sets.list()
     return {}
+
+
+class FwRuleSetEditForm(wtf.Form):
+    name = wtf.TextField("Name")
+    description = wtf.TextField("Description")
+    rules = wtf.TextField("Rules")
+
+
+@BP.route('/fw-rule-sets/<id>', methods=["GET", "POST"])
+def fw_rule_sets_edit(id):
+    api = flask.g.api
+    form = FwRuleSetEditForm()
+    fw_rule_set = {
+        "description": "default",
+        "href": "/v1/fw-rule-sets/1",
+        "id": "1",
+        "name": "default",
+        "project": {
+            "href": "/v1/projects/ee3750b8da2d491bb6b8714d0803e3fd",
+            "id": "ee3750b8da2d491bb6b8714d0803e3fd",
+            "name": "p100"
+        },
+        "rules-href": "/v1/fw-rule-sets/1/rules/"
+    }
+
+    #api.fw_rule_sets.get(id)
+    fw_rules = [
+        {"id": 1, "protocol":"TCP", "source":"6",
+         "port-range-first":"1", "port-range-last":"4"},
+        {"id": 1, "protocol":"TCP", "source":"6",
+         "port-range-first":"1", "port-range-last":"5"},
+        {"id": 1, "protocol":"TCP", "source":"6",
+         "port-range-first":"1", "port-range-last":"6"},
+        {"id": 1, "protocol":"TCP", "source":"6",
+         "port-range-first":"1", "port-range-last":"7"},
+    ]
+
+#api.fw_rules(fw_rule_set_id=id).list()["rules"]
+    if form.is_submitted():
+        if form.validate():
+            try:
+                # TODO: implement update call in Altai API
+                api.fw_rule_sets.update(id, {
+                    "name": form.name.data,
+                    "description": form.description.data,
+                })
+            except api_exceptions.AltaiApiException as ex:
+                flask.flash("Cannot update firewall rule set: %s" %
+                            ex, "error")
+            else:
+                flask.flash("Successfully updated firewall rule set",
+                            "success")
+                return flask.redirect(flask.url_for(".fw_rule_sets"))
+    else:
+        form.name.data = fw_rule_set["name"]
+        form.description.data = fw_rule_set["description"]
+    return {
+        "form": form,
+        "data": {
+            "fw_rule_set": fw_rule_set,
+            "fw_rules": fw_rules,
+        }
+    }
+
+
+@BP.route('/fw-rule-sets/<id>/<command>', methods=["POST"])
+def fw_rule_sets_action(id, command):
+    api = flask.g.api
+    if command == "remove":
+        fw_rule_set = api.fw_rule_sets.get(id)
+        try:
+            api.fw_rule_sets.delete(id)
+        except api_exceptions.AltaiApiException as ex:
+            flask.flash("Cannot delete %s: %s" %
+                        (fw_rule_set["name"], ex),
+                        "error")
+        else:
+            flask.flash("Successfully deleted %s" % fw_rule_set["name"],
+                        "success")
+            return flask.redirect(flask.url_for(".fw_rule_sets"))
+        return flask.redirect(flask.request.path)
+    flask.abort(404)
 
 
 @dash(st='Billing',
@@ -120,7 +204,7 @@ def billing():
 
 @dash(st='Members',
       spu='focus2/img/small_members.png',
-      bt='Security Groups',
+      bt='Firewall Rule Sets',
       bpu='focus2/img/members.png',
       wgl=3)
 @BP.route('/members/')

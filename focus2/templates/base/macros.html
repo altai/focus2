@@ -12,7 +12,7 @@
 {%- endmacro %}
 
 
-{% macro input_horizontal(field, ng_model=None, is_required=False) -%}
+{% macro input_horizontal(field, ng_model=None, is_required=False, is_readonly=False) -%}
 <div class='control-group{% if field.errors %} error{% endif %}'>
   {% if field.widget.input_type != 'checkbox' %}
   <label class='control-label' for='{{ field.label.field_id }}'>
@@ -34,11 +34,15 @@
       {{ field.label.text }}
     </label>
     {% else %}
+    <input id='{{ field.label.field_id }}' name='{{ field.name }}' type='{{ field.widget.input_type }}'
+           value='{{ field.data or "" }}'
+           {% if is_readonly %} readonly="readonly" {% endif %}
     {% if ng_model is not none %}
-    <input id='{{ field.label.field_id }}' name='{{ field.name }}' ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model='{{ ng_model }}' type='{{ field.widget.input_type }}' value='{{ field.data or "" }}'>
+      ng-init='{{ ng_model }} = {{ field.data|tojson }}' ng-model='{{ ng_model }}'
     {% else %}
-    <input id='{{ field.label.field_id }}' name='{{ field.name }}' placeholder='{{ field.placeholder }}' type='{{ field.widget.input_type }}' value='{{ field.data or "" }}'>
+      placeholder='{{ field.placeholder }}'
     {% endif %}
+    >
     {% endif %}
     {{field_errors(field)}}
   </div>
