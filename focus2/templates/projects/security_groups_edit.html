@@ -1,1 +1,93 @@
 {% extends "base/base.html" %}
+
+{% block content %}
+  {% from 'base/macros.html' import input_horizontal %}
+  {% from 'base/macros.html' import modal_dialog %}
+
+  {{modal_dialog("delete", "Delete Confirmation",
+                 "Are you sure to delete firewall rule set %s?" % data["fw_rule_set"]["name"],
+                 url_for("projects.fw_rule_sets_action", id=data["fw_rule_set"]["id"], command="remove"),
+                 cannot_revert=True)}}
+
+  <div class='container' ng-app>
+    <div class="row">
+      <form autocomplete="off" method="POST" class="form-horizontal well">
+        <fieldset>
+          {{ input_horizontal(form.name, is_required=True) }}
+          {{ input_horizontal(form.description, is_required=False) }}
+
+          <div class="control-group ">
+            <label class="control-label"><b>Ports:</b></label>
+            <div class="controls">
+              <table class="table table-bordered table-condensed">
+                <thead>
+                  <tr>
+                    <th>IP Protocol</th>
+                    <th>From Port</th>
+                    <th>To Port</th>
+                    <th>IP Range</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><select class="select2">
+                        <option selected>TCP</option>
+                        <option>UDP</option>
+                        <option>ICMP</option>
+                    </select></td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>0.0.0.0/0</td>
+                    <td><a class="btn btn-mini btn-danger"><i class="icon-remove icon-white"></i></a></td>
+                  </tr>
+                  <tr>
+                    <td><select class="select2">
+                        <option>TCP</option>
+                        <option selected>UDP</option>
+                        <option>ICMP</option>
+                    </select></td>
+                    <td>10</td>
+                    <td>20</td>
+                    <td>172.18.40.154/0</td>
+                    <td><a class="btn btn-mini btn-danger"><i class="icon-remove icon-white"></i></a></td>
+                  </tr>
+                  <tr>
+                    <td><select class="select2">
+                        <option>TCP</option>
+                        <option>UDP</option>
+                        <option selected>ICMP</option>
+                    </select></td>
+                    <td></td>
+                    <td></td>
+                    <td>192.168.10.0/22</td>
+                    <td><a class="btn btn-mini btn-danger"><i class="icon-remove icon-white"></i></a></td>
+                  </tr>
+                  <tr ng-init="protocol='TCP'">
+                    <td><select ng-model="protocol">
+                        <option>TCP</option>
+                        <option>UDP</option>
+                        <option>ICMP</option>
+                    </select></td>
+                    <td><input type="text" ng-hide="protocol == 'ICMP'" ng-model="from_port" /></td>
+                    <td><input type="text" ng-hide="protocol == 'ICMP'" ng-secgroupbehaviour="from_port" ng-click="done=true"/></td>
+                    <td><input type="text"/></td>
+                    <td><a class="btn btn-mini btn-success"><i class="icon-plus-sign icon-white"></i></a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a href="javascript: history.back();" class="btn">Cancel</a>
+            <a href="#delete" data-toggle="modal" class="btn btn-danger pull-right">Delete</a>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+  </div>
+{% endblock %}
+

@@ -105,7 +105,66 @@ def show(id):
       wgl=1)
 @BP.route('/security-groups/')
 def security_groups():
+    api = flask.g.api
+    api.fw_rule_sets.list()
     return {}
+
+
+class FwRuleSetEditForm(wtf.Form):
+    name = wtf.TextField("Name", validators=[wtf.Required()])
+    description = wtf.TextField("Description")
+
+
+@BP.route('/security-groups/<id>', methods=["GET", "POST"])
+def security_groups_edit(id):
+    api = flask.g.api
+    form = FwRuleSetEditForm()
+    fw_rule_set = api.fw_rule_sets.get(id)
+    fw_rules = api.fw_rules(fw_rule_set_id=id).list()["rules"]
+    if form.is_submitted():
+        if form.validate():
+            try:
+                # TODO: implement update call in Altai API
+                api.fw_rule_sets.update(id, {
+                    "name": form.name.data,
+                    "description": form.description.data,
+                })
+            except api_exceptions.AltaiApiException as ex:
+                flask.flash("Cannot update firewall rule set: %s" %
+                            ex, "error")
+            else:
+                flask.flash("Successfully updated firewall rule set",
+                            "success")
+                return flask.redirect(flask.url_for(".security_groups"))
+    else:
+        form.name.data = fw_rule_set["name"]
+        form.description.data = fw_rule_set["description"]
+    return {
+        "form": form,
+        "data": {
+            "fw_rule_set": fw_rule_set,
+            "fw_rules": fw_rules,
+        }
+    }
+
+
+@BP.route('/fw-rule-sets/<id>/<command>', methods=["POST"])
+def fw_rule_sets_action(id, command):
+    api = flask.g.api
+    if command == "remove":
+        fw_rule_set = api.fw_rule_sets.get(id)
+        try:
+            api.fw_rule_sets.delete(id)
+        except api_exceptions.AltaiApiException as ex:
+            flask.flash("Cannot delete %s: %s" %
+                        (fw_rule_set["name"], ex),
+                        "error")
+        else:
+            flask.flash("Successfully deleted %s" % fw_rule_set["name"],
+                        "success")
+            return flask.redirect(flask.url_for(".security_groups"))
+        return flask.redirect(flask.request.path)
+    flask.abort(404)
 
 
 @dash(st='Billing',
