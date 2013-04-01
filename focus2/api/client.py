@@ -188,7 +188,10 @@ class AltaiApiClient(object):
         if kwargs.get("body") is not None:
             kwargs["headers"]["Content-Type"] = "application/json"
             kwargs["data"] = json.dumps(kwargs["body"])
+        try:
             del kwargs["body"]
+        except KeyError:
+            pass
         if self.timeout is not None:
             kwargs.setdefault("timeout", self.timeout)
         if self.auth is not None:
@@ -221,7 +224,7 @@ class AltaiApiClient(object):
 
     def _add_collections(self):
         for obj in ("projects", "networks", "fw_rule_sets",
-                    "users", "vms", "images",
+                    "users", "instances", "images",
                     "audit_log",
                     "instance_types"):
             setattr(self, obj, Collection(self, obj.replace("_", "-")))
@@ -229,8 +232,8 @@ class AltaiApiClient(object):
             self, "fw-rule-sets/%(fw_rule_set_id)s/rules")
         self.project_users = Collection(
             self, "projects/%(project_id)s/users")
-        self.vm_fw_rule_sets = Collection(
-            self, "vms/%(vm_id)s/fw-rule-sets"),
+        self.instance_fw_rule_sets = Collection(
+            self, "instances/%(instance_id)s/fw-rule-sets"),
         self.users_ssh_keys = Collection(
             self, "/users/%(user_id)s/ssh-keys")
         self.my_ssh_keys = Collection(

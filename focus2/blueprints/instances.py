@@ -34,7 +34,7 @@ from focus2.utils import jinja as utils_jinja
 
 """
 =============
-vms blueprint
+instances blueprint
 =============
 
 Spawn
@@ -42,22 +42,22 @@ Manage
 
 """
 
-BP = blueprints.Blueprint('vms', __name__,
+BP = blueprints.Blueprint('instances', __name__,
                           static_folder='static',
                           template_folder='templates',
-                          url_prefix='/vms')
+                          url_prefix='/instances')
 
 
-BP = breadcrumbs('Virtual Machines')(BP)
+BP = breadcrumbs('Instances')(BP)
 
 
 @breadcrumbs('Manage')
-@breadcrumb_button('vms.spawn', 'Spawn New VM')
+@breadcrumb_button('instances.spawn', 'Spawn New Instance')
 @dash(st='Manage',
          spu='focus2/img/small_manage.png',
-         bt='Manage VMs',
+         bt='Manage instances',
          bpu='focus2/img/manage.png',
-         agt='Virtual Machines',
+         agt='Instances',
          wga=0,
          wgl=1,
          p=True,
@@ -69,7 +69,7 @@ def index():
     if 'api_marker' in flask.request.args:
         query = flask.request.args.get('query')
         deconstruct = search.transform_search_query(query, 'name:eq')
-        r = flask.g.api.vms.list(filter=deconstruct, limit=0)
+        r = flask.g.api.instances.list(filter=deconstruct, limit=0)
         perPage = int(flask.request.args['perPage'])
         page = int(flask.request.args['page'])
         try:
@@ -79,10 +79,11 @@ def index():
             pages = []
             current = 1
         else:
-            r = flask.g.api.vms.list(
+            r = flask.g.api.instances.list(
                 filter=deconstruct, limit=p.limit, offset=p.offset)
-            paginator = pagination.Pagination(page, r['collection']['size'], perPage)
-            data = r['vms']
+            paginator = pagination.Pagination(
+                page, r['collection']['size'], perPage)
+            data = r['instances']
             pages = list(paginator.iter_pages())
             current = paginator.page
         return flask.jsonify({
@@ -93,10 +94,9 @@ def index():
                     }
                 })
 
-
     return {
         'predefined_searches': [
-            {'title': 'My VMs', 'url': flask.request.path + '?my'},
+            {'title': 'My instances', 'url': flask.request.path + '?my'},
         ] + [
             {'title': x['name'],
              'url': flask.request.path + '?project_id=' + x['id']} for x
@@ -116,12 +116,12 @@ class CreateForm(wtf.Form):
         'Security Groups')
 
 
-@breadcrumbs('Start VM')
+@breadcrumbs('Start instance')
 @dash(st='Spawn',
-         spu='focus2/img/small_spawn_vm.png',
-         bt='Spawn VM',
-         bpu='focus2/img/spawn_vm.png',
-         agt='Virtual Machines',
+         spu='focus2/img/small_spawn_instance.png',
+         bt='Spawn instance',
+         bpu='focus2/img/spawn_instance.png',
+         agt='Instances',
          wga=0,
          wgl=0,
          p=True,
@@ -154,18 +154,21 @@ def spawn():
                 "form": form,
                 "data": data,
             }
-        vm_data = dict(
+        instance_data = dict(
             ((k, getattr(form, k.replace("-", "_")).data)
              for k in ("name", "project",
                        "image", "instance-type"))
         )
         try:
-            vm = api.vms.create(vm_data)
+            instance = api.instances.create(instance_data)
         except api_exceptions.ClientException as ex:
-            flask.flash("Cannot create VM: %s" % ex, "error")
+            flask.flash("Cannot create instance: %s" % ex, "error")
         else:
-            flask.flash("Successfully created VM %s" % vm["name"], "success")
-            return flask.redirect(flask.url_for("vms.show", id=vm["id"]))
+            flask.flash(
+                "Successfully created instance %s" % instance["name"],
+                "success")
+            return flask.redirect(
+                flask.url_for("instances.show", id=instance["id"]))
     return {
         "form": form,
         "data": data,
@@ -175,13 +178,13 @@ def spawn():
 @BP.route('/<id>')
 def show(id):
     api = flask.g.api
-    vm = api.vms.get(id)
-    image = api.images.get(vm["image"]["id"])
-    instance_type = api.instance_types.get(vm["instance-type"]["id"])
-    network = api.networks.find(project=vm["project"]["id"])
+    instance = api.instances.get(id)
+    image = api.images.get(instance["image"]["id"])
+    instance_type = api.instance_types.get(instance["instance-type"]["id"])
+    network = api.networks.find(project=instance["project"]["id"])
     return {
         "data": {
-            "vm": vm,
+            "instance": instance,
             "image": image,
             "instance_type": instance_type,
             "network": network,
@@ -202,7 +205,7 @@ def action(id, command):
             flask.request.method == "GET"):
         flask.abort(405)
 
-    resp = flask.g.api.vms.action(id, command)
+    resp = flask.g.api.instances.action(id, command)
     if command == "vnc":
         return flask.redirect(resp["url"])
     if command == "console-output":
@@ -211,15 +214,15 @@ def action(id, command):
         return resp
 
     flask.flash("Successfully %s the virtual machine" % command, "success")
-    return flask.redirect(flask.url_for("vms.show", id=id))
+    return flask.redirect(flask.url_for("instances.show", id=id))
 
 
 @breadcrumbs('Types')
 @dash(st='Types of',
          spu='focus2/img/small_flavors.png',
-         bt='Types of VM',
+         bt='Types of instances',
          bpu='focus2/img/flavors.png',
-         agt='Virtual Machines',
+         agt='Instances',
          wga=0,
          wgl=2,
          p=True,

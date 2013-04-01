@@ -2,11 +2,11 @@
 
 
 {% block content %}
-  {% from 'base/macros.html' import spawn_vm_button %}
+  {% from 'base/macros.html' import spawn_instance_button %}
 
   <div class='container'>
     <div>
-      {{spawn_vm_button("project=" + data.project["id"])}}
+      {{spawn_instance_button("project=" + data.project["id"])}}
     </div>
     <table class="table table-striped table-bordered table-condensed">
       <tr>
@@ -22,8 +22,8 @@
         <td>{{data.stats["total-images"]}}</td>
       </tr>
       <tr>
-        <td>Total Virtual Machines</td>
-        <td>{{data.stats["vms"]}}</td>
+        <td>Total Instances</td>
+        <td>{{data.stats["instances"]}}</td>
       </tr>
       <tr>
         <td>VLAN</td>

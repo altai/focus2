@@ -14,22 +14,22 @@
         </td>
         <td class='value'>$what?</td>
         <td class='value'>{{x["total_users"]}}</td>
-        <td class='value'>{{x["total_vms"]}}</td>
+        <td class='value'>{{x["total_instances"]}}</td>
         <td class='value'>{{x["total_images"]}}</td>
         <td class='value'>{{x["network"]["vlan"]}}</td>
         <td class='value'>{{x["network"]["cidr"]}}</td>
       </tr>
       <tr>
         <td class='actions nobr'>
-          <a class='btn btn-mini btn-success' href="{{ url_for('vms.spawn')}}?project={{ x['id'] }}">
+          <a class='btn btn-mini btn-success' href="{{ url_for('instances.spawn')}}?project={{ x['id'] }}">
             <i class='icon-plus-sign icon-white'></i>
-              VM
+              Instance
           </a>
         </td>
         <td class='title'>Status</td>
         <td class='title'>Cost</td>
         <td class='title'>Users</td>
-        <td class='title'>VMs</td>
+        <td class='title'>Instances</td>
         <td class='title'>Images</td>
         <td class='title'>VLAN</td>
         <td class='title'>Network</td>

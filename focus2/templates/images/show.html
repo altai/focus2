@@ -2,7 +2,7 @@
 
 
 {% block content %}
-  {% from 'base/macros.html' import spawn_vm_button %}
+  {% from 'base/macros.html' import spawn_instance_button %}
   {% from 'base/macros.html' import modal_dialog %}
 
   {{modal_dialog("delete", "Delete Confirmation",
@@ -14,7 +14,7 @@
 
     <div>
       {% if data.image is image_spawnable %}
-        {{spawn_vm_button("image=" + data.image["id"])}}
+        {{spawn_instance_button("image=" + data.image["id"])}}
       {% endif %}
       <div class="span1 pull-right" style="margin: 0px 0px 20px 0px;">
         <a href="#delete" class="btn btn-danger" data-toggle="modal">Delete</a>

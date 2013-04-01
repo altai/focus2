@@ -13,14 +13,14 @@
   {% from 'base/macros.html' import modal_dialog %}
 
   {{modal_dialog("reboot", "Reboot Confirmation",
-                 "Are you sure to reboot VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="reboot"))}}
+                 "Are you sure to reboot instance %s created by %s?" % (data.instance["name"], data.instance["created-by"]["name"]),
+                 url_for("instances.action", id=data["instance"]["id"], command="reboot"))}}
   {{modal_dialog("reset", "Reset Confirmation",
-                 "Are you sure to reset VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="reset"))}}
+                 "Are you sure to reset instance %s created by %s?" % (data.instance["name"], data.instance["created-by"]["name"]),
+                 url_for("instances.action", id=data["instance"]["id"], command="reset"))}}
   {{modal_dialog("delete", "Delete Confirmation",
-                 "Are you sure to delete VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="remove"),
+                 "Are you sure to delete instance %s created by %s?" % (data.instance["name"], data.instance["created-by"]["name"]),
+                 url_for("instances.action", id=data["instance"]["id"], command="remove"),
                  cannot_revert=True)}}
 
   <div class='container'>
@@ -28,8 +28,8 @@
       <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
         <a href="#reboot" class="btn btn-success" data-toggle="modal">Reboot</a>
         <a href="#reset" class="btn btn-success" data-toggle="modal">Reset</a>
-        <a href="{{url_for("vms.action", id=data.vm["id"], command="vnc")}}"  target="_blank" class="btn btn-success">Show VNC</a>
-        <a href="{{url_for("vms.action", id=data.vm["id"], command="console-output")}}"  target="_blank" class="btn btn-success">Show log</a>
+        <a href="{{url_for("instances.action", id=data.instance["id"], command="vnc")}}"  target="_blank" class="btn btn-success">Show VNC</a>
+        <a href="{{url_for("instances.action", id=data.instance["id"], command="console-output")}}"  target="_blank" class="btn btn-success">Show log</a>
       </div>
       <div class="span1 pull-right" style="margin: 0px 0px 20px 0px;">
         <a href="#delete" class="btn btn-danger" data-toggle="modal">Delete</a>
@@ -39,17 +39,17 @@
       <tr>
         <td colspan=2>
           <h4>
-            VM
+            Instance
           </h4>
         </td>
       </tr>
       <tr>
         <td width="200px">Id</td>
-        <td>{{data.vm["id"]}}</td>
+        <td>{{data.instance["id"]}}</td>
       </tr>
       <tr>
         <td>Status</td>
-        <td>{{"%s%s" % (data.vm["state"], " (no suitable host found)" if not data.vm["hostId"] and data.vm["state"] == "ERROR" else "")}}</td>
+        <td>{{"%s%s" % (data.instance["state"], " (no suitable host found)" if not data.instance["hostId"] and data.instance["state"] == "ERROR" else "")}}</td>
       </tr>
       <tr>
         <td>VLAN</td>
@@ -58,7 +58,7 @@
       <tr>
         <td>IP</td>
         <td>
-          {% for ip in data.vm["ipv4"] %}
+          {% for ip in data.instance["ipv4"] %}
             {% if not loop.last %}, {% endif %}
             {{ip}}
           {% endfor %}
@@ -66,16 +66,16 @@
       </tr>
       <tr>
         <td>Created</td>
-        <td>{{data.vm["created"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
+        <td>{{data.instance["created"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
       </tr>
       <tr>
         <td>Project</td>
-        <td><a href="{{url_for("projects.show", id=data.vm["project"]["id"])}}">{{data.vm["project"]["name"]}}</a></td>
+        <td><a href="{{url_for("projects.show", id=data.instance["project"]["id"])}}">{{data.instance["project"]["name"]}}</a></td>
       </tr>
       <tr>
         <td>User</td>
         <td>
-          <a href="{{url_for("projects.members_show", id=data.vm["created-by"]["id"])}}">{{data.vm["created-by"]["name"]}}</a>
+          <a href="{{url_for("projects.members_show", id=data.instance["created-by"]["id"])}}">{{data.instance["created-by"]["name"]}}</a>
         </td>
       </tr>
       <tr>
@@ -101,14 +101,14 @@
       </tr>
       <tr>
         <td width="200px">Id</td>
-        {# get image id from VM dictionary because the image object
+        {# get image id from instance dictionary because the image object
         can be deleted #}
-        <td>{{data.vm["image"]["id"]}}</td>
+        <td>{{data.instance["image"]["id"]}}</td>
       </tr>
       {% if data.image %}
         <tr>
           <td>Name</td>
-          <td><a href="{{url_for("images.show", id=data.vm["image"]["id"])}}">{{data.image["name"]}}</a></td>
+          <td><a href="{{url_for("images.show", id=data.instance["image"]["id"])}}">{{data.image["name"]}}</a></td>
         </tr>
         <tr>
           <td>Size</td>
@@ -136,11 +136,11 @@
       </tr>
       <tr>
         <td width="200px">Id</td>
-        <td>{{data.vm["instance-type"]["id"]}}</td>
+        <td>{{data.instance["instance-type"]["id"]}}</td>
       </tr>
       <tr>
         <td>Name</td>
-        <td><a href="{{url_for("vms.types_show", id=data.vm["instance-type"]["id"])}}">{{data.instance_type["name"]}}</a></td>
+        <td><a href="{{url_for("instances.types_show", id=data.instance["instance-type"]["id"])}}">{{data.instance_type["name"]}}</a></td>
       </tr>
       <tr>
         <td>RAM</td>

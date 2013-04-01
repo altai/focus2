@@ -1,7 +1,7 @@
-var module = angular.module('vms_index', ['ngResource', 'ui']);
+var module = angular.module('instances_index', ['ngResource', 'ui']);
 
 module.factory('Search', function ($resource){
-    return $resource('/vms/', {api_marker: 1})
+    return $resource('/instances/', {api_marker: 1})
 });
 
 

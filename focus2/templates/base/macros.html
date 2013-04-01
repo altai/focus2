@@ -109,11 +109,11 @@
 {%- endmacro %}
 
 
-{% macro spawn_vm_button(querystring) -%}
+{% macro spawn_instance_button(querystring) -%}
   <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
-    <a href="{{url_for('vms.spawn')}}?{{querystring}}" class="btn btn-success">
+    <a href="{{url_for('instances.spawn')}}?{{querystring}}" class="btn btn-success">
        <i class='icon-plus-sign icon-white'></i>
-       Spawn VM
+       Spawn instance
     </a>
   </div>
 {%- endmacro %}

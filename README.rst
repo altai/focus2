@@ -16,7 +16,7 @@ It is in early alpha but under active development.
 
 - OpenStack with altai-api service up and running. Altai would do.
 - Centos 6 for guaranteed work of Focus2.
-- Sufficient disk space required to handle huge file upload of VM images.
+- Sufficient disk space required to handle huge file upload of instance images.
 
 * What do I need to write it?
 

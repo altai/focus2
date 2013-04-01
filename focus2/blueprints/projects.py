@@ -68,7 +68,7 @@ def summary():
         for proj in usr["projects"]:
             total_users[proj["id"]] = total_users.get(proj["id"], 0) + 1
     total = {
-        "vms": get_total(api.vms.list()["vms"]),
+        "instances": get_total(api.instances.list()["instances"]),
         "images": get_total(api.images.list()["images"]),
         "users": total_users,
     }
