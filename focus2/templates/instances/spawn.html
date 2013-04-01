@@ -2,7 +2,7 @@
 
 
 {% block js %}
-<script src="{{ url_for('static', filename='focus2/js/vms_spawn.js') }}"></script>
+<script src="{{ url_for('static', filename='focus2/js/instances_spawn.js') }}"></script>
 {% endblock %}
 
 
@@ -14,7 +14,7 @@
     window.data = {{ data|tojson|safe }}
   </script>
 
-  <div class='container' ng-app='vms_spawn'>
+  <div class='container' ng-app='instances_spawn'>
   <div class='row' ng-controller='SpawnController'>
     <div class='span6'>
       <form action='.' class='form-horizontal well ng-pristine ng-valid'

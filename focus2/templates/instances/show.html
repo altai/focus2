@@ -14,13 +14,13 @@
 
   {{modal_dialog("reboot", "Reboot Confirmation",
                  "Are you sure to reboot VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="reboot"))}}
+                 url_for("instances.action", id=data["vm"]["id"], command="reboot"))}}
   {{modal_dialog("reset", "Reset Confirmation",
                  "Are you sure to reset VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="reset"))}}
+                 url_for("instances.action", id=data["vm"]["id"], command="reset"))}}
   {{modal_dialog("delete", "Delete Confirmation",
                  "Are you sure to delete VM %s created by %s?" % (data.vm["name"], data.vm["created-by"]["name"]),
-                 url_for("vms.action", id=data["vm"]["id"], command="remove"),
+                 url_for("instances.action", id=data["vm"]["id"], command="remove"),
                  cannot_revert=True)}}
 
   <div class='container'>
@@ -28,8 +28,8 @@
       <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
         <a href="#reboot" class="btn btn-success" data-toggle="modal">Reboot</a>
         <a href="#reset" class="btn btn-success" data-toggle="modal">Reset</a>
-        <a href="{{url_for("vms.action", id=data.vm["id"], command="vnc")}}"  target="_blank" class="btn btn-success">Show VNC</a>
-        <a href="{{url_for("vms.action", id=data.vm["id"], command="console-output")}}"  target="_blank" class="btn btn-success">Show log</a>
+        <a href="{{url_for("instances.action", id=data.vm["id"], command="vnc")}}"  target="_blank" class="btn btn-success">Show VNC</a>
+        <a href="{{url_for("instances.action", id=data.vm["id"], command="console-output")}}"  target="_blank" class="btn btn-success">Show log</a>
       </div>
       <div class="span1 pull-right" style="margin: 0px 0px 20px 0px;">
         <a href="#delete" class="btn btn-danger" data-toggle="modal">Delete</a>
@@ -140,7 +140,7 @@
       </tr>
       <tr>
         <td>Name</td>
-        <td><a href="{{url_for("vms.types_show", id=data.vm["instance-type"]["id"])}}">{{data.instance_type["name"]}}</a></td>
+        <td><a href="{{url_for("instances.types_show", id=data.vm["instance-type"]["id"])}}">{{data.instance_type["name"]}}</a></td>
       </tr>
       <tr>
         <td>RAM</td>

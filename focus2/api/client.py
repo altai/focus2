@@ -221,7 +221,7 @@ class AltaiApiClient(object):
 
     def _add_collections(self):
         for obj in ("projects", "networks", "fw_rule_sets",
-                    "users", "vms", "images",
+                    "users", "instances", "images",
                     "audit_log",
                     "instance_types"):
             setattr(self, obj, Collection(self, obj.replace("_", "-")))
@@ -230,7 +230,7 @@ class AltaiApiClient(object):
         self.project_users = Collection(
             self, "projects/%(project_id)s/users")
         self.vm_fw_rule_sets = Collection(
-            self, "vms/%(vm_id)s/fw-rule-sets"),
+            self, "instances/%(vm_id)s/fw-rule-sets"),
         self.users_ssh_keys = Collection(
             self, "/users/%(user_id)s/ssh-keys")
         self.my_ssh_keys = Collection(

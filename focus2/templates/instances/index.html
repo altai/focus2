@@ -1,16 +1,16 @@
 {% extends "base/base.html" %}
 
 
-{% from "vms/macros.html" import search_pagination, searches_panel %}
+{% from "instances/macros.html" import search_pagination, searches_panel %}
 
 
 {% block js %}
 <script src="{{ url_for('static', filename='deps/angular/angular-resource.min.js') }}"></script>
-<script src="{{ url_for('static', filename='focus2/js/vms_index.js') }}" type='text/javascript'></script>
+<script src="{{ url_for('static', filename='focus2/js/instances_index.js') }}" type='text/javascript'></script>
 {% endblock %}
 
 
-{% block body_attrs %} ng-app='vms_index'{% endblock %}
+{% block body_attrs %} ng-app='instances_index'{% endblock %}
 
 
 {% block content %}
@@ -72,7 +72,8 @@
           <input type='checkbox'>
         </td>
         <td>
-          {{ x.name }}
+          {% endraw %}
+          <a href="{{ url_for('instances.show', id='') }}{% raw %}{{ x.id }}">{{ x.name }}</a>
         </td>
       </tr>
     </tbody>
