@@ -1,4 +1,4 @@
-var module = angular.module('instances_spawn', ["common"]);
+var module = angular.module('instances_spawn', ["common", "ui"]);
 
 function SpawnController($scope){
     var image_list = window.data.image;

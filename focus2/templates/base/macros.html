@@ -72,19 +72,14 @@
   <div class='controls'>
     <select id='{{ field_id }}'
             name='{{ field_id }}'
-            class='select2'
+            ui-select2{% if not is_required %}="{allowClear:true}"{% endif %}
             {% if is_multiple %}multiple{% endif %}
             ng-model='form.{{field_id}}'
             {% for k, v in kwargs.iteritems() %}
               {{ k.replace("_", "-") }}="{{ v }}"
             {% endfor %}
-            {% if not is_required %}
-              allow-clear
-            {% endif %}
             >
-            {% if is_multiple %}
-              <option></option>
-            {% else %}
+            {% if not is_multiple %}
               <option value=""></option>
             {% endif %}
             {% for i in data[field_id] %}

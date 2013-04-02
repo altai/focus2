@@ -81,13 +81,11 @@
       <tr>
         <td>Security Groups</td>
         <td>
-          <select class="select2 chzn-select-tagged" multiple>
-            <option selected>default</option>
-            <option selected>sg1</option>
-            <option selected>sg2</option>
-            <option>sg3</option>
-            <option>sg4</option>
-          </select>
+          {% for fw_rule_set in data.fw_rule_sets %}
+            <a href='{{ url_for("projects.fw_rule_sets_edit", id=fw_rule_set["id"]) }}'>
+              {{ fw_rule_set["name"] }}
+            </a>
+          {% endfor %}
         </td>
       </tr>
     </table>
