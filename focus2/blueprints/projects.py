@@ -19,6 +19,7 @@
 # <http://www.gnu.org/licenses/>.
 
 from functools import partial
+import json
 
 import flask
 from flask import blueprints
@@ -98,14 +99,97 @@ def show(id):
     }
 
 
-@dash(st='Security Groups',
-      spu='focus2/img/small_security_groups.png',
-      bt='Security Groups',
-      bpu='focus2/img/security_groups.png',
+@dash(st='Firewall Rule Sets',
+      spu='focus2/img/small_fw_rule_sets.png',
+      bt='Firewall Rule Sets',
+      bpu='focus2/img/fw_rule_sets.png',
       wgl=1)
-@BP.route('/security-groups/')
-def security_groups():
+@BP.route('/fw-rule-sets/')
+def fw_rule_sets():
+    api = flask.g.api
+    api.fw_rule_sets.list()
     return {}
+
+
+class FwRuleSetEditForm(wtf.Form):
+    name = wtf.TextField("Name")
+    description = wtf.TextField("Description")
+    fw_rules = wtf.TextField("Rules")
+    fw_deleted = wtf.TextField("Deleted")
+
+
+@BP.route('/fw-rule-sets/<id>', methods=["GET", "POST"])
+def fw_rule_sets_edit(id):
+    api = flask.g.api
+    form = FwRuleSetEditForm()
+    fw_rule_set = api.fw_rule_sets.get(id)
+    fw_rules = api.fw_rules(fw_rule_set_id=id).list()["rules"]
+    if form.validate_on_submit():
+        api_fw_rules = api.fw_rules(fw_rule_set_id=id)
+        have_error = False
+        try:
+            fw_deleted = json.loads(form.fw_deleted.data)
+            assert isinstance(fw_deleted, list)
+        except:
+            have_error = True
+        else:
+            for rule_id in fw_deleted:
+                try:
+                    api_fw_rules.delete(rule_id)
+                except api_exceptions.AltaiApiException as ex:
+                    have_error = True
+                    flask.flash("Cannot delete firewall rule %s: %s" %
+                                (rule_id, ex), "error")
+
+        try:
+            fw_rules = json.loads(form.fw_rules.data)
+            assert isinstance(fw_deleted, list)
+        except:
+            have_error = True
+        else:
+            for rule in fw_rules:
+                if "id" not in rule:
+                    try:
+                        api_fw_rules.create(rule)
+                    except (ValueError,
+                            api_exceptions.AltaiApiException) as ex:
+                        have_error = True
+                        flask.flash("Cannot create firewall rule: %s" %
+                                    ex, "error")
+
+        if not have_error:
+            flask.flash("Successfully updated firewall rule set",
+                        "success")
+        return flask.redirect(flask.url_for(".fw_rule_sets"))
+    else:
+        form.name.data = fw_rule_set["name"]
+        form.description.data = fw_rule_set["description"]
+    return {
+        "form": form,
+        "data": {
+            "fw_rule_set": fw_rule_set,
+            "fw_rules": fw_rules,
+        }
+    }
+
+
+@BP.route('/fw-rule-sets/<id>/<command>', methods=["POST"])
+def fw_rule_sets_action(id, command):
+    api = flask.g.api
+    if command == "remove":
+        fw_rule_set = api.fw_rule_sets.get(id)
+        try:
+            api.fw_rule_sets.delete(id)
+        except api_exceptions.AltaiApiException as ex:
+            flask.flash("Cannot delete %s: %s" %
+                        (fw_rule_set["name"], ex),
+                        "error")
+        else:
+            flask.flash("Successfully deleted %s" % fw_rule_set["name"],
+                        "success")
+            return flask.redirect(flask.url_for(".fw_rule_sets"))
+        return flask.redirect(flask.request.path)
+    flask.abort(404)
 
 
 @dash(st='Billing',
@@ -120,7 +204,7 @@ def billing():
 
 @dash(st='Members',
       spu='focus2/img/small_members.png',
-      bt='Security Groups',
+      bt='Firewall Rule Sets',
       bpu='focus2/img/members.png',
       wgl=3)
 @BP.route('/members/')

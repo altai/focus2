@@ -1,0 +1,82 @@
+{% extends "base/base.html" %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='focus2/js/projects_fw_rule_sets_edit.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+  {% from 'base/macros.html' import input_horizontal %}
+  {% from 'base/macros.html' import modal_dialog %}
+
+  <script>
+    window.data = {{ data|tojson|safe }};
+  </script>
+
+  {{modal_dialog("delete", "Delete Confirmation",
+                 "Are you sure to delete firewall rule set %s?" % data["fw_rule_set"]["name"],
+                 url_for("projects.fw_rule_sets_action", id=data["fw_rule_set"]["id"], command="remove"),
+                 cannot_revert=True)}}
+
+  <div class='container' ng-app="projects_fw_rule_sets_edit">
+    <div class="row" ng-controller='FwRuleSetsController'>
+      <form autocomplete="off" method="POST" action="{{ request.path }}" class="form-horizontal well">
+        <fieldset>
+          {{ input_horizontal(form.name, is_required=False, is_readonly=True) }}
+          {{ input_horizontal(form.description, is_required=False, is_readonly=True) }}
+          {% raw %}
+          <input type="hidden" id="fw_rules" name="fw_rules" value="{{ fw_rules }}"/>
+          <input type="hidden" id="fw_deleted" name="fw_deleted" value="{{ fw_deleted }}"/>
+
+          <div class="control-group">
+            <label class="control-label"><b>Ports:</b></label>
+            <div class="controls">
+              <table class="table table-bordered table-condensed">
+                <thead>
+                  <tr>
+                    <th>IP Protocol</th>
+                    <th>From Port</th>
+                    <th>To Port</th>
+                    <th>IP Range</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat='x in fw_rules'>
+                    <td>{{ x["protocol"] }}</td>
+                    <td>{{ x["port-range-first"] == -1 && "&nbsp;" || x["port-range-first"] }}</td>
+                    <td>{{ x["port-range-last"] == -1 && "&nbsp;" || x["port-range-last"] }}</td>
+                    <td>{{ x["source"] }}</td>
+                    <td><a class="btn btn-mini btn-danger" ng-click='remove_rule()' href="javascript:void(0)"><i class="icon-remove icon-white"></i></a></td>
+                  </tr>
+                  <tr ng-init="protocol='TCP'">
+                    <td>
+                      <select ui-select2 ng-model="protocol">
+                        <option>TCP</option>
+                        <option>UDP</option>
+                        <option>ICMP</option>
+                      </select>
+                    </td>
+                    <td><input type="text" ng-hide="protocol == 'ICMP'" ng-model="port_range_first" /></td>
+                    <td><input type="text" ng-hide="protocol == 'ICMP'" ng-model="port_range_last" ng-copy-default="port_range_first" ng-click="port_range_last_edited = true"/></td>
+                    <td><input type="text" ng-model="source"/></td>
+                    <td><a class="btn btn-mini btn-success" ng-click="add_rule()"><i class="icon-plus-sign icon-white"></i></a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a href="javascript: history.back();" class="btn">Cancel</a>
+            <a href="#delete" data-toggle="modal" class="btn btn-danger pull-right">Delete</a>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+{% endraw %}
+  </div>
+{% endblock %}
+
