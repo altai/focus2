@@ -18,3 +18,7 @@ js-unit:
 
 js-e2e:
 	(cd jstests && testacular start config.e2e.js)
+
+
+clean:
+	find . -name '*.pyc' -exec $(RM) {} \;
