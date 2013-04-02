@@ -96,4 +96,4 @@ def action(id, command):
         api.images.delete(id)
         flask.flash("Successfully deleted %s" % img["name"], "success")
         return flask.redirect(flask.url_for(".index"))
-    abort(404)
+    flask.abort(404)
