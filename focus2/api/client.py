@@ -208,7 +208,7 @@ class AltaiApiClient(object):
 
         if not (200 <= resp.status_code < 400):
             raise exceptions.from_response(resp)
-        return resp.json()
+        return resp.json() if resp.status_code != 204 else None
 
     def get(self, *args, **kwargs):
         return self.request("GET", *args, **kwargs)
