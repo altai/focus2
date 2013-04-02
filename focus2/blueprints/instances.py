@@ -182,12 +182,15 @@ def show(id):
     image = api.images.get(instance["image"]["id"])
     instance_type = api.instance_types.get(instance["instance-type"]["id"])
     network = api.networks.find(project=instance["project"]["id"])
+    fw_rule_sets = api.instance_fw_rule_sets(
+        instance_id=id).list()["fw-rule-sets"]
     return {
         "data": {
             "instance": instance,
             "image": image,
             "instance_type": instance_type,
             "network": network,
+            "fw_rule_sets": fw_rule_sets,
         },
     }
 

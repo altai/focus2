@@ -1,14 +1,24 @@
 {% extends "base/base.html" %}
 
 
+{% block body_attrs %}
+  ng-app="invite"
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='focus2/js/invite.js') }}"></script>
+{% endblock %}
+
+
 {% block content %}
   {% from 'base/macros.html' import input_horizontal %}
   {% from 'base/macros.html' import select_horizontal %}
 
   <div class='container'>
-    <div class="row">
+    <div class="row" ng-controller="InviteController">
       <div class="span6">
-        <form autocomplete="off" method="POST" class="form-horizontal well">
+        <form class="form-horizontal well" autocomplete="off" method="POST" action="{{ request.path }}">
           <fieldset>
             {{ select_horizontal(form.projects,
                  is_multiple=True,

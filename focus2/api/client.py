@@ -233,7 +233,7 @@ class AltaiApiClient(object):
         self.project_users = Collection(
             self, "projects/%(project_id)s/users")
         self.instance_fw_rule_sets = Collection(
-            self, "instances/%(instance_id)s/fw-rule-sets"),
+            self, "instances/%(instance_id)s/fw-rule-sets")
         self.users_ssh_keys = Collection(
             self, "/users/%(user_id)s/ssh-keys")
         self.my_ssh_keys = Collection(

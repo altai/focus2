@@ -53,12 +53,6 @@ function getHumanReadableLifespan(minutes) {
 
 
 jQuery(function($) {
-    $(".select2").each(function () {
-        var options = {};
-        var $this = $(this);
-        options.allowClear = (typeof($this.attr("allow-clear")) != undefined);
-        $this.select2(options);
-    });
     $(".help-tooltip").tooltip();
     $("[rel=tooltip]").tooltip();
     if (typeof(Date.today) != "undefined") {
