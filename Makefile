@@ -8,6 +8,7 @@ test:
 
 
 run:
+	pip install -U 'distribute>=0.6.28'
 	python setup.py develop
 	FOCUS2_SETTINGS=$(FOCUS2_SETTINGS) python -m focus2.runserver
 
@@ -22,3 +23,20 @@ js-e2e:
 
 clean:
 	find . -name '*.pyc' -exec $(RM) {} \;
+
+
+nvm:
+	git clone git://github.com/creationix/nvm.git ~/.nvm
+	echo '. ~/.nvm/nvm.sh' >> ~/.bashrc
+	. ~/.nvm/nvm.sh
+	nvm install v0.8
+	nvm alias default 0.8
+	npm install
+	npm install testacular -g
+	cd jstests
+	ln -s /usr/bin/chromium-browser google-chrome
+	ln -s /usr/bin/firefox firefox
+
+
+install-deps:
+	apt-get install build-essential curl wget git libssl-dev libmysqlclient-dev virtualenvwrapper
