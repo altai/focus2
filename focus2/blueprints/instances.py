@@ -113,7 +113,9 @@ class CreateForm(wtf.Form):
     name = wtf.TextField('Name', validators=[wtf.Required()])
     ssh_key = forms.SelectOptionalField('Key Pair')
     fw_rule_set = wtf.SelectMultipleField(
-        'Security Groups')
+        'Firewall Rule Sets')
+    expiration_never = wtf.BooleanField('Never')
+    expiration_date = wtf.TextField('Expiration')
 
 
 @breadcrumbs('Start instance')
@@ -149,16 +151,18 @@ def spawn():
             getattr(form, key).choices = [
                 (i["name"], None) for i in data[key]
             ]
-        if not form.validate():
-            return {
-                "form": form,
-                "data": data,
-            }
+    if form.validate_on_submit():
         instance_data = dict(
             ((k, getattr(form, k.replace("-", "_")).data)
              for k in ("name", "project",
                        "image", "instance-type"))
         )
+        if form.fw_rule_set.data:
+            instance_data["fw-rule-sets"] = form.fw_rule_set.data
+        if form.ssh_key.data:
+            instance_data["ssh-key-pair"] = form.ssh_key.data
+        if not form.expiration_never.data:
+            instance_data["expires-at"] = form.expiration_date.data
         try:
             instance = api.instances.create(instance_data)
         except api_exceptions.ClientException as ex:
@@ -169,6 +173,9 @@ def spawn():
                 "success")
             return flask.redirect(
                 flask.url_for("instances.show", id=instance["id"]))
+    for fw_rule_set in data["fw_rule_set"]:
+        fw_rule_set["rules"] = api.fw_rules(
+            fw_rule_set_id=fw_rule_set["id"]).list()["rules"]
     return {
         "form": form,
         "data": data,

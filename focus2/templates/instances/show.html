@@ -48,6 +48,10 @@
         <td>{{data.instance["id"]}}</td>
       </tr>
       <tr>
+        <td>Name</td>
+        <td>{{data.instance["name"]}}</td>
+      </tr>
+      <tr>
         <td>Status</td>
         <td>{{"%s%s" % (data.instance["state"], " (no suitable host found)" if not data.instance["hostId"] and data.instance["state"] == "ERROR" else "")}}</td>
       </tr>
@@ -67,6 +71,10 @@
       <tr>
         <td>Created</td>
         <td>{{data.instance["created"] | datetimeformat("%d/%m/%Y %H:%M:%S")}}</td>
+      </tr>
+      <tr>
+        <td>Expires at</td>
+        <td>{{data.instance["expires-at"] | datetimeformat("%d/%m/%Y %H:%M:%S", "Never")}}</td>
       </tr>
       <tr>
         <td>Project</td>

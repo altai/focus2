@@ -45,13 +45,6 @@ module.filter('diskformat', function() {
 });
 
 
-function getHumanReadableLifespan(minutes) {
-    // FIXME
-    return 0;
-    return (minutes).minutesAfter(new Date()).relative()
-}
-
-
 jQuery(function($) {
     $(".help-tooltip").tooltip();
     $("[rel=tooltip]").tooltip();
@@ -82,20 +75,3 @@ jQuery(function($) {
 	}
     });
 })(jQuery);
-
-
-module.directive('slider', function(){
-    return function(scope, element, attrs){
-        var init = 10000
-        $(element).slider({
-            range: "max",
-            min: 1,
-            max: 100500,
-            value: init,
-            slide: function( event, ui ) {
-                scope.$apply('human_readable_lifespan="' + getHumanReadableLifespan(ui.value) + '"')
-            }
-        })
-        scope.human_readable_lifespan = getHumanReadableLifespan(init);
-    }
-});

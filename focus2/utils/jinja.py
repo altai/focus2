@@ -77,8 +77,8 @@ def str_to_datetime(dtstr):
     raise ValueError("Not ISO 8601 format date: %s" % dtstr)
 
 
-def do_datetimeformat(value, format):
-    return str_to_datetime(value).strftime(format)
+def do_datetimeformat(value, format, default=""):
+    return str_to_datetime(value).strftime(format) if value else default
 
 
 def do_diskformat(value):
