@@ -69,7 +69,7 @@
       {% raw %}
       <tr ng-repeat="obj in search.data">
         <td>
-          {{ obj["name"] }}
+          <a href='{% endraw %}{{ url_for("projects.members_show", id="") }}{% raw %}{{ obj["id"] }}'>{{ obj["name"] }}</a>
         </td>
         <td>
           {{ obj["fullname"] || obj["name"] }}
