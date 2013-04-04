@@ -225,7 +225,7 @@ def billing():
         date_range = flask.request.args['date_range'].split(" - ")
         for i in xrange(2):
             date_range[i] = datetime.datetime.strptime(
-                    date_range[i], "%m.%d.%Y")
+                date_range[i], "%m.%d.%Y")
         date_range[1] = date_range[1] + datetime.timedelta(days=1)
         for i in xrange(2):
             date_range[i] = ("%sZ" % date_range[i].isoformat())
@@ -276,8 +276,9 @@ def members():
         data_filter = search.transform_search_query(query, "name:eq")
         projects = flask.request.args["projects"]
         if projects:
-            project_by_name = dict((u["name"], u)
-                                for u in api.projects.list()["projects"])
+            project_by_name = dict(
+                (u["name"], u)
+                for u in api.projects.list()["projects"])
             project_ids = []
             for u in projects.split(","):
                 try:
@@ -298,7 +299,7 @@ def members():
         my_projects = set(
             (p["id"]
              for p in api.projects.list(
-                    filter={"my-projects": True})["projects"]))
+                 filter={"my-projects": True})["projects"]))
         for user in data:
             user["projects"] = filter(
                 lambda p: p["id"] in my_projects, user["projects"])
@@ -352,7 +353,7 @@ def audit():
         date_range = flask.request.args['date_range'].split(" - ")
         for i in xrange(2):
             date_range[i] = datetime.datetime.strptime(
-                    date_range[i], "%m.%d.%Y")
+                date_range[i], "%m.%d.%Y")
         date_range[1] = date_range[1] + datetime.timedelta(days=1)
         for i in xrange(2):
             date_range[i] = ("%sZ" % date_range[i].isoformat())
@@ -437,8 +438,8 @@ def invite():
                     "invite": True,
                     "send-invite-mail": True,
                     "link-template": "%s{{code}}" % flask.url_for(
-                            ".invite_accept", code="",
-                            _external=True)
+                        ".invite_accept", code="",
+                        _external=True)
                 })
                 flask.flash("Successfully invited user %s" % email, "success")
                 return flask.redirect(flask.request.path)
