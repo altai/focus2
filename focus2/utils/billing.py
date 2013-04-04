@@ -76,7 +76,7 @@ class BillingHelper(object):
                 reverse=True))
 
     # TODO: add local volume support
-    def concentrate_resources(self, resources):
+    def add_details(self, resources):
         '''
         For every orphan resource add verbose name and brief info url.
         '''
@@ -150,6 +150,5 @@ class BillingHelper(object):
                     account_name=pr["id"], **kw)["accounts"][0]["resources"]
             except (NotFound, IndexError):
                 pass
-        resources = self.concentrate_resources(resources)
         resources = self.compact_bill(resources)
         return resources

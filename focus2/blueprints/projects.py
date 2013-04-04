@@ -244,7 +244,7 @@ def billing():
             paginator = pagination.Pagination(page, len(data), perPage)
         except werkzeug.exceptions.NotFound:
             paginator = pagination.Pagination(1, len(data), perPage)
-        data = data[paginator.page_slice]
+        data = bh.add_details(data[paginator.page_slice])
         pages = list(paginator.iter_pages())
         current = paginator.page
         return flask.jsonify({
@@ -257,7 +257,6 @@ def billing():
 
     return {
         "tariffs": bh.tariff_list(),
-        "data": bh.report(),
     }
 
 
