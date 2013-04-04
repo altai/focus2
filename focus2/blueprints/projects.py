@@ -115,8 +115,47 @@ def show(id):
 @BP.route('/fw-rule-sets/')
 def fw_rule_sets():
     api = flask.g.api
-    api.fw_rule_sets.list()
-    return {}
+    if flask.request.args.get("api_marker"):
+        perPage = int(flask.request.args["perPage"])
+        page = int(flask.request.args["page"])
+        query = flask.request.args.get("query")
+        data_filter = search.transform_search_query(query, "name:eq")
+        projects = flask.request.args["projects"]
+        if projects:
+            project_by_name = dict((u["name"], u)
+                                   for u in api.projects.list()["projects"])
+            project_ids = []
+            for u in projects.split(","):
+                try:
+                    project_ids.append(project_by_name[u]["id"])
+                except KeyError:
+                    pass
+            data_filter["project:in"] = "|".join(project_ids)
+        paginator = pagination.Pagination(
+            page,
+            api.fw_rule_sets.list(
+                filter=data_filter, limit=0)["collection"]["size"],
+            perPage,
+            abort=False)
+        data = api.fw_rule_sets.list(
+            filter=data_filter,
+            limit=paginator.limit,
+            offset=paginator.offset)["fw-rule-sets"]
+        pages = list(paginator.iter_pages())
+        current = paginator.page
+        return flask.jsonify({
+            "data": data,
+            "pagination": {
+                "pages": pages,
+                "current": current,
+            },
+        })
+
+    return {
+        "data": {
+            "projects": api.projects.list()["projects"],
+        },
+    }
 
 
 class FwRuleSetEditForm(wtf.Form):
