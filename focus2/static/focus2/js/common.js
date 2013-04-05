@@ -45,6 +45,13 @@ module.filter('diskformat', function() {
 });
 
 
+module.filter('costformat', function() {
+    return function(val) {
+        return (val || 0.0).toFixed(2);
+    }
+});
+
+
 function init_daterangepickers() {
     $(".daterange").daterangepicker({
         ranges: {

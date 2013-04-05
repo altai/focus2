@@ -29,6 +29,7 @@ from focus2.api import exceptions as api_exceptions
 
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
 from focus2.blueprints.dashboard import dash
+from focus2.utils import billing as utils_billing
 from focus2.utils import search, pagination, forms
 from focus2.utils import jinja as utils_jinja
 
@@ -176,6 +177,9 @@ def spawn():
     for fw_rule_set in data["fw_rule_set"]:
         fw_rule_set["rules"] = api.fw_rules(
             fw_rule_set_id=fw_rule_set["id"]).list()["rules"]
+    bh = utils_billing.BillingHelper(flask.g.api)
+    data["instance_type"] = bh.calculate_cost(
+        data["instance_type"], bh.tariff_list())
     return {
         "form": form,
         "data": data,
@@ -240,9 +244,12 @@ def action(id, command):
 @BP.route('/types/')
 def types():
     '''Types'''
+    bh = utils_billing.BillingHelper(flask.g.api)
     return {
         "data": {
-            "types": flask.g.api.instance_types.list()["instance-types"],
+            "types": bh.calculate_cost(
+                flask.g.api.instance_types.list()["instance-types"],
+                bh.tariff_list()),
         }
     }
 
@@ -250,8 +257,11 @@ def types():
 @BP.route('/types/<id>')
 def types_show(id):
     '''Show type'''
+    bh = utils_billing.BillingHelper(flask.g.api)
     return {
         "data": {
-            "instance_type": flask.g.api.instance_types.get(id),
+            "instance_type":
+                bh.calculate_cost([flask.g.api.instance_types.get(id)],
+                                  bh.tariff_list())[0],
         }
     }

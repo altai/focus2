@@ -21,13 +21,17 @@
 import flask
 
 from openstackclient_base.exceptions import NotFound
+from openstackclient_base.billing.client import BillingClient
+from openstackclient_base.client import HttpClient
 
 
 class BillingHelper(object):
 
-    def __init__(self, altai_api, billing_client):
+    def __init__(self, altai_api, **kwargs):
         self.altai_api = altai_api
-        self.billing_client = billing_client
+        self.billing_client = BillingClient(
+            HttpClient(endpoint=flask.current_app.config["BILLING_URL"],
+                       token="unused"))
 
     @staticmethod
     def _calc_cost(res):
@@ -139,6 +143,29 @@ class BillingHelper(object):
         }
         tariffs.update(self.billing_client.tariff.list())
         return tariffs
+
+    def calculate_cost(self, instance_types, tariffs):
+        for instance_type in instance_types:
+            new_cost = {
+                "cost-cpus": (tariffs["vcpus"] *
+                         instance_type["cpus"]),
+                "cost-ram": (tariffs["memory_mb"] *
+                        instance_type["ram"] /
+                        (1024.0 * 1024.0)),
+                "cost-root-size": (tariffs["local_gb"] *
+                              instance_type["root-size"] /
+                              (1024.0 * 1024.0 * 1024.0)),
+                "cost-ephemeral-size": (tariffs["local_gb"] *
+                                   instance_type["ephemeral-size"] /
+                                   (1024.0 * 1024.0 * 1024.0)),
+            }
+            new_cost["cost-total-size"] = (new_cost["cost-root-size"] +
+                                           new_cost["cost-ephemeral-size"])
+            new_cost["cost-total"] = (new_cost["cost-cpus"] +
+                                      new_cost["cost-ram"] +
+                                      new_cost["cost-total-size"])
+            instance_type.update(new_cost)
+        return instance_types
 
     def report(self, **kw):
         # list with tenant_id as ['name']

@@ -36,9 +36,26 @@
       <td>Additional Disk</td>
       <td>{{data.instance_type["ephemeral-size"] | filesizeformat}}</td>
     </tr>
+      <td colspan=2>
+        <h4>
+          Cost
+        </h4>
+      </td>
+    <tr>
+      <td>Total</td>
+      <td>${{ (data.instance_type["cost-total"] / 12.0) | costformat }}/month</td>
+    </tr>
     <tr>
       <td>Virtual CPUs</td>
-      <td>{{data.instance_type["cpus"]}}</td>
+      <td>${{ (data.instance_type["cost-cpus"] / 12.0) | costformat }}/month</td>
+    </tr>
+    <tr>
+      <td>RAM</td>
+      <td>${{ (data.instance_type["cost-ram"] / 12.0) | costformat }}/month</td>
+    </tr>
+    <tr>
+      <td>Total Disk</td>
+      <td>${{ (data.instance_type["cost-total-size"] / 12.0) | costformat }}/month</td>
     </tr>
   </table>
 </div>

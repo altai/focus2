@@ -90,6 +90,10 @@ def do_diskformat(value):
     return fmt.get(value, value)
 
 
+def do_costformat(value):
+    return "%.2f" % float(value)
+
+
 def image_spawnable(image):
     return image["container-format"] not in ("ari", "aki")
 
@@ -98,4 +102,5 @@ def setup_env(env):
     env.filters["filesizeformat"] = do_filesizeformat
     env.filters["datetimeformat"] = do_datetimeformat
     env.filters["diskformat"] = do_diskformat
+    env.filters["costformat"] = do_costformat
     env.tests["image_spawnable"] = image_spawnable

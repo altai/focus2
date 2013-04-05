@@ -6,7 +6,8 @@
       <tr>
         <td class='name'>{{ x['name'] }}</td>
         <td class='value'>{{ x['ram']|filesizeformat }}</td>
-        <td class='value'>$what?</td>
+        <td class='value'>{{ (x['cost-total'] / 12.0) | costformat }}
+        $/month</td>
         <td class='value'>{{ x['root-size']|filesizeformat }}</td>
         <td class='value'>{{ x['ephemeral-size']|filesizeformat }}</td>
         <td class='value'>{{ x['cpus'] }}</td>

@@ -243,17 +243,6 @@ def fw_rule_sets_action(id, command):
     flask.abort(404)
 
 
-def billing_client():
-    if not hasattr(flask.g, "billing_client"):
-        from openstackclient_base.billing.client import BillingClient
-        from openstackclient_base.client import HttpClient
-        bc = BillingClient(
-            HttpClient(endpoint=flask.current_app.config["BILLING_URL"],
-                       token="unused"))
-        flask.g.billing_client = bc
-    return flask.g.billing_client
-
-
 @dash(st='Billing',
       spu='focus2/img/small_billing.png',
       bt='Billing',
@@ -261,7 +250,7 @@ def billing_client():
       wgl=2)
 @BP.route('/billing/')
 def billing():
-    bh = utils_billing.BillingHelper(flask.g.api, billing_client())
+    bh = utils_billing.BillingHelper(flask.g.api)
     if flask.request.args.get("api_marker"):
         perPage = int(flask.request.args['perPage'])
         page = int(flask.request.args['page'])

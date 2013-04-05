@@ -20,13 +20,6 @@ module.filter('totalcost', function() {
 });
 
 
-module.filter('costformat', function() {
-    return function(val) {
-        return (val || 0.0).toFixed(2);
-    }
-});
-
-
 function DefaultCtrl($scope, $routeParams, $resource, Search, $location) {
     var today = new Date().toString("dd.MM.yyyy");
     var defaults = {
