@@ -1,4 +1,4 @@
-var module = angular.module('projects_audit', ['ngResource', 'ui']);
+var module = angular.module('projects_audit', ['ngResource', 'ui', 'common']);
 
 
 module.factory('Search', function ($resource){
@@ -40,7 +40,6 @@ function DefaultCtrl($scope, $routeParams, $resource, Search, $location) {
 
     $scope.per_page_choices = [10, 20, 50, 100];
     $scope.search = Search.get(params);
-    init_daterangepickers();
 }
 
 var template = 'partials/search.html';
