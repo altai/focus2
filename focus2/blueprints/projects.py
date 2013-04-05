@@ -464,17 +464,23 @@ def invite():
             try:
                 user = api.users.find(email=email)
             except IndexError:
-                user = api.users.create({
-                    "email": email,
-                    "projects": form.projects.data,
-                    "invite": True,
-                    "send-invite-mail": True,
-                    "link-template": "%s{{code}}" % flask.url_for(
-                        ".invite_accept", code="",
-                        _external=True)
-                })
-                flask.flash("Successfully invited user %s" % email, "success")
-                return flask.redirect(flask.request.path)
+                try:
+                    user = api.users.create({
+                        "email": email,
+                        "projects": form.projects.data,
+                        "invite": True,
+                        "send-invite-mail": True,
+                        "link-template": "%s{{code}}" % flask.url_for(
+                            ".invite_accept", code="",
+                            _external=True)
+                    })
+                except api_exceptions.AltaiApiException as ex:
+                    flask.flash("Cannot invite user: %s" %
+                                ex, "error")
+                else:
+                    flask.flash("Successfully invited user %s" % email,
+                                "success")
+                    return flask.redirect(flask.request.path)
             else:
                 # TODO: invite existing user when Altai API allows it
                 flask.flash("Cannot invite user %s that already exists" %
@@ -492,6 +498,9 @@ def invite():
 class InviteAcceptForm(wtf.Form):
     login = wtf.TextField(
         "Login",
+        validators=[wtf.Required()])
+    fullname = wtf.TextField(
+        "Full Name",
         validators=[wtf.Required()])
     password = wtf.TextField(
         "Password",
@@ -516,6 +525,7 @@ def invite_accept(code):
                 code, {
                     "password": form.password.data,
                     "name": form.login.data,
+                    "fullname": form.fullname.data,
                 })
         except api_exceptions.NotFound:
             flask.flash(

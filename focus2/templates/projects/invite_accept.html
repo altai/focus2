@@ -7,6 +7,8 @@
 
 
 {% block content %}
+  {% from 'base/macros.html' import input_horizontal %}
+
   <div class='container' ng-app="invite_accept">
     <div class="row">
       <div class="span10" ng-controller="InviteAcceptController">
@@ -24,6 +26,8 @@
                 <input id='login' name='login' type='login' readonly value='{{ data["user"]["name"] }}'></input>
               </div>
             </div>
+
+            {{ input_horizontal(form.fullname, is_required=True) }}
 
             <div class='control-group{% if form.password.errors %} error{% endif %}' ng-class="{error: too_short()}">
               <label class='control-label' for='password'>
