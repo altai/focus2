@@ -34,7 +34,44 @@ from focus2.utils import jinja as utils_jinja
 from focus2.api import client
 
 
+from cStringIO import StringIO
+
+
+class ChunkFile(object):
+
+    MAX_BUFFER_SIZE = 1024 * 500
+
+    def __init__(self, *args, **kwargs):
+        self.buf = StringIO()
+
+    def seek(self, pos):
+        print "seek", pos
+
+    def send_buffer(self):
+        print "send buffer", self.buf.tell()
+
+    def write(self, data):
+        if self.buf.tell() + len(data) > self.MAX_BUFFER_SIZE:
+            self.send_buffer()
+            self.buf.truncate(0)
+        self.buf.write(data)
+
+    def read(self, bytes):
+        print "read", bytes
+        return ""
+
+
 class AppTemplate(flask.Flask):
+
+    class request_class(flask.Request):
+        def _get_file_stream(self, total_content_length,
+                             content_type, filename=None,
+                             content_length=None):
+            return (lambda
+                    total_content_length,
+                    filename, content_type,
+                    content_length=None: ChunkFile())
+
     class request_globals_class(object):
         api_client = None
 

@@ -97,3 +97,16 @@ def action(id, command):
         flask.flash("Successfully deleted %s" % img["name"], "success")
         return flask.redirect(flask.url_for(".index"))
     flask.abort(404)
+
+
+from focus2.blueprints.authentication import noauth
+
+
+@noauth
+@BP.route('/upload/', methods=["GET", "POST"])
+def upload():
+    if flask.request.method == "GET":
+        data = open("/var/tmp/upload-html5.html").read()
+        return flask.Response(data)
+    image_files = flask.request.files
+    return {}
