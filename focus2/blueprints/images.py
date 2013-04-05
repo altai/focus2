@@ -22,11 +22,14 @@
 from functools import partial
 
 import flask
+from flask.ext import wtf
+import werkzeug
 
 from flask import blueprints
 
 from focus2.blueprints.dashboard import dash as basedash
 from focus2.blueprints.base import breadcrumbs, breadcrumb_button
+from focus2.utils import search, pagination, forms
 
 """
 ================
@@ -97,3 +100,34 @@ def action(id, command):
         flask.flash("Successfully deleted %s" % img["name"], "success")
         return flask.redirect(flask.url_for(".index"))
     flask.abort(404)
+
+
+class CreateForm(wtf.Form):
+    project = forms.SelectOptionalField("Project")
+    name = wtf.TextField("Name", validators=[wtf.Required()])
+    image_type = wtf.RadioField(
+        "Image type", choices=[("solid", "Solid"),
+                               ("amazon_like", "Amazon like")])
+
+    kernel = forms.SelectOptionalField("Kernel")
+    initrd = forms.SelectOptionalField("Initrd")
+    filesystem = wtf.TextField("Filesystem")
+
+    solid_image = wtf.TextField("Image")
+    disk_format = wtf.RadioField(
+        "Disk format", choices=[("raw", "raw"),
+                                ("qcow2", "qcow2")])
+
+
+@BP.route('/upload/', methods=["GET", "POST"])
+def upload():
+    form = CreateForm()
+    if flask.request.method == "GET":
+        return {
+            "data": {
+            },
+            "form": form,
+        }
+    import pdb; pdb.set_trace()
+    image_files = flask.request.files
+    return {}

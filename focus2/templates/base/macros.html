@@ -108,6 +108,23 @@
 {%- endmacro %}
 
 
+{% macro radio_horizontal(field) -%}
+  <div class="control-group upload-type">
+    <label class="control-label"><b>Image type</b></label>
+    <div class="controls">
+      {% for subfield in field %}
+      <label class="radio inline">
+        <input type="radio" value="{{ subfield.data }}"
+               id='{{ field.name }}_{{ subfield.data }}'
+               name='{{ field.name }}'
+               ng-model="form.{{ field.name }}"/>{{ subfield.label }}
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+{%- endmacro %}
+
+            
 {% macro spawn_instance_button(querystring) -%}
   <div class="btn-group span4" style="margin: 0px 0px 20px 0px;">
     <a href="{{url_for('instances.spawn')}}?{{querystring}}" class="btn btn-success">
