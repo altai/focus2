@@ -66,8 +66,12 @@ def summary():
     def get_total(obj_list):
         res = {}
         for obj in obj_list:
-            project_id = obj["project"]["id"]
-            res[project_id] = res.get(project_id, 0) + 1
+            try:
+                project_id = obj["project"]["id"]
+            except KeyError:
+                pass
+            else:
+                res[project_id] = res.get(project_id, 0) + 1
         return res
 
     api = flask.g.api
