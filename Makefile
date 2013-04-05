@@ -1,4 +1,5 @@
 FOCUS2_SETTINGS := $(PWD)/etc/local_settings.py
+PRE_COMMIT_HOOK := $(shell git rev-parse --git-dir)/hooks/pre-commit
 
 FIRST: run
 
@@ -25,8 +26,11 @@ clean:
 	find . -name '*.pyc' -exec $(RM) {} \;
 
 
-nvm:
-	test -d ~/.nvm || git clone git://github.com/creationix/nvm.git ~/.nvm
+install-nvm: ~/.nvm
+
+
+~/.nvm:
+	git clone git://github.com/creationix/nvm.git ~/.nvm
 	echo '. ~/.nvm/nvm.sh' >> ~/.bashrc
 	cd tools && bash -c ". ~/.nvm/nvm.sh && nvm install v0.8 && nvm alias default 0.8 && npm install && npm install testacular -g"
 	cd jstests && ln -sf /usr/bin/chromium-browser google-chrome && ln -sf /usr/bin/firefox firefox
@@ -34,3 +38,10 @@ nvm:
 
 install-deps:
 	apt-get install build-essential curl wget git libssl-dev libmysqlclient-dev virtualenvwrapper
+
+
+install-hooks: $(PRE_COMMIT_HOOK)
+
+
+$(PRE_COMMIT_HOOK):
+	ln -s "$(PWD)/tools/pre-commit" "$@"
