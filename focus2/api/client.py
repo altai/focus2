@@ -22,14 +22,9 @@
 import logging
 import urllib
 import urlparse
-import sys
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 import requests
+from flask import json
 
 from . import exceptions
 

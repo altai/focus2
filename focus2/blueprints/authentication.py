@@ -146,6 +146,7 @@ def run_authentication_check(*args, **kwargs):
     bp, ep = flask.request.endpoint.split('.')
     view = werkzeug.utils.import_string(
         'focus2.blueprints.%s:%s' % (bp, ep))
+#    print 'VIEW: ', view
     if not (noauth.get(view) or flask.g.api.me.check_credentials()):
         return flask.redirect(
             flask.url_for('authentication.login'))

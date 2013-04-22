@@ -121,6 +121,11 @@ def application_factory():
         c.execute('CREATE TABLE dashboard_objects ('
                   'id varchar(40) not null primary key, body text)')
         need_commit = True
+    if ('searches',) not in tables:
+        c.execute('CREATE TABLE searches ('
+                  'id int not null primary key auto_increment, '
+                  'query text)')
+        need_commit = True
     if need_commit:
         db.commit()
     db.close()
