@@ -170,11 +170,11 @@ class AltaiApiClient(object):
     def http_log_resp(self, resp):
         if not self.http_log_debug:
             return
-        self._logger.debug(
-            "RESP: [%s] %s\nRESP BODY: %s\n",
-            resp.status_code,
-            resp.headers,
-            resp.text)
+#        self._logger.debug(
+#            "RESP: [%s] %s\nRESP BODY: %s\n",
+#            resp.status_code,
+#            resp.headers,
+#            resp.text)
 
     def request(self, method, url, **kwargs):
         kwargs.setdefault("headers", kwargs.get("headers", {}))

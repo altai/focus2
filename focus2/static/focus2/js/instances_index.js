@@ -150,7 +150,6 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
     }
 
     $scope.horizontalDisplace = function(column_names, to_state){
-      console.log(order);
       if (to_state == 'hide'){
         for (var i=0; i < column_names.length; i++){
           var index = $scope.shown_columns.indexOf(column_names[i]);

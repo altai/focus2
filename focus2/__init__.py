@@ -124,6 +124,7 @@ def application_factory():
     if ('searches',) not in tables:
         c.execute('CREATE TABLE searches ('
                   'id int not null primary key auto_increment, '
+                  'uid varchar(32), '
                   'query text)')
         need_commit = True
     if need_commit:

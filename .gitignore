@@ -6,6 +6,8 @@ focus2.egg-info
 *.egg
 *.lock
 *.py[co]
+*.swo
+*.swp
 focus/local_settings*
 test_settings.py
 pip-log.txt

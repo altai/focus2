@@ -57,8 +57,12 @@ class Searches(MethodView):
     """ Search querys management resource.
     """
     def get(self):
+        user = flask.g.api_client.me.get_current_user()
         cursor = flask.g.db.cursor()
-        cursor.execute('SELECT * FROM searches;')
+        row = "SELECT * FROM searches WHERE uid='{}';"
+
+        cursor.execute(row.format(user['id']))
+
         res = [{'id': i[0], 'query': i[1]} for i in cursor.fetchall()]
         res, status = (json.dumps(res), 200) if res else (None, 204)
         return Response(response=res, mimetype='application/json',
@@ -66,11 +70,14 @@ class Searches(MethodView):
 
     def post(self):
         cursor = flask.g.db.cursor()
-        row = "INSERT INTO searches (query) VALUES ('{}')".format(
-                request.json['query'])
-        cursor.execute(row)
-        cursor.execute('SELECT * FROM searches WHERE id={}'.format(
+        row = "INSERT INTO searches (uid, query) VALUES ('{}', '{}')"
+        user = flask.g.api_client.me.get_current_user()
+
+        cursor.execute(row.format(
+                user['id'], request.json['query']))
+        cursor.execute("SELECT * FROM searches WHERE id='{}'".format(
                 cursor.lastrowid))
+
         inserted = cursor.fetchone()
         res = json.dumps({'id': inserted[0], 'query': inserted[1]})
         return Response(response=res, mimetype='application/json',
@@ -80,6 +87,7 @@ class Searches(MethodView):
 
     def delete(self, _id):
         cursor = flask.g.db.cursor()
+
         cursor.execute('DELETE FROM searches WHERE id={}'.format(_id))
         return Response(status=204, mimetype='application/json',
                 content_type='application/json')
