@@ -1,78 +1,51 @@
 Development
 ===========
 
+Up and running:
 
-Env Boostrap
-------------
-
-You are lucky one if you are developing on Ubuntu because development environment can be boostrapped with script boostrap_dev_ubuntu.sh.
-
-Otherwise it is recommended to follow these steps modifiing them according to your OS specifics:
-
-.. code:: bash
- # 1. install some tools
- sudo apt-get install build-essential curl wget git-core
-
- # 2. install setuptools if required
- http://peak.telecommunity.com/dist/ez_setup.py
- sudo python ez_setup.py 
-
- # 2. install virtualenv and virtualenvwrapper(recommended)
- sudo easy_install virtualenv virtualenvwrapper
- . /usr/local/bin/virtualenvwrapper.sh
- echo '. /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc
-
- # 3. initiate Python virtualenv
- mkvirtualenv Focus2
- workon Focus2
+1. Run Altai API
+ a. ask aababilov or apugachev for Virtualbox VM with Altai and Altai API installed OR
+    - install Altai according to instructions https://altaicloud.atlassian.net/wiki/display/V110/Installation 
+    - clone Altai API from https://github.com/altai/altai-api
+    - upload working directory content to the Altai master node into /root
+    - create altai-api/local_settings.py like::
+PRETTY_PRINT_JSON=True
+KEYSTONE_URI='http://localhost:5000/v2.0'
+ALTAI_API_SUPERUSER = 'aname'
+ALTAI_API_SUPERUSER_PASSWORD = 'apass'
+USE_RELOADER=False
+SQLALCHEMY_DATABASE_URI='sqlite:////root/altai.db'
+MAIL_USERNAME = "someone@someone.com"
+MAIL_PASSWORD = "apass"
+DEFAULT_MAIL_SENDER = ('robot', "someone@someone.com")
  
- # 4. install Python  dependencies
- easy_install pip
- pip install -r install_requirements.txt
- pip install -r dev_requirements.txt
+      ALTAI_API_SUPERUSER and ALTAI_API_SUPERUSER_PASSWORD come from 
+      /opt/altai/altai-node.json entries (created during Altai install)::
+   "admin-login-name": "...",
+   ...
+   "admin-login-password": "...",
 
- # 5. install the package in development mode
- cd focus2
- python setup.py develop
- cd ../
-  
- # 6. install RVM
- bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)
- echo '[[ -s "~/.rvm/scripts/rvm" ]] && . "~/.rvm/scripts/rvm"' >> ~/.bashrc
- source ~/.rvm/scripts/rvm
+  b. in /root/ run::
+ALTAI_API_SETTINGS=/root/altai-api/local_settings.py tools/run.py
 
- # 7. install Ruby
- rvm install ruby-1.9.3
- rvm use --default 1.9.3
+2. Run Focus
+ a. get ubuntu
+ b. clone focus2 repo from https://github.com/altai/focus2
+ c. install mysql, create database focus2, grant all for focus2 with password focus2
+ d. in working directory create etc/local_settings.py like::
+API_ENDPOINT = 'http://altai_master:5039'
+APP_TEMP_DIR = '/tmp'
+DB_HOST = 'localhost'
+DB_NAME = 'focus2'
+DB_USER = 'focus2'
+DB_PASSWD = 'focus2'
+INVITATION_DOMAINS = ['griddynamics.com', 'gmail.com']
+USE_RELOADER = True
+DEBUG = True
+BILLING_URL = 'http://altai_master:8787/v2/'
 
- # 8. install Ruby dependencies
- gem install bundler
- bundle install
-
-
-Env Usage
----------
-
-Basically Focus2 is a set of Flask blueprints registered by a minimal Flask application. To add functionality you have to add blueprint. You can create new blueprint and remove existing with rake commands (see `rake -T`).
-
-When you start developing activate your python virtualenv and run `rake hop`. This will start scripts tracking changes in HAML, CoffeeScript and JS files.
-After that in another console activate your python virtualenv and run `rake run`. This will install Python package focus2 in development mode (which is very useful if you switch between Git branches) and run development server at port 5000.
-If you have settings you want to pass to this development server then edit local_settings.py (see local_settings.py.example).
-
-
-Few Answers
------------
-
-- Why do we need Ruby?
-
-Because we use:
- - HAML (to write templates in HAML and have Jinja2 generated)
- - Rake (to organize development tasks).
-
-- Why do we need Node.js?
-
-Because we use:
- - testacular (test runners for JavaScript require it)
- - watchr (to watch changed in files)
- - coffee-script (to write in CoffeeScript)
- - uglify-js (to minify JS)
+    altai_master is hostname for Altai master node (for VM with Altai take a look at ifconfig inside the VM)
+  e. create a Python virtual environment and activate it (mkvirtualenv focus2 if you use virtualenvwrapper)
+  e. run make, it will install python dependencies
+  f. open http://0.0.0.0:8282/ in a browser
+  g. use credentials for ALTAI_API_SUPERUSER from Altai API if you are clueless about user credentials at this point.

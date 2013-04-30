@@ -10,6 +10,7 @@ test:
 
 run:
 	pip install -U 'distribute>=0.6.28'
+	pip install -r tools/pip-requires
 	python setup.py develop
 	FOCUS2_SETTINGS=$(FOCUS2_SETTINGS) python -m focus2.runserver
 

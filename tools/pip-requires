@@ -3,3 +3,5 @@ Flask-WTF>=0.6
 requests>=0.8
 jsonschema>=0.2,<1.0
 MySQL-python
+# publish this to cheeseshop
+-e git+http://github.com/aababilov/python-openstackclient-base.git#egg=python-openstackclient-base
