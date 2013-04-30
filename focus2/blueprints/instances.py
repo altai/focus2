@@ -59,7 +59,7 @@ class Searches(MethodView):
     def get(self):
         user = flask.g.api_client.me.get_current_user()
         cursor = flask.g.db.cursor()
-        row = "SELECT * FROM searches WHERE uid='{}';"
+        row = "SELECT id, query FROM searches WHERE uid='{}';"
 
         cursor.execute(row.format(user['id']))
 

@@ -4,9 +4,9 @@
 {% from "instances/macros.html" import search_pagination, searches_panel %}
 
 
-{% block js %}
-<script src="{{ url_for('static', filename='deps/angular/angular-resource.min.js') }}"></script>
-<script src="{{ url_for('static', filename='focus2/js/instances_index.js') }}" type='text/javascript'></script>
+{% block css %}
+{{ super() }}
+<link href="{{ url_for('static', filename='deps/daterangepicker/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
 {% endblock %}
 
 
@@ -31,39 +31,40 @@
   <form action='.' class='form-inline' id='search_form' method='GET'>
     <div class='input-append search_input_container'>
       <input type='text' ng-model='query' class="span2 search" style="width: 30em;">
-      <a class='btn dropdown-toggle'>
+      <a class='btn dropdown-toggle' ng-click="toggleVisibility('builder')">
         <span class='caret'></span>
       </a>
     </div>
     <div class='input-append'>
       <div class='btn-group'>
-        <a class='btn btn-straight saved_searches_lever' ng-click="update_location()">Search</a>
-        <a class='btn dropdown-toggle btn-straight' ng-click="toggle_visibility('saved_searches'); update_queries()">
+        <a class='btn btn-straight saved_searches_lever' ng-click="updateLocation()">Search</a>
+        <a class='btn dropdown-toggle btn-straight' ng-click="toggleVisibility('saved_searches'); updateQueries()">
           <span class='caret'></span>
         </a>
 
       </div>
     </div>
     <div class='btn-group per-page'>
-      <select style="width: auto" ng-model="perPage" ng-change="update_location()">
-        <option ng-repeat="x in per_page_choices" >{{ x }}</option>
+      <select style="width: auto" ng-model="perPage" ng-change="updateLocation()">
+        <option ng-repeat="x in perPageChoices" >{{ x }}</option>
       </select>
     </div>
 
-    <a class="btn" ng-click="toggle_visibility('column_editor')" id="columns_visibility_toggle_button">Columns</a>
+    <a class="btn" ng-click="toggleVisibility('column_editor')" id="columns_visibility_toggle_button">Columns</a>
+
     <!-- Columns editor -->
     <div ng-show="visibility.column_editor" float-around="#columns_visibility_toggle_button">
       <div  style="position: absolute" class="columns_window">
         <div class="alert control-bar-form nobr">
           <H4>Hellow</H4>
-          <button type="button" class="close" ng-click="toggle_visibility('column_editor')">×</button>
+          <button type="button" class="close" ng-click="toggleVisibility('column_editor')">×</button>
           <h5>Change Columns</h5>
           <form class="form-inline">
             <div class="row" >
               <div class="span2">
                 Available<br>
-                <select multiple="true"  style="height: 10em; width: 170px;" ng-model="selected_hidden">
-                  <option ng-repeat="x in hidden_columns" value="{{ x }}" >{{ x }}</option>
+                <select multiple="true"  style="height: 10em; width: 170px;" ng-model="selectedHidden">
+                  <option ng-repeat="x in hiddenColumns" value="{{ x }}" >{{ x }}</option>
                   </select>
               </div>
               <div class="span1" style="text-align: center; margin-left: 10px">
@@ -71,34 +72,34 @@
                   <button class="btn"
                       type="button"
                       style="display: inline-block; position: absolute; top: 2em; left: 3em"
-                      ng-click="changeOrder(selected_shown, 'up')">
+                      ng-click="changeOrder(selectedShown, 'up')">
                     <i class="icon-arrow-up"></i>
                   </button>
                   <button
                       class="btn"
                       type="button"
                       style="display: inline-block; position: absolute; top: 4em; left: 0em"
-                      ng-click="horizontalDisplace(selected_shown, 'hide')">
+                      ng-click="horizontalDisplace(selectedShown, 'hide')">
                     <i class="icon-arrow-left"></i>
                   </button>
                   <button class="btn"
                       type="button"
                       style="display: inline-block; position: absolute; top: 4em; left:3em"
-                      ng-click="horizontalDisplace(selected_hidden, 'show')">
+                      ng-click="horizontalDisplace(selectedHidden, 'show')">
                     <i class="icon-arrow-right"></i>
                   </button>
                   <button class="btn"
                       type="button"
                       style="position: absolute; top: 6em; left: 3em"
-                      ng-click="changeOrder(selected_shown, 'down')">
+                      ng-click="changeOrder(selectedShown, 'down')">
                     <i class="icon-arrow-down"></i>
                   </button>
                 </div>
                </div>
                <div class="span2">
                  Visible<br>
-                 <select multiple="true" style="height: 10em;width: 170px;" ng-model="selected_shown">
-                   <option ng-repeat="x in shown_columns" value="{{ x }}" >{{ x }}</option>
+                 <select multiple="true" style="height: 10em;width: 170px;" ng-model="selectedShown">
+                   <option ng-repeat="x in shownColumns" value="{{ x }}" >{{ x }}</option>
                  </select>
                </div>
              </div>
@@ -110,15 +111,15 @@
     <!-- ------------- SAVED SEARCHES ------------------- -->
     <div style="position: absolute;"  class="saved_searches_window" >
         <div class="alert control-bar-form nobr" ng-show="visibility.saved_searches">
-            <button type="button" class="close" ng-click="toggle_visibility('saved_searches')">×</button>
+            <button type="button" class="close" ng-click="toggleVisibility('saved_searches')">×</button>
             <h5>Saved Searches</h5>
             <form class="form-inline">
-                <input type="text" ng-model="new_search_query" placeholder="Search Name">
-                <button class="btn btn-primary"  ng-click="newSearch(new_search_query)">Save New</button>
+                <input type="text" ng-model="newSearchQuery" placeholder="Search Name">
+                <button class="btn btn-primary"  ng-click="newSearch(newSearchQuery)">Save New</button>
             </form>
             <table class="table table-condensed table-bordered table-striped">
                 <tbody>
-                <tr ng-repeat="x in search_queries">
+                <tr ng-repeat="x in searchQueries">
                     <td>
                         <div style="overflow: hidden;text-overflow: ellipsis; width: 276px;">
                             <a ng-click="applyQuery(x.query)">{{ x.query }}</a>
@@ -133,6 +134,66 @@
         </div>
     </div>
     <!-- end saved searches -->
+    <!-- ------------- BUILDER ------------------- -->
+    <div style="position: absolute;" class="builder_window" my-follow-css='{".search_input_container": ["left", "width"]}'>
+        <div class="alert control-bar-form" ng-show="visibility.builder" style="right: 0px; left: 0px;">
+            <button type="button" class="close" ng-click="toggleVisibility('builder')">×</button>
+            <h5>Query Builder</h5>
+            <div class="btn-group">
+              <button class="btn" ng-click="buildQuery()">
+                Search
+              </button>
+
+              <button class="btn dropdown-toggle" data-toggle="dropdown">
+                Add Field
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li ng-repeat="x in unselectedControls"><a ng-click="addControl(x)">{{ x }}</a></li>
+              </ul>
+            </div>
+
+            <form class="form-horizontal form-inline">
+                <div class="control-group" ng-repeat="x in selectedControls">
+                  <div create-control="{{ x }}" style="margin-right: 15px"></div>
+                   <!-- <label class="control-label">
+                        {{ v.title }}
+                        <a href="#"
+                           rel="tooltip"
+                           ng-show="v.help != ''"
+                           data-original-title="{{ v.help }}"><i class="icon-question-sign"></i></a>
+                    </label>
+                    <div class="controls" style="vertical-align: top">
+                        <a ng-click="deleteControl(x)" style="float: right"><i class="icon-remove-sign"></i></a>
+                        <div  ng-switch on="v.type" style="margin-right: 15px">
+                            <div ng-switch-when="select">
+                                <select ng-model="query_parts[v.key]" ng-options="i.k as i.v for i in v.type_options.options" multiple class="chosen" chosen></select>
+                            </div>
+                            <div ng-switch-when="daterange">
+                                <span cb-daterange="query_parts[v.key]" />
+
+                            </div>
+                            <div ng-switch-when="ip">
+                                <div cb-ip-widget="query_parts[v.key]"></div>
+                            </div>
+                            <div ng-switch-when="intrange">
+                                <div cb-intrange-widget="query_parts[v.key]" cb-intrange-options="v.type_options" style="margin-right: 15px;"></div>
+                            </div>
+                            <div ng-switch-when="text">
+                                <input type="text" name="{{ v.key }}" value="" ng-model="query_parts[v.key]" placeholder="{{ v.placeholder }}">
+                            </div>
+
+                        </div>
+                      </div>-->
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- end query builder -->
   </form>
   <h3>{{ columns_data }}</h3>
   <table class='table table-striped table-bordered table-condensed' ng-show='instances.data.length > 0'>
@@ -141,7 +202,7 @@
         <th>
           <input type='checkbox'>
         </th>
-        <th ng-repeat='x in shown_columns'>
+        <th ng-repeat='x in shownColumns'>
           {{ x }}
         </th>
       </tr>
@@ -149,7 +210,7 @@
     <tbody>
       <tr ng-repeat='x in instances.data'>
         <td><input type='checkbox'></td>
-        <td ng-repeat='i in shown_columns' ng-bind-html-unsafe="columns_data(i, x)"></td>
+        <td ng-repeat='i in shownColumns' ng-bind-html-unsafe="columnsData(i, x)"></td>
       </tr>
     </tbody>
   </table>
@@ -157,7 +218,7 @@
   <div style="margin-top: 0px;" class="pagination" ng-show="instances.data.length > 0">
     <ul>
       <li ng-repeat="x in instances.pagination.pages" ng-class="instances.pagination.current == x && 'active'">
-        <a ng-click="change_page(x)">{{ x }}</a>
+        <a ng-click="changePage(x)">{{ x }}</a>
       </li>
     </ul>
   </div>
@@ -168,4 +229,8 @@
   {{ search_pagination(paginator) }}
 </script>
 {% endraw %}
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='focus2/js/instances_index.js') }}" type='text/javascript'></script>
 {% endblock %}

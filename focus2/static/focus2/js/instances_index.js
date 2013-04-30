@@ -1,5 +1,91 @@
-var module = angular.module('instances_index', ['ngResource', 'ui']),
-   template = 'partials/search.html'
+var inadequateArgumentNumber = function(parts, args){
+  return 'Arguments and format fields length must be equal. Instead: args is ' + args.length + ', fields is ' + parts.length};
+
+// TODO: move all format on the side of good
+// WARNING: global prototype modification. Fix it!
+String.prototype.format = function(args){
+  console.log('ARGS', args);
+  var parts = this.split('{}');
+  if (parts.length-1 != args.length){
+    throw inadequateArgumentNumber(parts, args);
+  }
+  for (var i=0; i < args.length; i++){
+    parts[i] = parts[i]+args[i];
+  }
+  return parts.join('');
+}
+
+var module = angular.module('instances_index', ['ngResource', 'ui'],
+    function($compileProvider){
+      $compileProvider.directive('createControl', function($compile, $timeout){
+        var controls = {
+           'Name': {title: 'Name', help:'help', placeholder: 'Enter name', type: 'text'},
+           'Ping Test': {title: 'Ping Test', help:'help', placeholder: 'Choose state', type: 'select'},
+           'Id': {title: 'Id', help:'help', placeholder: 'Enter ID', type: 'select'},
+           'Cost Per Day': {title: 'Cost Per Day', help:'help', placeholder: 'Limit per day cost', type: 'slider'},
+           'IP': {title: 'IP', help:'help', placeholder: 'Enter title', type: 'ip'},
+           'Created': {title: 'Created', help:'help', placeholder: 'Enter creation date', type: 'date'},
+           'Project': {title: 'Project', help:'help', placeholder: 'Enter project name', type: 'select'},
+           'User': {title: 'User', help:'help', placeholder: 'Enter user name', type: 'text'},
+           'Image': {title: 'Image', help:'help', placeholder: 'Enter image name', type: 'select'},
+           'Type': {title: 'Type', help:'help', placeholder: 'Enter type', type: 'select'}
+        };
+
+        return function(scope, element, attrs){
+          var template = '<label class="control-label">{}'+
+                         '<a href="#" rel="tooltip" data-original-title="{}"><i class="icon-question-sign"></i></a></label>'+
+                         '<div class="controls" style="vertical-align: top">{}'+
+                         '<a ng-click="deleteControl(x)" style="float: right"><i class="icon-remove-sign"></i></a></div>';
+          var tag;
+          var html;
+          attrs.$observe('createControl', function(){
+            var control = controls[attrs.createControl]
+            switch (controls[attrs.createControl]['type']){
+              case 'text':
+                tag = '<input type="text" ng-model="{}" placeholder="{}"/>'.format(
+                  Array(attrs.createControl, control['placeholder'])
+                  );
+                break;
+              case 'ip':
+                var inputs = '';
+                for (var i=0; i < 4; i++){
+                  inputs += '<input type="text" ng-model="df{}" class="ng-pristine ng-valid"/>'.format([i]);
+                }
+                tag = '<div class="cb-ip-widget">{}</div>'.format([inputs]);
+                break;
+              case 'date':
+                tag = '<input type="text" ng-model="date" class="daterange ng-pristine ng-valid" placeholder="{}"/>'.format(
+                  Array(control['placeholder']));
+                break;
+              case 'select':
+                tag = '<select ng-model="{}" placeholder="{}" class="chzn-select ng-pristine ng-valid">'+
+                      '<option value="0">0</option><option value="1">1</option>'+
+                      '</select>';
+                tag = tag.format(Array(attrs.createControl.replace(' ', ''), control['placeholder']));
+                break;
+            }
+
+            html = template.format(Array(control['title'], control['help'], tag));
+            element.append(html);
+            $compile(element.contents())(scope);
+            $('.daterange').daterangepicker({
+                      ranges: {
+                       'Today': ['today', 'today'],
+                       'Yesterday': ['yesterday', 'yesterday'],
+                       'Last 7 Days': [Date.today().add({ days: -6 }), 'today'],
+                       'Last 30 Days': [Date.today().add({ days: -29 }), 'today'],
+                       'This Month': [Date.today().moveToFirstDayOfMonth(), Date.today().moveToLastDayOfMonth()],
+                       'Last Month': [Date.today().moveToFirstDayOfMonth().add({ months: -1 }), Date.today().moveToFirstDayOfMonth().add({ days: -1 })]
+                       }
+                    }
+              );
+            // FIXME: have no chosen method
+            $('.chzn-select').chosen();
+          })
+        }
+      })
+    });
+var template = 'partials/search.html';
 
 module.factory('Instances', function ($resource){
     return $resource('/instances/', {api_marker: 1})
@@ -9,7 +95,7 @@ module.factory('SearchQueries', function ($resource){
   return $resource('/instances/searches/:_id', {_id: '@id'});
 })
 
-function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQueries, $location){
+function DefaultCtrl($scope, $compile, $routeParams, $resource, $http, Instances, SearchQueries, $location){
     /* add func to update scope after an object */
 
     var defaults = {
@@ -24,12 +110,11 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
         columns: $routeParams.columns || defaults.columns,
         perPage: parseInt($routeParams.perPage) || defaults.perPage,
     },
-        columns_definitions = {
+        columnsDefinitions = {
        'Name': 'name',
        'Ping Test': 'state',
        'Id': 'id',
        'Cost Per Day': 'cost',
-//       'VLAN': 'vlan',
        'IP': 'ipv4',
        'Created': 'created',
        'Project': 'project',
@@ -49,15 +134,22 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
        'Image',
        'Type'
     ],
-       sorter = function(a, b){return order.indexOf(a) - order.indexOf(b)},
-       toDataItem = function(data_item){
-         this.format = function(string, args){
+      inadequateArgumentNumber = function(parts, args){
+        return 'Arguments and format fields length must be equal. Instead: args is ' + args.length + ', fields is ' + parts.length},
+
+       format = function(string, args){
              var parts = string.split('{}');
+             if (parts.length-1 != args.length){
+               throw inadequateArgumentNumber(parts, args);
+             }
              for (var i=0; i < args.length; i++){
                parts[i] = parts[i]+args[i];
              }
              return parts.join('');
-         }
+       },
+       sorter = function(a, b){return order.indexOf(a) - order.indexOf(b)},
+       toDataItem = function(data_item){
+         this.format = format;
 
          this.isLink = function(){
            return typeof data_item == 'object' &&
@@ -100,22 +192,22 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
          }
      };
 
-    $scope.update_queries = function(){
-          $scope.search_queries = SearchQueries.query();
+    $scope.updateQueries = function(){
+          $scope.searchQueries = SearchQueries.query();
       };
 
     $scope.query = params.query;
     $scope.page = params.page;
     $scope.columns = params.columns;
     $scope.perPage = params.perPage;
-    $scope.per_page_choices = [10, 20, 50, 100];
-    $scope.shown_columns = order.slice();
-    $scope.hidden_columns = [];
+    $scope.perPageChoices = [10, 20, 50, 100];
+    $scope.shownColumns = order.slice();
+    $scope.hiddenColumns = [];
     $scope.instances = Instances.get(params);
 
-    $scope.update_location = function(){
+    $scope.updateLocation = function(){
         if ($scope.perPage != defaults.perPage){
-            $location.path('/' + $scope.query + '/' + $scope.page + '/' + $scope.columns.join() + '/' + $scope.perPage);
+            $location.path($scope.query + '/' + $scope.page + '/' + $scope.columns.join() + '/' + $scope.perPage);
         } else if ($scope.columns != defaults.columns){
             $location.path('/' + $scope.query + '/' + $scope.page + '/' + $scope.columns.join());
         } else if ($scope.page != defaults.page){
@@ -127,13 +219,13 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
         }
     }
 
-    $scope.change_page = function(page){
+    $scope.changePage = function(page){
         $scope.page = page;
         $scope.update_location();
     }
 
-    $scope.columns_data = function(name, row){
-      var data_item = row.hasOwnProperty(columns_definitions[name]) ? row[columns_definitions[name]] : '';
+    $scope.columnsData = function(name, row){
+      var data_item = row.hasOwnProperty(columnsDefinitions[name]) ? row[columnsDefinitions[name]] : '';
       data_item = new toDataItem(data_item);
       if (data_item.isLink()){return data_item.toLink();}
       else if (data_item.isPingState()){return data_item.toPingTestState();}
@@ -142,36 +234,37 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
 
     $scope.visibility = {
       'column_editor': false,
-      'saved_searches': false
+      'saved_searches': false,
+      'builder': false
     }
 
-    $scope.toggle_visibility = function(node){
+    $scope.toggleVisibility = function(node){
       $scope.visibility[node] = !$scope.visibility[node];
     }
 
     $scope.horizontalDisplace = function(column_names, to_state){
       if (to_state == 'hide'){
         for (var i=0; i < column_names.length; i++){
-          var index = $scope.shown_columns.indexOf(column_names[i]);
-          $scope.hidden_columns = $scope.hidden_columns.concat($scope.shown_columns.splice(index, 1));
+          var index = $scope.shownColumns.indexOf(column_names[i]);
+          $scope.hiddenColumns = $scope.hiddenColumns.concat($scope.shownColumns.splice(index, 1));
         }
       } else if (to_state == 'show') {
         for (var i=0; i < column_names.length; i++){
-          var index = $scope.hidden_columns.indexOf(column_names[i]),
-            shown_columns = $scope.shown_columns.concat($scope.hidden_columns.splice(index, 1));
-          shown_columns.sort(sorter);
-          $scope.shown_columns = shown_columns;
+          var index = $scope.hiddenColumns.indexOf(column_names[i]),
+            shownColumns = $scope.shownColumns.concat($scope.hiddenColumns.splice(index, 1));
+          shownColumns.sort(sorter);
+          $scope.shownColumns = shownColumns;
         }
       }
     }
 
     $scope.changeOrder = function(column_names, direction){
       for (var i = 0; i < column_names.length; i++){
-        var index = $scope.shown_columns.indexOf(column_names[i]),
+        var index = $scope.shownColumns.indexOf(column_names[i]),
           new_index = direction == 'down' && index+1 || direction == 'up' && index-1;
-          tmp = $scope.shown_columns[new_index];
-        $scope.shown_columns[new_index] = $scope.shown_columns[index];
-        $scope.shown_columns[index] = tmp;
+          tmp = $scope.shownColumns[new_index];
+        $scope.shownColumns[new_index] = $scope.shownColumns[index];
+        $scope.shownColumns[index] = tmp;
       }
     }
 
@@ -180,7 +273,7 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
 
       var new_search = new SearchQueries({query: query});
       new_search.$save(function(new_query){
-        $scope.search_queries.push(new_query);
+        $scope.searchQueries.push(new_query);
       });
       $scope.new_search_query = '';
     }
@@ -188,12 +281,37 @@ function DefaultCtrl($scope, $routeParams, $resource, $http, Instances, SearchQu
     $scope.deleteSearch = function(_id){
       SearchQueries.delete({_id:_id});
       var i = 0;
-      while ($scope.search_queries[i].id != _id) i++;
-      $scope.search_queries.splice(i, 1);
+      while ($scope.searchQueries[i].id != _id) i++;
+      $scope.searchQueries.splice(i, 1);
     }
 
     $scope.applyQuery = function(query){
       $scope.query = query;
+    }
+
+
+
+    $scope.$watch('shownColumns', function(){
+      $scope.unselectedControls = $scope.shownColumns.slice();
+    }, true);
+
+    $scope.selectedControls = [];
+
+    $scope.addControl = function(control){
+      var index = $scope.unselectedControls.indexOf(control);
+      $scope.selectedControls = $scope.selectedControls.concat(
+          $scope.unselectedControls.splice(index, 1)
+          );
+    }
+
+    $scope.deleteControl = function(control){
+      $scope.unselectedControls = $scope.unselectedControls.concat(
+          $scope.selectedControls.splice(index, 1)
+          );
+    }
+
+    $scope.useBuiltQuery = function(query){
+      // TODO: implement it!
     }
 }
 
@@ -206,6 +324,8 @@ module.config(['$routeProvider', function($routeProvider){
         when('/:query/:page/:columns/:perPage', {templateUrl: template, controller: DefaultCtrl}).
         otherwise({redirectTo: '/'});
 }])
+
+
 
 module.directive('floatAround', function(){
     /* keeps the element around target element */
