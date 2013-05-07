@@ -18,10 +18,9 @@
 # License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 
-import itertools
-
 import flask
-from flask import blueprints
+from flask import blueprints, request, Response, json
+from flask.views import MethodView
 from flask.ext import wtf
 import werkzeug
 
@@ -50,6 +49,51 @@ BP = blueprints.Blueprint('instances', __name__,
 
 
 BP = breadcrumbs('Instances')(BP)
+
+
+class Searches(MethodView):
+    """ Search querys management resource.
+    """
+    def get(self):
+        user = flask.g.api_client.me.get_current_user()
+        cursor = flask.g.db.cursor()
+        row = "SELECT id, query FROM searches WHERE uid='{}';"
+
+        cursor.execute(row.format(user['id']))
+
+        res = [{'id': i[0], 'query': i[1]} for i in cursor.fetchall()]
+        res, status = (json.dumps(res), 200) if res else (None, 204)
+        return Response(response=res, mimetype='application/json',
+                status=status, content_type='application/json')
+
+    def post(self):
+        cursor = flask.g.db.cursor()
+        row = "INSERT INTO searches (uid, query) VALUES ('{}', '{}')"
+        user = flask.g.api_client.me.get_current_user()
+
+        cursor.execute(row.format(
+                user['id'], request.json['query']))
+        cursor.execute("SELECT * FROM searches WHERE id='{}'".format(
+                cursor.lastrowid))
+
+        inserted = cursor.fetchone()
+        res = json.dumps({'id': inserted[0], 'query': inserted[1]})
+        return Response(response=res, mimetype='application/json',
+                content_type='application/json',
+                status=201)
+
+
+    def delete(self, _id):
+        cursor = flask.g.db.cursor()
+
+        cursor.execute('DELETE FROM searches WHERE id={}'.format(_id))
+        return Response(status=204, mimetype='application/json',
+                content_type='application/json')
+
+searches = Searches.as_view('searches')
+
+BP.add_url_rule('/searches', view_func=searches, methods=['GET', 'POST'])
+BP.add_url_rule('/searches/<_id>', view_func=searches, methods=['DELETE'])
 
 
 @breadcrumbs('Manage')

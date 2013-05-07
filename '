@@ -20,7 +20,7 @@ module.factory('Instances', function ($resource){
     return $resource('/instances/', {api_marker: 1})
 });
 
-module.factory('SearchQueries', function($resource){
+module.factory('SearchQueries', function ($resource){
   return $resource('/instances/searches/:_id', {_id: '@id'});
 })
 
@@ -39,6 +39,7 @@ module.controller('DefaultCtrl', function($scope, $compile, $routeParams, $resou
         columns: $routeParams.columns || defaults.columns,
         perPage: parseInt($routeParams.perPage) || defaults.perPage,
     };
+    // Inner variables
     var columnsDefinitions = { // Definition columns control
        'Name': 'name',
        'Ping Test': 'state',
@@ -69,6 +70,7 @@ module.controller('DefaultCtrl', function($scope, $compile, $routeParams, $resou
     };
     var toDataItem = function(data_item){ // Data item type/constructor function
          this.data_item = this.data_item;
+
          this.isLink = function(){
            return typeof this.data_item == 'object' &&
              'href' in this.data_item &&
@@ -110,6 +112,7 @@ module.controller('DefaultCtrl', function($scope, $compile, $routeParams, $resou
          }
      };
 
+    //scope manipulations
     $scope.updateQueries = function(){
           $scope.searchQueries = SearchQueries.query();
       };
@@ -208,7 +211,10 @@ module.controller('DefaultCtrl', function($scope, $compile, $routeParams, $resou
     }
 
     $scope.selectedControls = [];
-    $scope.unselectedControls = $scope.shownColumns.slice();
+
+    $scope.$watch('shownColumns', function(){
+      $scope.unselectedControls = $scope.shownColumns.slice();
+    }, true);
 
     $scope.$watch('unselectedControls', function(){
       $scope.unselectedControls.sort(sorter);
@@ -321,9 +327,8 @@ module.directive('createControl', function($compile, $timeout){
         $compile(element.contents())(scope);
       })
     },
-    controller: function($scope){
-      console.log($scope.$parent);
-      console.log($scope);
+    controller: function(scope){
+      console.log(scope);
     }
   }
 });
@@ -344,7 +349,6 @@ module.directive('floatAround', function(){
     /* keeps the element around target element */
     return function(scope, element, attrs){
         var $x = $(attrs.floatAround);
-        console.log($x)
         /* element will be positioned below $x */
     }
 })
