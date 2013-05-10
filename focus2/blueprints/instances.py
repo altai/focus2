@@ -54,14 +54,19 @@ BP = breadcrumbs('Instances')(BP)
 class Searches(MethodView):
     """ Search querys management resource.
     """
-    def get(self):
+    def get(self, _id=None):
         user = flask.g.api_client.me.get_current_user()
         cursor = flask.g.db.cursor()
-        row = "SELECT id, query FROM searches WHERE uid='{}';"
+        row = "SELECT id, query FROM searches WHERE uid='{}'{};"
+        row_id = ' AND id={}'.format(_id) if _id else ''
 
-        cursor.execute(row.format(user['id']))
+        cursor.execute(row.format(user['id'], row_id))
+        sql_response = cursor.fetchall()
 
-        res = [{'id': i[0], 'query': i[1]} for i in cursor.fetchall()]
+        if _id:
+            res = {'id': sql_response[0][0], 'query': sql_response[0][1]}
+        else:
+            res = [{'id': i[0], 'query': i[1]} for i in sql_response]
         res, status = (json.dumps(res), 200) if res else (None, 204)
         return Response(response=res, mimetype='application/json',
                 status=status, content_type='application/json')
@@ -92,8 +97,10 @@ class Searches(MethodView):
 
 searches = Searches.as_view('searches')
 
-BP.add_url_rule('/searches', view_func=searches, methods=['GET', 'POST'])
-BP.add_url_rule('/searches/<_id>', view_func=searches, methods=['DELETE'])
+BP.add_url_rule('/searches', view_func=searches,
+        methods=['GET', 'POST'])
+BP.add_url_rule('/searches/<_id>', view_func=searches,
+        methods=['DELETE', 'GET'])
 
 
 @breadcrumbs('Manage')

@@ -28,16 +28,16 @@
 {% raw %}
 <script type="text/ng-template" id="partials/search.html">
   <form action='.' class='form-inline' id='search_form' method='GET'>
-    <div class='input-append search_input_container'>
+    <div ng-controller="Button" class='input-append search_input_container'>
       <input type='text' ng-model='query' class="span2 search" style="width: 30em;">
       <a class='btn dropdown-toggle' ng-click="toggleVisibility('builder')">
         <span class='caret'></span>
       </a>
     </div>
-    <div class='input-append'>
+    <div class='input-append' ng-controller="Button">
       <div class='btn-group'>
         <a class='btn btn-straight saved_searches_lever' ng-click="updateLocation()">Search</a>
-        <a class='btn dropdown-toggle btn-straight' ng-click="toggleVisibility('saved_searches'); updateQueries()">
+        <a class='btn dropdown-toggle btn-straight' ng-click="toggleVisibility('saved_searches')">
           <span class='caret'></span>
         </a>
       </div>
@@ -47,11 +47,12 @@
         <option ng-repeat="x in perPageChoices" >{{ x }}</option>
       </select>
     </div>
-
-    <a class="btn" ng-click="toggleVisibility('column_editor')" id="columns_visibility_toggle_button">Columns</a>
+    <div class="input-append" ng-controller="Button">
+      <a class="btn" ng-click="toggleVisibility('column_editor')" id="columns_visibility_toggle_button">Columns</a>
+    </div>
 
     <!-- Columns editor -->
-    <div ng-show="visibility.column_editor" float-around="#columns_visibility_toggle_button">
+    <div ng-controller="ColumnsEditor" ng-show="visibility.column_editor" float-around="#columns_visibility_toggle_button">
       <div  style="position: absolute" class="columns_window">
         <div class="alert control-bar-form nobr">
           <H4>Hellow</H4>
@@ -107,13 +108,13 @@
     </div>
     <!-- end of column editor -->
     <!-- ------------- SAVED SEARCHES ------------------- -->
-    <div style="position: absolute;"  class="saved_searches_window" >
+    <div ng-controller="SearchQueryEditor" style="position: absolute;"  class="saved_searches_window" >
         <div class="alert control-bar-form nobr" ng-show="visibility.saved_searches">
-            <button type="button" class="close" ng-click="toggleVisibility('saved_searches')">×</button>
+            <button ng-controller="Button" type="button" class="close" ng-click="toggleVisibility('saved_searches')">×</button>
             <h5>Saved Searches</h5>
             <form class="form-inline">
                 <input type="text" ng-model="newSearchQuery" placeholder="Search Name">
-                <button class="btn btn-primary"  ng-click="newSearch(newSearchQuery)">Save New</button>
+                <button class="btn btn-primary"  ng-click="addQuery(newSearchQuery)">Save New</button>
             </form>
             <table class="table table-condensed table-bordered table-striped">
                 <tbody>
@@ -124,7 +125,7 @@
                         </div>
                     </td>
                     <td style="text-align: right; border-left: none;" width="50">
-                      <a class="btn btn-danger btn-mini" ng-click="deleteSearch(x.id)">delete</a>
+                      <a class="btn btn-danger btn-mini" ng-click="deleteQuery(x.id)">delete</a>
                     </td>
                 </tr>
                 </tbody>
@@ -133,7 +134,7 @@
     </div>
     <!-- end saved searches -->
     <!-- ------------- BUILDER ------------------- -->
-    <div style="position: absolute;" class="builder_window" my-follow-css='{".search_input_container": ["left", "width"]}'>
+    <div style="position: absolute;" ng-controller="QueryBuilder" class="builder_window" my-follow-css='{".search_input_container": ["left", "width"]}'>
         <div class="alert control-bar-form" ng-show="visibility.builder" style="right: 0px; left: 0px;">
             <button type="button" class="close" ng-click="toggleVisibility('builder')">×</button>
             <h5>Query Builder</h5>
@@ -154,46 +155,13 @@
             <form class="form-horizontal form-inline">
                 <div class="control-group" ng-repeat="x in selectedControls">
                   <div create-control="{{ x }}" style="margin-right: 15px"></div>
-                   <!-- <label class="control-label">
-                        {{ v.title }}
-                        <a href="#"
-                           rel="tooltip"
-                           ng-show="v.help != ''"
-                           data-original-title="{{ v.help }}"><i class="icon-question-sign"></i></a>
-                    </label>
-                    <div class="controls" style="vertical-align: top">
-                        <a ng-click="deleteControl(x)" style="float: right"><i class="icon-remove-sign"></i></a>
-                        <div  ng-switch on="v.type" style="margin-right: 15px">
-                            <div ng-switch-when="select">
-                                <select ng-model="query_parts[v.key]" ng-options="i.k as i.v for i in v.type_options.options" multiple class="chosen" chosen></select>
-                            </div>
-                            <div ng-switch-when="daterange">
-                                <span cb-daterange="query_parts[v.key]" />
-
-                            </div>
-                            <div ng-switch-when="ip">
-                                <div cb-ip-widget="query_parts[v.key]"></div>
-                            </div>
-                            <div ng-switch-when="intrange">
-                                <div cb-intrange-widget="query_parts[v.key]" cb-intrange-options="v.type_options" style="margin-right: 15px;"></div>
-                            </div>
-                            <div ng-switch-when="text">
-                                <input type="text" name="{{ v.key }}" value="" ng-model="query_parts[v.key]" placeholder="{{ v.placeholder }}">
-                            </div>
-
-                        </div>
-                      </div>-->
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                    </div>
                 </div>
             </form>
         </div>
     </div>
     <!-- end query builder -->
   </form>
-  <table class='table table-striped table-bordered table-condensed' ng-show='search.data.length > 0'>
+  <table class='table table-striped table-bordered table-condensed' ng-show='instances.data.length > 0'>
     <thead>
       <tr>
         <th>
